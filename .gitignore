@@ -1,4 +1,7 @@
-towardsAutomaticFlattening/.DS_Store
+**/.DS_Store
+**/.Rhistory
+**/*:*.json
 *.DS_Store
 *.json
 *.Rhistory
+*.Rapp.history
