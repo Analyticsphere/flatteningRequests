@@ -1,5 +1,7 @@
 ### queryGenerators
 
+These query generators and the associated input files were originally written by Warren Lu and are now maintained by Jake Peters.
+
 The *queryGenerators* directory contains sub-directories for each scheduled query. Each folder contains the files required to generate a query. For instance, M2 contains the following files:
 
 -   ***M2QueryGenerator.js*** - A JavaScript program that generates queries.
@@ -11,8 +13,6 @@ The query generator uses the contents of the two text files to generate three te
 -   ***flatM2_WL-dev.txt*** - A query for the dev environment.
 -   ***flatM2_WL-stg.txt*** - A query for the stage environment.
 -   ***flatM2_WL-prod.txt*** -A query for the dev environment.
-
-These query generators and the associated input files were originally written by Warren Lu and are now maintained by Jake Peters.
 
 ### Current Workflow 
 
