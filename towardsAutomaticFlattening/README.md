@@ -10,7 +10,7 @@ An ideal workflow for generating these queries would generate these queries dire
 
     -   from R:
 
-        -    see *get_bq_table_schema_as_json.sh*
+        -   see *get_bq_table_schema_as_json.sh*
 
 2.  Loading the JSON into a tree object, storing parent/child relationships and data types.
 
