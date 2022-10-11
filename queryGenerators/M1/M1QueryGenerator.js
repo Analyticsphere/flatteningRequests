@@ -21,7 +21,7 @@ const selects = generateSelects([...variables], 'row');
 
 for (let tier of Object.keys(dataSource)) {
   const content = `CREATE TEMP FUNCTION
-  handleM2(input_row STRING)
+  handleM1(input_row STRING)
   RETURNS STRING
   LANGUAGE js AS r"""
 
