@@ -80,8 +80,7 @@ CREATE TEMP FUNCTION
   flattened_data AS (
     SELECT
       Connect_ID,
-      REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
-REPLACE(JSON_QUERY(row,'$.d_104278817'), '\"', '') AS d_104278817,
+      REPLACE(JSON_QUERY(row,'$.d_104278817'), '\"', '') AS d_104278817,
 REPLACE(JSON_QUERY(row,'$.d_113579866'), '\"', '') AS d_113579866,
 REPLACE(JSON_QUERY(row,'$.d_117249500'), '\"', '') AS d_117249500,
 REPLACE(JSON_QUERY(row,'$.d_119449326'), '\"', '') AS d_119449326,
