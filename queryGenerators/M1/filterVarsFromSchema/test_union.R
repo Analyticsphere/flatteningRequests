@@ -1,13 +1,17 @@
 library(jsonlite)
 library(tools)
 
-# A = "json_A.json"
-# B = "json_B.json"
-# C = "json_C.json"
+# A <- "json_A.json"
+# B <- "json_B.json"
+# C <- "json_C.json"
 
-A = "M1V1-lists-auto.json"
-B = "M1-lists.json"
-C = "M1-lists-union.json"
+# A <- "M1V1-lists-auto.json"
+# B <- "M1-lists.json"
+# C <- "M1-lists-union.json"
+
+A <- "M1V2-lists-auto.json"
+B <- "M1V2-lists.json"
+C <- "M1V2-lists-union.json"
 
 # generate_query_files_from_schema()
 
@@ -16,9 +20,13 @@ union_json_str <- get_union_of_json_arrays(A, B, C)
 union_json_str
 
 # Get union of variable lists
-A_csv <- "M1V1-variables-auto.csv"
-B_csv <- "M1-variables.csv"
-C_csv <- "M1V1-variables-union.csv"
+# Get union of variable lists
+A_csv <- "M1V2-variables-auto.csv"
+B_csv <- "M1V2-variables.csv"
+C_csv <- "M1V2-variables-union.csv"
+# A_csv <- "M1V1-variables-auto.csv"
+# B_csv <- "M1-variables.csv"
+# C_csv <- "M1V1-variables-union.csv"
 union_var_chr_array <- get_union_of_variable_csv(A_csv, B_csv, C_csv)
 
 # Deal with exceptions
