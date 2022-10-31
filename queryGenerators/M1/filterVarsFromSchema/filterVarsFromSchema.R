@@ -1,6 +1,6 @@
 # File:       getVarsFromSchema.R
 # Decription: Read Module 1 Schema from excel file. Filter variables and export 
-#             to M2-variables.csv and M2-lists.js files.
+#             to M1-variables.csv and M1-lists.js files.
 # Author:     Jake Peters
 # Date:       October 2022
 
@@ -35,16 +35,6 @@ df_V2_vars <- df_V2_filt %>% filter(!grepl("REPEATED", mode))
 df_V1_lists <- df_V1_filt %>% filter(grepl("REPEATED", mode))
 df_V2_lists <- df_V2_filt %>% filter(grepl("REPEATED", mode)) 
 
-## View Results of filtering
-print(paste("Num. V1 vars:", eval(nrow(df_V1_vars)), sep=" "))
-print(paste("Num. V2 vars:", eval(nrow(df_V2_vars)), sep=" "))
-print(paste("Num. V1 lists:", eval(nrow(df_V1_lists)), sep=" "))
-print(paste("Num. V2 lists:", eval(nrow(df_V2_lists)), sep=" "))
-head(df_V1_vars)
-head(df_V2_vars)
-head(df_V1_lists)
-head(df_V1_lists)
-
 ## Export variables to M2V*-variables.csv file for queryGenerator
 write.table(df_V1_vars$fullname, file="M1V1-variables_auto.csv", 
             col.names=FALSE, row.names=FALSE, quote=FALSE, sep="," )
@@ -65,6 +55,8 @@ get_list_of_unique_responses <- function(var_name, project, table){
   bq_table <- bq_project_query(project, bq_query) # 
   df_var   <- bq_table_download(bq_table, bigint = "integer64")
   
+  # TODO Remove query from loop and do whole set at once
+  
   # Build list of unique responses for this variable
   unique_responses <- c()
   for (i in 1:nrow(df_var)){
@@ -83,6 +75,9 @@ get_list_of_unique_responses <- function(var_name, project, table){
   }
   return(unique_responses)
 }
+
+# TODO Use JSON lite to generate json file from R list rather than using string
+# concatenation to contstruct the json file
 
 # Define strings to open and close M2V*-lists.js files
 opening_line <- "const pathToConceptIdList = {"
