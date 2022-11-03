@@ -1,0 +1,97 @@
+---
+title: "Generate Query from Source Table Schema"
+output: html_notebook
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+Here, we'll generate a new query from a BigQuery table schema, given as
+an excel sheet which can be exported from BigQuery. Our queries require
+a query generator, a variables.csv file and a lists.json file. This
+function generates filters the variables in the schema based on whether
+they should be in the variables file or the list file. All variables
+destined for the list file are assigned a list of CIDs that are present
+in the data set for that variable, across all rows.
+
+```{r}
+library(jsonlite)
+library(tools)
+source("connect_analytics_helper_functions.R")
+
+# Generate the query from the schema in the form of a set of variables.csv and
+# lists.json files.
+project  <- "nih-nci-dceg-connect-prod-6d04"
+table    <- "Connect.participants"
+schema   <- "/Users/petersjm/Documents/dataFlattening/autoFlattening/module_1_schemas.xlsx"
+sheet    <- "M1V1"
+out_json <- "M1V1-lists-auto.js" # destination file
+out_csv  <- "M1V1-variables_auto.csv"
+
+filter_vars_from_schema(project, table, schema, out_json, out_csv, sheet=NULL)
+
+# Import the data from the files that were generated 
+variables <- read.csv(file = out_csv, header = FALSE)
+head(variables)
+lists <- readLines(out_json, n =10)
+head(lists)
+```
+
+Now that we have a new query in the form of variables.csv and lists.json
+files, we need to combine the new json file with the old json file,
+
+```{r}
+A <- "M1V1-lists-auto.json"
+B <- "M1-lists.json"
+C <- "M1-lists-union.json"
+
+source("connect_analytics_helper_functions.R")
+union_json_str <- get_union_of_json_arrays(A, B, C)
+union_json_str
+```
+
+We also need to combine the variables.csv file that was generated from
+the schema with the old, manually generated variables.csv file. This
+code will exculde any duplicates.
+
+```{r}
+# Get union of variable lists
+A_csv <- "M1V1-variables-auto.csv"
+B_csv <- "M1-variables.csv"
+C_csv <- "M1V1-variables-union.csv"
+union_var_chr_array <- get_union_of_variable_csv(A_csv, B_csv, C_csv)
+union_var_chr_array
+```
+
+Deal with exceptions
+
+```{r}
+json_file         <- "M1-lists-union.json"
+variables_file    <- "M1V1-variables-auto.csv"
+# Get a list of variables with arrays containing "exception CID"
+exceptions        <- c(178420302, 958239616, 353358909, 104430631)
+vars_w_exceptions <- get_vars_with_specified_vals(json_file, 
+                                                  exceptions, 
+                                                  max_array_len = 2) 
+vars_w_exceptions
+```
+
+Remove list of variables with exceptions from the data set
+
+```{r}
+
+output_filename  <- "M1V1-lists-union-mod.json"
+updated_variables <- remove_vars_from_json(json_file, 
+                                           vars_w_exceptions,
+                                           write_to_file = TRUE, 
+                                           output_filename = output_filename) 
+updated_variables
+```
+
+Add list of variables with exceptions to \*-variables.csv
+
+```{r}
+
+out_file <- "M1V1-variables-auto-new.csv"
+add_novel_vars_to_csv(vars_w_exceptions, variables_file, out_file = out_file)
+```

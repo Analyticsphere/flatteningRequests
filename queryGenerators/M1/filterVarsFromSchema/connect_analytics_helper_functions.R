@@ -1,10 +1,34 @@
-# File:       getVarsFromSchema.R
-# Decription: Read Module 1 Schema from excel file. Filter variables and export
-#             to M1-variables.csv and M1-lists.js files.
-# Author:     Jake Peters
-# Date:       October 2022
+# File:        connect_analytics_helper_functions.R
+# Description: This file contains functions that are useful for generating 
+#              queries directly from a bigquery table schema (in tabular form).
+#              It also has functions that facilitate combining multiple queries
+#              together by taking the union of a *-variables.csv or *-lists.json
+#              file. This is useful if you want to combine an automated query 
+#              with a manually edited query.
+# Author:      Jake Peters
+# Date:        October 2022
+
+
+
+
 
 get_union_of_json_arrays <- function(json_A, json_B, json_C) {
+  # Description:
+  #   This function combines two *-list.json files (json_A & json_B) so that
+  #   json_C has all of the unique variable names present in json_A and/or 
+  #   json_B with no duplicates. The array of values assigned to each variable 
+  #   name in json_C has all of the unique values present in json_A and/or 
+  #   json_B with no duplicates.
+  # Inputs:
+  #   json_A: a json file that you would like to combine with json_B
+  #   json_B: a json file that you would like to combine with json_A
+  #   json_C: the name of the output json file that you would like to generate
+  # Returns:
+  #   list_C_as_JSON_str: a json string that is written to file json_C that is 
+  #   the union of json_A and json_B
+  # Side Effects:
+  #   Writes list_C_as_JSON_str to a file with a name given by json_C.
+    
   require(jsonlite)
   require(tools)
   
@@ -62,7 +86,24 @@ get_union_of_json_arrays <- function(json_A, json_B, json_C) {
 }
 
 
+
+
+
 get_union_of_variable_csv <- function(A, B, C) {
+  # Description:
+  #   This function combines two *-list.csv files (A & B) so that
+  #   C has all of the unique variable names present in A and/or 
+  #   B with no duplicates. 
+  # Inputs:
+  #   A: a csv file that you would like to combine with B
+  #   B: a csv file that you would like to combine with A
+  #   C: the name of the output csv file that you would like to generate
+  # Returns:
+  #   C_char_array: a character array containing all of the variables of A 
+  #                 and/or B that is written to file C.
+  # Side Effects:
+  #   Writes C_char_array to a csv file with a name given by C.
+  
   require(tools)
   
   # If a and b are csv or txt files load them as character arrays, otherwise 
@@ -82,7 +123,20 @@ get_union_of_variable_csv <- function(A, B, C) {
 }
 
 
+
+
+
 get_vars_with_specified_vals <- function(json, vals, max_array_len = Inf) {
+  # Description:
+  #   This function 
+  # Inputs:
+  #   json: 
+  #   vals: 
+  #   max_array_len: 
+  # Returns:
+  #   vars_w_vals: 
+  # Side Effects:
+  #   
   
   require(jsonlite)
   require(tools)
@@ -116,8 +170,24 @@ get_vars_with_specified_vals <- function(json, vals, max_array_len = Inf) {
 }
 
 
+
+
+
 remove_vars_from_json <- 
-  function(json, vars, write_to_file = FALSE, output_filename = NULL) {
+  function(json, vars, output_filename = NULL) {
+    # Description:
+    #   This function removes variables (listed in vars) from a json string.
+    #   The json string can be an input or be contained with in an input file. 
+    #   
+    # Inputs:
+    #   json: A json string or file
+    #   vars: a list of variables to be removed
+    #   write_to_file: A filename to write the resulting json string to. 
+    #                  If FALSE, no file is generated.
+    # Returns:
+    #   vars_w_vals: 
+    # Side Effects:
+    #   
     
   require(jsonlite)
   require(tools)
@@ -144,24 +214,37 @@ remove_vars_from_json <-
 }
 
 
+
 add_novel_vars_to_csv <- function(vars, in_file, out_file = NULL) {
+  # Description:
+  #   This function combines a list of new variables to a *-variables.csv file.
+  # Inputs:
+  #   vars: an array of variable names to be added
+  #   in_file: a *-variables.csv file 
+  #   out_file: the name of the new file to be generated with the full list of 
+  #             variables. If NULL, in_file is overwriten with the full list.
+  # Returns:
+  #   combined_vars_list: A character array of variables including those from 
+  #                       the input file and vars.
+  # Side Effects:
+  #   Writes combined_vars_list to a file.
   
   # Generate list of variables in the in_file by reading each line as a value
   vars_from_file <- readLines(in_file)
   
   # Initialize a list of variables to append
-  vars_to_export <- vars_from_file
+  combined_vars_list <- vars_from_file
   
   for (var in vars) {
     # If the variable is not in the list of variables from the file
     if (! var %in% vars_from_file) {
       # Add the variable to the list
-      vars_to_export <- append(vars_to_export, var)
+      combined_vars_list <- append(combined_vars_list, var)
     }
   }
   
   # Sort variables 
-  vars_to_export <- sort(vars_to_export)
+  combined_vars_list <- sort(combined_vars_list)
   
   # If there is no specified out_file, set it to be the same as the in_file
   if (is.null(out_file)) {
@@ -169,15 +252,32 @@ add_novel_vars_to_csv <- function(vars, in_file, out_file = NULL) {
   } 
   
   # Write new variable list (including originals and added variables) to file
-  writeLines(vars_to_export, out_file)
+  writeLines(combined_vars_list, out_file)
   
+  return(vars_to_export)
 }
+
+
+
 
 
 # Define function to get list of responses for variables returning JSON arrays
 get_list_of_unique_responses <- function(var_name, project, table){
-  # Get a list of all unique answers that appear in the arrays of responses 
-  # for this variable.
+  # Description:
+  #   This function queries a variable (that returns a json array in GCP) 
+  #   specified by var_name within a given project and table, and generates a 
+  #   list of unique values or responses that appear in the json arrays for that 
+  #   variable.
+  # Inputs:
+  #   var_name: The name of the variable of interest as a string.
+  #   project:  The GCP project ID as a string.
+  #   table:    The name of the table as a string (e.g., "Database.table_name")
+  # Returns:
+  #   unique_responses: A character array of the unique values or responses 
+  #                     returned by the variable across all rows of the table.
+  # TODO: Take an array of variables as an input and write one query for all 
+  #       of them. There is a 10MB minimum charge, so combining running one 
+  #       query for all of the variables would be more cost efficient.
   
   # Query data for this variable
   tab_path <- paste0("`", project, ".", table, "`") # Format table path for SQL
@@ -203,4 +303,81 @@ get_list_of_unique_responses <- function(var_name, project, table){
     }
   }
   return(unique_responses)
+}
+
+
+
+
+
+filter_vars_from_schema <- function(project, table, schema, out_csv, out_json, 
+                                    sheet=NULL) {
+  # Description
+  #   This function filters the variables in the schema of a bigquery table by 
+  #   type and puts them in a *-lists.json file if they return json arrays or a
+  #   *-variables.csv file if they do not return json arrays. All variables 
+  #   containing the string pattern "__key__" are excluded. For each variable 
+  #   that returns a json array, a function called get_list_of_unique_responses
+  #   queries bigquery to get a list of all possible responses/values that 
+  #   are returned for that variable across all rows of the data set. This array
+  #   of unique values is added to the appropriate json array in the 
+  #   *-lists.json file.
+  # Inputs
+  #   project:  The GCP project ID as a string
+  #   table:    The table name as a string, e.g., "Database.table"
+  #   schema:   The schema of the table in the form of an excel sheet.
+  #   out_csv:  The name of the output csv, e.g., "M1-variables.csv"
+  #   out_json: The name of the output file, e.g., "M1-lists.json"
+  #   sheet:    The sheet of the excel file to be referenced. Defaults to NULL.
+  # Side Effects
+  #   Writes a *-variables.csv and *-lists.json file.
+  #
+  # TODO Use JSON lite to generate json file from R list rather than using 
+  # string concatenation to construct the json file.
+  
+  require("readxl")
+  require("dplyr")
+  require("bigrquery")
+  
+  billing <- project # Billing should be same as project
+  bq_auth() # Authenticate with BigQuery (Note: project & billing used here)
+  
+  ## Get schema data for Version 1 and Version 2
+  df <- read_excel(schema, sheet = sheet) # Module 1 Version 1 Schema
+  
+  # Make all columns factors so they can be used when filtering.
+  # The "[]" keeps the dataframe structure.
+  df[] <- lapply(df, factor) 
+  
+  ## Filter out RECORDS (variables with nested data) and keys
+  df_filt <- df %>% filter(!grepl("__key__", fullname)) %>% filter(!grepl("RECORD", type_))
+  
+  ## Get list of variables that do not repeat (destined for M2*-variables.csv)
+  df_vars <- df_filt %>% filter(!grepl("REPEATED", mode))
+  
+  ## Get variables that do repeated (destined for M2*-lists.js)
+  df_lists <- df_filt %>% filter(grepl("REPEATED", mode))
+  
+  ## Export variables to M2V*-variables.csv file for queryGenerator
+  write.table(df_vars$fullname, file = out_csv, col.names = FALSE,
+    row.names = FALSE, quote = FALSE, sep = ","
+  )
+  
+  # Define strings to open and close M2V*-lists.js files
+  opening_line <- "const pathToConceptIdList = {"
+  closing_line <- "};"
+  ending_line  <- "module.exports=pathToConceptIdList;"
+  
+  # Write lines 
+  write(opening_line, file = out_json, append = FALSE) # Overwrite existing file
+  cnt <- 0
+  for (var_name in df_lists$fullname) {
+    cnt            <- cnt + 1
+    responses_list <- get_list_of_unique_responses(var_name, project, table)
+    responses_str  <- paste(responses_list, collapse = ", ")
+    var_line       <- paste0("'", var_name, "': [", responses_str, "],")
+    write(var_line, file = out_json, append = TRUE) # Do not overwrite, append
+  }
+  write(closing_line, file = out_json, append = TRUE)
+  write(ending_line,  file = out_json, append = TRUE)
+  
 }
