@@ -8,11 +8,7 @@
 # Author:      Jake Peters
 # Date:        October 2022
 
-
-
-
-
-get_union_of_json_arrays <- function(json_A, json_B, json_C) {
+get_union_of_json_arrays <- function(json_A, json_B, json_C) { # nolint
   # Description:
   #   This function combines two *-list.json files (json_A & json_B) so that
   #   json_C has all of the unique variable names present in json_A and/or 
@@ -85,10 +81,6 @@ get_union_of_json_arrays <- function(json_A, json_B, json_C) {
   return(list_C_as_JSON_str)
 }
 
-
-
-
-
 get_union_of_variable_csv <- function(A, B, C) {
   # Description:
   #   This function combines two *-list.csv files (A & B) so that
@@ -121,10 +113,6 @@ get_union_of_variable_csv <- function(A, B, C) {
   
   return(C_char_array)
 }
-
-
-
-
 
 get_vars_with_specified_vals <- function(json, vals, max_array_len = Inf) {
   # Description:
@@ -169,10 +157,6 @@ get_vars_with_specified_vals <- function(json, vals, max_array_len = Inf) {
   return(vars_with_vals)
 }
 
-
-
-
-
 remove_vars_from_json <- 
   function(json, vars, output_filename = NULL) {
     # Description:
@@ -212,8 +196,6 @@ remove_vars_from_json <-
   return(var_list)
   
 }
-
-
 
 add_novel_vars_to_csv <- function(vars, in_file, out_file = NULL) {
   # Description:
@@ -291,7 +273,6 @@ get_list_of_unique_responses <- function(var_name, project, table){
   for (i in 1:nrow(df_var)){
     responses           <- df_var$var[[i]]
     responses_available <- length(responses) > 0
-    # print(paste0("length responses: ", length(responses)))
     if (responses_available){
       for (j in 1:length(responses)){
         response          <- responses[j]
@@ -349,7 +330,7 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
   df[] <- lapply(df, factor) 
   
   ## Filter out RECORDS (variables with nested data) and keys
-  df_filt <- df %>% filter(!grepl("__key__", fullname)) %>% filter(!grepl("RECORD", type_))
+  df_filt <- df %>% filter(!grepl("__key__", fullname)) %>% filter(!grepl("RECORD", type))
   
   ## Get list of variables that do not repeat (destined for M2*-variables.csv)
   df_vars <- df_filt %>% filter(!grepl("REPEATED", mode))

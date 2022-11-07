@@ -1,8 +1,7 @@
 **/.DS_Store
 **/.Rhistory
-**/*:*.json
 *.DS_Store
-*.json
 *.Rhistory
 *.Rapp.history
 towardsAutomaticFlattening/.DS_Store
+filterVarsFromSchema/
