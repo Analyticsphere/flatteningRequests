@@ -17,18 +17,25 @@ in the data set for that variable, across all rows.
 ```{r}
 library(jsonlite)
 library(tools)
-source("connect_analytics_helper_functions.R")
+source(
+  paste0("/Users/petersjm/Documents/dataFlattening/flatteningRequests/",
+         "queryGenerators/M1/filterVarsFromSchema/",
+         "connect_analytics_helper_functions.R")
+        )
 
 # Generate the query from the schema in the form of a set of variables.csv and
 # lists.json files.
-project  <- "nih-nci-dceg-connect-prod-6d04"
+# project  <- "nih-nci-dceg-connect-prod-6d04"
+project  <- "nih-nci-dceg-connect-stg-5519"
 table    <- "Connect.participants"
-schema   <- "/Users/petersjm/Documents/dataFlattening/autoFlattening/module_1_schemas.xlsx"
-sheet    <- "M1V1"
-out_json <- "M1V1-lists-auto.js" # destination file
-out_csv  <- "M1V1-variables_auto.csv"
+schema   <- paste0("/Users/petersjm/Documents/dataFlattening/",
+                   "flatteningRequests/queryGenerators/blood_urine_mouthwash/",
+                   "development/blood_urine_mouthwash_schema.xlsx")
+sheet    <- "stg"
+out_json <- "BUM-lists-stg.js" # destination file
+out_csv  <- "BUM-variables-stg.csv"
 
-filter_vars_from_schema(project, table, schema, out_json, out_csv, sheet=NULL)
+filter_vars_from_schema(project, table, schema, out_csv, out_json, sheet=sheet)
 
 # Import the data from the files that were generated 
 variables <- read.csv(file = out_csv, header = FALSE)
@@ -41,9 +48,9 @@ Now that we have a new query in the form of variables.csv and lists.json
 files, we need to combine the new json file with the old json file,
 
 ```{r}
-A <- "M1V1-lists-auto.json"
-B <- "M1-lists.json"
-C <- "M1-lists-union.json"
+A <- "BUM-lists-prod.json"
+B <- "BUM-lists-stg.json"
+C <- "BUM-lists-union.json"
 
 source("connect_analytics_helper_functions.R")
 union_json_str <- get_union_of_json_arrays(A, B, C)
@@ -56,9 +63,9 @@ code will exculde any duplicates.
 
 ```{r}
 # Get union of variable lists
-A_csv <- "M1V1-variables-auto.csv"
-B_csv <- "M1-variables.csv"
-C_csv <- "M1V1-variables-union.csv"
+A_csv <- "BUM-variables-stg.csv"
+B_csv <- "BUM-variables-prod.csv"
+C_csv <- "BUM-variables-union.csv"
 union_var_chr_array <- get_union_of_variable_csv(A_csv, B_csv, C_csv)
 union_var_chr_array
 ```
@@ -66,8 +73,8 @@ union_var_chr_array
 Deal with exceptions
 
 ```{r}
-json_file         <- "M1-lists-union.json"
-variables_file    <- "M1V1-variables-auto.csv"
+json_file         <- "BUM-lists-union.json"
+variables_file    <- "BUM-variables-union.csv"
 # Get a list of variables with arrays containing "exception CID"
 exceptions        <- c(178420302, 958239616, 353358909, 104430631)
 vars_w_exceptions <- get_vars_with_specified_vals(json_file, 
