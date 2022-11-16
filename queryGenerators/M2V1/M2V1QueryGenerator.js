@@ -5,9 +5,9 @@ const dataSource = {
   stg: 'nih-nci-dceg-connect-stg-5519.Connect.participants',
   prod: 'nih-nci-dceg-connect-prod-6d04.Connect.participants',
 };
-const pathToConceptIdList = require('./M2-lists');
+const pathToConceptIdList = require('./M2V1-lists');
 let variables = fs
-  .readFileSync('./M2-variables.csv', 'utf8')
+  .readFileSync('./M2V1-variables.csv', 'utf8')
   .split(/\r?\n/)
   .map((v) => v.trim())
   .filter((v) => v.length > 0);
@@ -111,7 +111,7 @@ FROM flattened_data
 ORDER BY Connect_ID
 )`;
 
-  fs.writeFileSync(`./flatM2_WL-${tier}.txt`, content);
+  fs.writeFileSync(`./flatM2V1_WL-${tier}.sql`, content);
 }
 
 function generateSelects(variables = [], rowName = 'row') {

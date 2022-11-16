@@ -31,13 +31,10 @@ in the data set for that variable, across all rows.
 # project  <- "nih-nci-dceg-connect-prod-6d04"
 project  <- "nih-nci-dceg-connect-stg-5519"
 table    <- "Connect.participants"
-schema   <- paste0("/Users/petersjm/Documents/dataFlattening/",
-                   "flatteningRequests/queryGenerators/",
-                   "blood_urine_mouthwash/development/",
-                   "blood_urine_mouthwash_schema.xlsx")
-sheet    <- "stg"
-out_json <- "BUM-lists-stg.js" # destination file
-out_csv  <- "BUM-variables-stg.csv"
+schema   <- "M2V1_schema.xslx"
+sheet    <- NULL
+out_json <- "M2V1-lists-stg.js" # destination file
+out_csv  <- "M2V1-variables-stg.csv"
 
 out <- filter_vars_from_schema(project, table, schema, out_csv, out_json, 
                                sheet = sheet,       

@@ -239,11 +239,6 @@ add_novel_vars_to_csv <- function(vars, in_file, out_file = NULL) {
   return(vars_to_export)
 }
 
-
-
-
-
-# Define function to get list of responses for variables returning JSON arrays
 get_list_of_unique_responses <- function(var_name, project, table){
   # Description:
   #   This function queries a variable (that returns a json array in GCP) 
@@ -286,12 +281,8 @@ get_list_of_unique_responses <- function(var_name, project, table){
   return(unique_responses)
 }
 
-
-
-
-
 filter_vars_from_schema <- function(project, table, schema, out_csv, out_json, 
-                                    sheet=NULL) {
+                                    sheet=NULL, output_file_type = "json") {
   # Description
   #   This function filters the variables in the schema of a bigquery table by 
   #   type and puts them in a *-lists.json file if they return json arrays or a
@@ -318,6 +309,7 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
   require("readxl")
   require("dplyr")
   require("bigrquery")
+  require("jsonlite")
   
   billing <- project # Billing should be same as project
   bq_auth() # Authenticate with BigQuery (Note: project & billing used here)
@@ -340,25 +332,49 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
   
   ## Export variables to M2V*-variables.csv file for queryGenerator
   write.table(df_vars$fullname, file = out_csv, col.names = FALSE,
-    row.names = FALSE, quote = FALSE, sep = ","
+              row.names = FALSE, quote = FALSE, sep = ","
   )
   
-  # Define strings to open and close M2V*-lists.js files
-  opening_line <- "const pathToConceptIdList = {"
-  closing_line <- "};"
-  ending_line  <- "module.exports=pathToConceptIdList;"
-  
-  # Write lines 
-  write(opening_line, file = out_json, append = FALSE) # Overwrite existing file
-  cnt <- 0
-  for (var_name in df_lists$fullname) {
-    cnt            <- cnt + 1
-    responses_list <- get_list_of_unique_responses(var_name, project, table)
-    responses_str  <- paste(responses_list, collapse = ", ")
-    var_line       <- paste0("'", var_name, "': [", responses_str, "],")
-    write(var_line, file = out_json, append = TRUE) # Do not overwrite, append
+  if (output_file_type == "js"){
+    
+    # Define strings to open and close M2V*-lists.js files
+    opening_line <- "const pathToConceptIdList = {"
+    closing_line <- "};"
+    ending_line  <- "module.exports=pathToConceptIdList;"
+    
+    # Write lines
+    write(opening_line, file = out_json, append = FALSE) # Overwrite existing file
+    cnt <- 0
+    for (var_name in df_lists$fullname) {
+      cnt            <- cnt + 1
+      responses_list <- get_list_of_unique_responses(var_name, project, table)
+      responses_str  <- paste(responses_list, collapse = ", ")
+      var_line       <- paste0("'", var_name, "': [", responses_str, "],")
+      write(var_line, file = out_json, append = TRUE) # Do not overwrite, append
+    }
+    write(closing_line, file = out_json, append = TRUE)
+    write(ending_line,  file = out_json, append = TRUE)
+    
+  } else if (output_file_type == "json") {
+    
+    # Write lines 
+    array_list = list()
+    for (var_name in df_lists$fullname) {
+      responses_as_chr_array <- get_list_of_unique_responses(var_name, 
+                                                          project, 
+                                                          table)
+      array_list_field_name <- paste0("array_list", "$", var_name)
+      assign(array_list_field_name, responses_as_chr_array)
+    }
+    json_data <- toJSON(array_list,pretty=TRUE,auto_unbox=TRUE)
+    write(json_data, out_json)
+    
   }
-  write(closing_line, file = out_json, append = TRUE)
-  write(ending_line,  file = out_json, append = TRUE)
   
+  output_list$variables  <- df_vars$fullname
+  output_list$array_json <- json_data
+  return(output_list)
 }
+
+
+#TODO function for loading schema in json form and flattening to csv or xlsx.

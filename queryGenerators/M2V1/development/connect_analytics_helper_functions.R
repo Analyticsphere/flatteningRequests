@@ -236,7 +236,7 @@ add_novel_vars_to_csv <- function(vars, in_file, out_file = NULL) {
   # Write new variable list (including originals and added variables) to file
   writeLines(combined_vars_list, out_file)
   
-  return(vars_to_export)
+  #return(vars_to_export)
 }
 
 get_list_of_unique_responses <- function(var_name, project, table){
