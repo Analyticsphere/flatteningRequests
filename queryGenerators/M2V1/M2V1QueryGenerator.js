@@ -111,7 +111,7 @@ FROM flattened_data
 ORDER BY Connect_ID
 )`;
 
-  fs.writeFileSync(`./flatM2V1_WL-${tier}.sql`, content);
+  fs.writeFileSync(`./flatM2V1-${tier}.sql`, content);
 }
 
 function generateSelects(variables = [], rowName = 'row') {
