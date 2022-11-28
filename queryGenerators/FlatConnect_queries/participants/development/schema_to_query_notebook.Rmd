@@ -29,6 +29,7 @@ in the data set for that variable, across all rows.
 #project  <- "nih-nci-dceg-connect-dev"
 #project  <- "nih-nci-dceg-connect-stg-5519"
 project  <- "nih-nci-dceg-connect-prod-6d04"
+Sys.setenv(PROJECT_ID = project)
 table    <- "Connect.participants"
 schema   <- "participants_schema.xlsx"
 sheet    <- NULL
@@ -169,4 +170,55 @@ rm $NEW_JSON
 ```{bash}
 # Replace name of query generator as needed
 node M2V2QueryGenerator.js
+```
+
+#### 7. Update scheduled query using bq CLI
+```{R}
+# Define parameters
+project          <- "nih-nci-dceg-connect-dev"
+service_account  <- "qa-qc-dev@nih-nci-dceg-connect-dev.iam.gserviceaccount.com"
+query_file       <- "../FlatConnect.participants_JP-dev.sql"
+sched_query_name <- "FlatConnect.participants_JP"
+
+query_str <- readr::read_file(query_file) # read as single string
+
+query_str
+
+# Set environment variables
+Sys.setenv(PROJECT_ID = project)
+Sys.setenv(GCP_SERVICE_ACCOUNT = service_account)
+Sys.setenv(GCP_QUERY = query_str)
+Sys.setenv(DISPLAY_NAME = sched_query_name)
+```
+
+```{R}
+str1        <- '{"query":'
+str2        <- '"write_disposition":"WRITE_TRUNCATE"}'
+params_str  <- paste0(str1, query_str, str2)
+cat(params_str)
+
+```
+
+```{bash}
+# Resource name: projects/1061430463455/locations/us/transferConfigs/6377e882-0000-2736-b618-240588723f18
+str0="'"
+str1='{"query":'
+str2='}'
+str3="'"
+PARAMS_STR=$str0$str1$GCP_QUERY$str2$str3
+# echo $PARAMS_STR
+
+bq ls -j --project_id $PROJECT_ID > /dev/null
+
+bq update \
+--transfer_config \
+--display_name='FlatConnect.participants_JP' \
+--params=$PARAMS_STR \
+
+#bq update \
+#--transfer_config \
+#--params=$PARAMS_STR
+#--display_name='FlatConnect.participants_JP'
+#--service_account_name=$GCP_SERVICE_ACCOUNT
+#--project_id=$PROJECT_ID
 ```

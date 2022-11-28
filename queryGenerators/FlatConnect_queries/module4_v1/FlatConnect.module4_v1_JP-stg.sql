@@ -133,7 +133,7 @@
 
 """;
 
-  CREATE OR REPLACE TABLE Module4.flatModule4_WL AS (
+  CREATE OR REPLACE TABLE FlatConnect.module4_v1 AS (
     WITH
   json_data AS (
     SELECT

@@ -96,6 +96,7 @@ for (let tier of Object.keys(dataSource)) {
     json_data AS (
       SELECT
         Connect_ID,
+         uid,
         [handleRow(TO_JSON_STRING(input_row))] AS body
       FROM
         \`${dataSource[tier]}\` AS input_row where Connect_ID is not null
@@ -103,6 +104,7 @@ for (let tier of Object.keys(dataSource)) {
     flattened_data AS (
       SELECT
         Connect_ID,
+        uid,
         ${selects}
       from json_data, UNNEST(body) as row
     )

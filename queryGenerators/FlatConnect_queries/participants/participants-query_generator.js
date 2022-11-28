@@ -103,6 +103,7 @@ for (let tier of Object.keys(dataSource)) {
   flattened_data AS (
     SELECT
       Connect_ID,
+      uid,
       ${selects}
     from json_data, UNNEST(body) as row
   )

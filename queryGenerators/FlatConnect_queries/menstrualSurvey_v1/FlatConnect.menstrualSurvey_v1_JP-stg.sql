@@ -78,11 +78,12 @@ CREATE TEMP FUNCTION
       uid,
       [handleM1(TO_JSON_STRING(input_row))] AS body
     FROM
-      `nih-nci-dceg-connect-stg-5519.Connect.participants` AS input_row where Connect_ID is not null
+      `nih-nci-dceg-connect-stg-5519.Connect.menstrualSurvey_v1` AS input_row where Connect_ID is not null
   ),
   flattened_data AS (
     SELECT
       Connect_ID,
+      uid,
       REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
 REPLACE(JSON_QUERY(row,'$.D_593467240'), '\"', '') AS D_593467240,
 REPLACE(JSON_QUERY(row,'$.D_951357171'), '\"', '') AS D_951357171,
