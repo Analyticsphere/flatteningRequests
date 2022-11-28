@@ -1,0 +1,171 @@
+---
+title: "Generate Query from Source Table Schema & Merge w/ Manaul Query"
+output: html_notebook
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+#### 0. Load dependencies
+
+```{r}
+library(jsonlite)
+library(tools)
+# Load helper functions
+source("connect_analytics_helper_functions.R")
+```
+
+#### 1. Generate \*-variables.csv and \*-lists.json file from source table schema.
+
+Here, we'll generate a new query from a BigQuery table schema, given as
+an excel sheet which can be exported from BigQuery. Our queries require
+a query generator, a variables.csv file and a lists.json file. This
+function generates filters the variables in the schema based on whether
+they should be in the variables file or the list file. All variables
+destined for the list file are assigned a list of CIDs that are present
+in the data set for that variable, across all rows.
+
+```{r}
+project  <- "nih-nci-dceg-connect-dev"
+# project  <- "nih-nci-dceg-connect-stg-5519"
+table    <- "Connect.bioSurvey_v1"
+schema   <- "bioSurvey_v1-schema.xlsx"
+sheet    <- NULL
+out_json <- "bioSurvey_v1-lists-from-schema.js" # destination file
+out_csv  <- "bioSurvey_v1-variables-from-schema.csv"
+
+# Set output files to environment variables for easy cleanup later
+Sys.setenv(OUT_JSON = out_json)
+Sys.setenv(OUT_CSV = out_csv)
+
+# Generate the query from the schema in the form of a set of 
+# variables.csv and lists.json files.
+out <- filter_vars_from_schema(project, table, schema, out_csv, out_json, 
+                               sheet = sheet,       
+                               output_file_type = "js")
+out$variables[0:10]
+out$array_json[0:10]
+```
+
+#### 2. Combine json and csv files prior to generating query
+
+Now that we have a new query in the form of variables.csv and lists.json
+files, we need to combine the new json file with the old json file.
+
+```{r}
+A <- "../bioSurvey_v1-lists.json"
+B <- "bioSurvey-lists-from-schema.json"
+C <- "bioSurvey-lists-union.json"
+
+Sys.setenv(UNION_JSON = C) # For easy cleanup later
+
+union_json_str <- get_union_of_json_arrays(A, B, C)
+union_json_str
+```
+
+We also need to combine the variables.csv file that was generated from
+the schema with the old, manually generated variables.csv file. This
+code will exclude any duplicates.
+
+```{r}
+# Get union of variable lists
+A_csv <- "../bioSurvey_v1-variables.csv"
+B_csv <- "bioSurvey_v1-variables-from-schema.csv"
+C_csv <- "bioSurvey_v1-variables-union.csv"
+
+Sys.setenv(UNION_CSV = C_csv) # For easy cleanup later
+
+union_var_chr_array <- get_union_of_variable_csv(A_csv, B_csv, C_csv)
+union_var_chr_array
+```
+
+#### 3. Deal with exceptions
+
+```{r}
+json_file         <- C
+variables_file    <- C_csv
+# Get a list of variables with arrays containing "exception CID"
+exceptions        <- c(178420302, 958239616, 353358909, 104430631)
+vars_w_exceptions <- get_vars_with_specified_vals(json_file, 
+                                                  exceptions, 
+                                                  max_array_len = 2) 
+vars_w_exceptions
+```
+
+Remove list of variables with exceptions from the data set
+
+```{r}
+output_filename  <- "M2V2-lists-union-mod.json"
+Sys.setenv(NEW_JSON = output_filename) # For easy cleanup later
+updated_variables <- remove_vars_from_json(json_file, 
+                                           vars_w_exceptions,
+                                           output_filename = output_filename) 
+updated_variables
+```
+
+Add list of variables with exceptions to \*-variables\*.csv
+
+```{r}
+out_file  <- "M2V2-variables-union-new.csv"
+Sys.setenv(NEW_CSV = out_file) # For easy cleanup 
+add_novel_vars_to_csv(vars_w_exceptions, variables_file, out_file = out_file)
+```
+
+Get list of variables from csv file that are of typ RECORD or mode
+REPEATED in the schema
+
+```{r}
+#TODO This chunk needs to be tested.
+csv_file      <- out_file
+recs_and_reps <- get_record_and_repeated_vars(project, table, schema, csv_file)
+recs_and_reps
+```
+
+Remove these variables from the csv file
+
+```{r}
+#TODO This chunk needs to be tested.
+in_file        <- C_csv
+vars_to_remove <- recs_and_reps
+remove_vars_from_csv(in_file, vars_to_remove, out_file = NULL)
+```
+
+#### 4. Move modified lists.json and variables.csv files to parent directory
+
+```{bash}
+# Move up-to-date files to parent directory
+echo $NEW_CSV  
+echo $NEW_JSON
+PAR_DIR_CSV_NAME="M2V2-variables.csv"
+PAR_DIR_JSON_NAME="M2V2-lists.json"
+
+cp $NEW_CSV ../$PAR_DIR_CSV_NAME
+cp $NEW_JSON ../$PAR_DIR_JSON_NAME
+```
+
+#### 5. Clean up intermediate files from working directory
+
+```{bash}
+# Delete intermediate files from directory
+echo "The files that will be removed are:"
+echo $OUT_JSON
+echo $OUT_CSV
+echo $UNION_JSON
+echo $UNION_CSV
+echo $NEW_CSV  
+echo $NEW_JSON
+
+rm $OUT_JSON
+rm $OUT_CSV
+rm $UNION_JSON
+rm $UNION_CSV
+rm $NEW_CSV  
+rm $NEW_JSON
+```
+
+#### 6. Generate query using Warren-style Query Generator
+
+```{bash}
+# Replace name of query generator as needed
+node M2V2QueryGenerator.js
+```
