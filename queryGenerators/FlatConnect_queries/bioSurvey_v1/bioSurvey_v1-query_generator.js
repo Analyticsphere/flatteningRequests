@@ -2,11 +2,6 @@ const fs = require('fs');
 
 const config = require('./'+'query-config.json');
 
-//const dataSource = {
-//  dev: 'nih-nci-dceg-connect-dev.Connect.bioSurvey_v1',
-//  stg: 'nih-nci-dceg-connect-stg-5519.Connect.bioSurvey_v1',
-//  prod: 'nih-nci-dceg-connect-prod-6d04.Connect.bioSurvey_v1',
-//};
 const pathToConceptIdList = require('./'+config.lists_json);
 let variables = fs
   .readFileSync('./'+config.variables_csv, 'utf8')
@@ -104,8 +99,6 @@ for (let tier of Object.keys(config.data_source)) {
   ),
   flattened_data AS (
     SELECT
-      Connect_ID,
-      uid,
       ${selects}
     from json_data, UNNEST(body) as row
   )

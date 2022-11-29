@@ -1,0 +1,12 @@
+{
+    "data_source": {
+      "dev":  "nih-nci-dceg-connect-dev.Connect.menstrualSurvey_v1",
+      "stg":  "nih-nci-dceg-connect-stg-5519.Connect.menstrualSurvey_v1",
+      "prod": "nih-nci-dceg-connect-prod-6d04.Connect.menstrualSurvey_v1"
+    },
+    "variables_csv":  "menstrualSurvey_v1-variables.csv",
+    "lists_json":     "menstrualSurvey_v1-lists.json",
+    "query_name":     "FlatConnect.menstrualSurvey_v1_JP",
+    "output_table":   "FlatConnect.menstrualSurvey_v1_JP"
+}
+    

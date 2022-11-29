@@ -1,0 +1,12 @@
+{
+    "data_source": {
+      "dev":  "nih-nci-dceg-connect-dev.Connect.participants",
+      "stg":  "nih-nci-dceg-connect-stg-5519.Connect.participants",
+      "prod": "nih-nci-dceg-connect-prod-6d04.Connect.participants"
+    },
+    "variables_csv":  "participants-variables.csv",
+    "lists_json":     "participants-lists.js",
+    "query_name":     "FlatConnect.participants_JP",
+    "output_table":   "FlatConnect.participants_JP"
+}
+    

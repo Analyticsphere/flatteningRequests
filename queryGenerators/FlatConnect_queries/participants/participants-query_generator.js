@@ -1,13 +1,10 @@
 const fs = require('fs');
 
-const dataSource = {
-  dev: 'nih-nci-dceg-connect-dev.Connect.participants',
-  stg: 'nih-nci-dceg-connect-stg-5519.Connect.participants',
-  prod: 'nih-nci-dceg-connect-prod-6d04.Connect.participants',
-};
-const pathToConceptIdList = require('./participants-lists');
+const config = require('./'+'query-config.json');
+
+const pathToConceptIdList = require('./'+config.lists_json);
 let variables = fs
-  .readFileSync('./participants-variables.csv', 'utf8')
+  .readFileSync('./'+config.variables_csv, 'utf8')
   .split(/\r?\n/)
   .map((v) => v.trim())
   .filter((v) => v.length > 0);
@@ -19,7 +16,7 @@ variables = new Set([
 
 const selects = generateSelects([...variables], 'row');
 
-for (let tier of Object.keys(dataSource)) {
+for (let tier of Object.keys(config.data_source)) {
   const content = `CREATE TEMP FUNCTION
   handleM1(input_row STRING)
   RETURNS STRING
@@ -90,7 +87,7 @@ for (let tier of Object.keys(dataSource)) {
 
 """;
 
-  CREATE OR REPLACE TABLE FlatConnect.participants_JP AS (
+  CREATE OR REPLACE TABLE ${config.output_table} AS (
   WITH
   json_data AS (
     SELECT
@@ -98,12 +95,10 @@ for (let tier of Object.keys(dataSource)) {
       uid,
       [handleM1(TO_JSON_STRING(input_row))] AS body
     FROM
-      \`${dataSource[tier]}\` AS input_row where Connect_ID is not null
+      \`${config.data_source[tier]}\` AS input_row where Connect_ID is not null
   ),
   flattened_data AS (
     SELECT
-      Connect_ID,
-      uid,
       ${selects}
     from json_data, UNNEST(body) as row
   )
@@ -113,7 +108,7 @@ FROM flattened_data
 ORDER BY Connect_ID
 )`;
 
-  fs.writeFileSync(`./FlatConnect.participants_JP-${tier}.sql`, content);
+  fs.writeFileSync(`./${config.query_name}-${tier}.sql`, content);
 }
 
 function generateSelects(variables = [], rowName = 'row') {

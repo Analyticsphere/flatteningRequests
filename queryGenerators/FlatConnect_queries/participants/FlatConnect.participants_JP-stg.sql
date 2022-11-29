@@ -80,7 +80,6 @@ CREATE TEMP FUNCTION
   ),
   flattened_data AS (
     SELECT
-      Connect_ID,
       REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
 REPLACE(JSON_QUERY(row,'$.d_100767870'), '\"', '') AS d_100767870,
 REPLACE(JSON_QUERY(row,'$.d_104278817'), '\"', '') AS d_104278817,
@@ -383,6 +382,7 @@ REPLACE(JSON_QUERY(row,'$.state.d_953614051'), '\"', '') AS state_d_953614051,
 REPLACE(JSON_QUERY(row,'$.state.studyId'), '\"', '') AS state_studyId,
 REPLACE(JSON_QUERY(row,'$.state.uid'), '\"', '') AS state_uid,
 REPLACE(JSON_QUERY(row,'$.token'), '\"', '') AS token,
+REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid,
 REPLACE(JSON_QUERY(row,'$.undefined'), '\"', '') AS undefined,
 REPLACE(JSON_QUERY(row,'$.unverifiedSeen'), '\"', '') AS unverifiedSeen,
 REPLACE(JSON_QUERY(row,'$.utm_id'), '\"', '') AS utm_id,
