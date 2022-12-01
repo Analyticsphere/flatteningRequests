@@ -1,0 +1,10 @@
+{
+    "data_source": {
+      "dev":  "nih-nci-dceg-connect-stg-5519.Connect.clinicalBioSurvey_v1"
+    },
+    "variables_csv":  "clinicalBioSurvey_v1-variables-from-schema.csv",
+    "lists_json":     "clinicalBioSurvey_v1-lists-from-schema.js",
+    "query_name":     "FlatConnect.clinicalBioSurvey_v1_JP",
+    "output_table":   "FlatConnect.clinicalBioSurvey_v1_JP"
+}
+    

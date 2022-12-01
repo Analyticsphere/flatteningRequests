@@ -828,13 +828,13 @@ CREATE TEMP FUNCTION
       uid,
       [handleM1(TO_JSON_STRING(input_row))] AS body
     FROM
-      `nih-nci-dceg-connect-stg-5519.Connect.participants` AS input_row where Connect_ID is not null
+      `nih-nci-dceg-connect-stg-5519.Connect.module1_v1` AS input_row where Connect_ID is not null
   ),
   flattened_data AS (
     SELECT
-      Connect_ID,
       REPLACE(JSON_QUERY(row,'$.COMPLETED'), '\"', '') AS COMPLETED,
 REPLACE(JSON_QUERY(row,'$.COMPLETED_TS'), '\"', '') AS COMPLETED_TS,
+REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
 REPLACE(JSON_QUERY(row,'$.D_103397024.D_206625031'), '\"', '') AS D_103397024_D_206625031,
 REPLACE(JSON_QUERY(row,'$.D_103397024.D_261863326'), '\"', '') AS D_103397024_D_261863326,
 REPLACE(JSON_QUERY(row,'$.D_107060069'), '\"', '') AS D_107060069,
@@ -2335,6 +2335,7 @@ REPLACE(JSON_QUERY(row,'$.D_990114799_5_5.D_206625031_5_5_5_5_5_5_5_5_5_5_5_5_5_
 REPLACE(JSON_QUERY(row,'$.D_990114799_6_6.D_206625031_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6'), '\"', '') AS D_990114799_6_6_D_206625031_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6_6,
 REPLACE(JSON_QUERY(row,'$.D_992987417'), '\"', '') AS D_992987417,
 REPLACE(JSON_QUERY(row,'$.treeJSON'), '\"', '') AS treeJSON,
+REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid,
 REPLACE(JSON_QUERY(row,'$.D_355472178.BREASTDIS.D_138780721'), '\"', '') AS D_355472178_BREASTDIS_D_138780721,
 REPLACE(JSON_QUERY(row,'$.D_355472178.BREASTDIS.D_162512268'), '\"', '') AS D_355472178_BREASTDIS_D_162512268
     from json_data, UNNEST(body) as row

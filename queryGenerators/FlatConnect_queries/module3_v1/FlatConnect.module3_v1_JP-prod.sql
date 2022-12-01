@@ -1,5 +1,5 @@
 CREATE TEMP FUNCTION
-  handleRow(input_row STRING)
+  handleM1(input_row STRING)
   RETURNS STRING
   LANGUAGE js AS r"""
 
@@ -7,33 +7,33 @@ CREATE TEMP FUNCTION
     function getNestedObjectValueFromPathArray(obj, pathArray) {
       let currKey = pathArray[0];
       if (
-        typeof obj[currKey] === 'undefined' || obj[currKey] === null || 
+        typeof obj[currKey] === 'undefined' || obj[currKey] === null ||
         pathArray.length === 1
       )
         return obj[currKey];
-  
+
       return getNestedObjectValueFromPathArray(obj[currKey], pathArray.slice(1));
     }
-  
+
     return getNestedObjectValueFromPathArray(obj, pathString.split('.'));
   }
-  
+
   function setNestedObjectValue(obj, pathString, value) {
     function setNestedObjectValueFromPathArray(obj, pathArray, value) {
       let currKey = pathArray[0];
-  
+
       if (pathArray.length === 1) {
         obj[currKey] = value;
         return;
       }
-  
+
       if (
         typeof obj[currKey] === 'undefined' ||
         typeof obj[currKey] !== 'object'
       ) {
         obj[currKey] = {};
       }
-  
+
       return setNestedObjectValueFromPathArray(
         obj[currKey],
         pathArray.slice(1),
@@ -42,7 +42,7 @@ CREATE TEMP FUNCTION
     }
     return setNestedObjectValueFromPathArray(obj, pathString.split('.'), value);
   }
-  
+
   const arraysToBeFlattened={
  "D_947205597": [
   712653855,
@@ -137,45 +137,44 @@ CREATE TEMP FUNCTION
   137733407
  ]
 }
-  
-  function handleRowJS(row) {
+
+  function handleM1JS(row) {
     for (let arrPath of Object.keys(arraysToBeFlattened)) {
       let currObj = {};
       let inputConceptIdList = getNestedObjectValue(row, arrPath);
-      if (!inputConceptIdList || !Array.isArray(inputConceptIdList) ||  inputConceptIdList.length === 0) continue;
+      if (!inputConceptIdList || inputConceptIdList.length === 0) continue;
       inputConceptIdList = inputConceptIdList.map(v => +v);
-  
+
       for (let cid of arraysToBeFlattened[arrPath]) {
         if (inputConceptIdList.indexOf(cid) >= 0) {
           currObj['D_' + cid] = 1;
         } else currObj['D_' + cid] = 0;
       }
-  
+
       setNestedObjectValue(row, arrPath, currObj);
     }
     return JSON.stringify(row);
   }
-  
+
   const row = JSON.parse(input_row);
-  return handleRowJS(row);
+  return handleM1JS(row);
 
 """;
-  
-  
-  
+
   CREATE OR REPLACE TABLE FlatConnect.module3_v1_JP AS (
-    WITH
-    json_data AS (
-      SELECT
-        Connect_ID,
-        [handleRow(TO_JSON_STRING(input_row))] AS body
-      FROM
-        `nih-nci-dceg-connect-prod-6d04.Connect.module3_v1` AS input_row where Connect_ID is not null
-    ),
-    flattened_data AS (
-      SELECT
-        Connect_ID,
-        REPLACE(JSON_QUERY(row,'$.D_101170268'), '\"', '') AS D_101170268,
+  WITH
+  json_data AS (
+    SELECT
+      Connect_ID,
+      uid,
+      [handleM1(TO_JSON_STRING(input_row))] AS body
+    FROM
+      `nih-nci-dceg-connect-prod-6d04.Connect.module3_v1` AS input_row where Connect_ID is not null
+  ),
+  flattened_data AS (
+    SELECT
+      REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
+REPLACE(JSON_QUERY(row,'$.D_101170268'), '\"', '') AS D_101170268,
 REPLACE(JSON_QUERY(row,'$.D_101710639'), '\"', '') AS D_101710639,
 REPLACE(JSON_QUERY(row,'$.D_103045461'), '\"', '') AS D_103045461,
 REPLACE(JSON_QUERY(row,'$.D_103566006.D_103566006.D_123926260'), '\"', '') AS D_103566006_D_103566006_D_123926260,
@@ -656,11 +655,12 @@ REPLACE(JSON_QUERY(row,'$.D_989594002'), '\"', '') AS D_989594002,
 REPLACE(JSON_QUERY(row,'$.D_992757226'), '\"', '') AS D_992757226,
 REPLACE(JSON_QUERY(row,'$.D_995220236'), '\"', '') AS D_995220236,
 REPLACE(JSON_QUERY(row,'$.D_997412869'), '\"', '') AS D_997412869,
-REPLACE(JSON_QUERY(row,'$.D_997708616'), '\"', '') AS D_997708616
-      from json_data, UNNEST(body) as row
-    )
-
-  SELECT *, FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date
-  FROM flattened_data
-  ORDER BY Connect_ID
+REPLACE(JSON_QUERY(row,'$.D_997708616'), '\"', '') AS D_997708616,
+REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid
+    from json_data, UNNEST(body) as row
   )
+
+SELECT *, FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date
+FROM flattened_data
+ORDER BY Connect_ID
+)

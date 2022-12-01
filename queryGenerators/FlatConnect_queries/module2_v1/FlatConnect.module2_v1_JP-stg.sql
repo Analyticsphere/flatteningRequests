@@ -1,5 +1,5 @@
 CREATE TEMP FUNCTION
-  handleM2(input_row STRING)
+  handleM1(input_row STRING)
   RETURNS STRING
   LANGUAGE js AS r"""
 
@@ -352,7 +352,7 @@ CREATE TEMP FUNCTION
  ]
 }
 
-  function handleM2JS(row) {
+  function handleM1JS(row) {
     for (let arrPath of Object.keys(arraysToBeFlattened)) {
       let currObj = {};
       let inputConceptIdList = getNestedObjectValue(row, arrPath);
@@ -371,7 +371,7 @@ CREATE TEMP FUNCTION
   }
 
   const row = JSON.parse(input_row);
-  return handleM2JS(row);
+  return handleM1JS(row);
 
 """;
 
@@ -381,13 +381,12 @@ CREATE TEMP FUNCTION
     SELECT
       Connect_ID,
       uid,
-      [handleM2(TO_JSON_STRING(input_row))] AS body
+      [handleM1(TO_JSON_STRING(input_row))] AS body
     FROM
-      `nih-nci-dceg-connect-prod-6d04.Connect.module2_v1` AS input_row where Connect_ID is not null
+      `nih-nci-dceg-connect-stg-5519.Connect.module2_v1` AS input_row where Connect_ID is not null
   ),
   flattened_data AS (
     SELECT
-      Connect_ID,
       REPLACE(JSON_QUERY(row,'$.COMPLETED'), '\"', '') AS COMPLETED,
 REPLACE(JSON_QUERY(row,'$.COMPLETED_TS'), '\"', '') AS COMPLETED_TS,
 REPLACE(JSON_QUERY(row,'$.D_100937200'), '\"', '') AS D_100937200,

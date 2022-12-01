@@ -28,11 +28,11 @@ in the data set for that variable, across all rows.
 ```{r}
 project  <- "nih-nci-dceg-connect-dev"
 # project  <- "nih-nci-dceg-connect-stg-5519"
-table    <- "Connect.bioSurvey_v1"
-schema   <- "bioSurvey_v1-schema.xlsx"
+table    <- "Connect.clinicalBioSurvey_v1"
+schema   <- "clinicalBioSurvey_v1-schema.xlsx"
 sheet    <- NULL
-out_json <- "bioSurvey_v1-lists-from-schema.js" # destination file
-out_csv  <- "bioSurvey_v1-variables-from-schema.csv"
+out_json <- "clinicalBioSurvey_v1-lists-from-schema.js" # destination file
+out_csv  <- "clinicalBioSurvey_v1-variables-from-schema.csv"
 
 # Set output files to environment variables for easy cleanup later
 Sys.setenv(OUT_JSON = out_json)
@@ -47,15 +47,15 @@ out$variables[0:10]
 out$array_json[0:10]
 ```
 
-#### 2. Combine json and csv files prior to generating query
+#### 2. Combine json and csv files from manual queries with schema-informed query
 
 Now that we have a new query in the form of variables.csv and lists.json
 files, we need to combine the new json file with the old json file.
 
 ```{r}
-A <- "../bioSurvey_v1-lists.json"
-B <- "bioSurvey-lists-from-schema.json"
-C <- "bioSurvey-lists-union.json"
+A <- "clinicalBioSurvey_v1-lists.json"
+B <- "clinicalBioSurvey_v1.json"
+C <- "clinicalBioSurvey_v1-lists-union.json"
 
 Sys.setenv(UNION_JSON = C) # For easy cleanup later
 
@@ -69,9 +69,9 @@ code will exclude any duplicates.
 
 ```{r}
 # Get union of variable lists
-A_csv <- "../bioSurvey_v1-variables.csv"
-B_csv <- "bioSurvey_v1-variables-from-schema.csv"
-C_csv <- "bioSurvey_v1-variables-union.csv"
+A_csv <- "clinicalBioSurvey_v1-variables.csv"
+B_csv <- "clinicalBioSurvey_v1-variables-from-schema.csv"
+C_csv <- "clinicalBioSurvey_v1-variables-union.csv"
 
 Sys.setenv(UNION_CSV = C_csv) # For easy cleanup later
 
@@ -95,7 +95,7 @@ vars_w_exceptions
 Remove list of variables with exceptions from the data set
 
 ```{r}
-output_filename  <- "bioSurvey_v1-lists-union-mod.json"
+output_filename  <- "clinicalBioSurvey_v1-lists-union-mod.json"
 Sys.setenv(NEW_JSON = output_filename) # For easy cleanup later
 updated_variables <- remove_vars_from_json(json_file, 
                                            vars_w_exceptions,
@@ -106,12 +106,12 @@ updated_variables
 Add list of variables with exceptions to \*-variables\*.csv
 
 ```{r}
-out_file  <- "bioSurvey_v1-variables-union-new.csv"
+out_file  <- "clinicalBioSurvey_v1-variables-union-new.csv"
 Sys.setenv(NEW_CSV = out_file) # For easy cleanup 
 add_novel_vars_to_csv(vars_w_exceptions, variables_file, out_file = out_file)
 ```
 
-Get list of variables from csv file that are of typ RECORD or mode
+Get list of variables from csv file that are of type RECORD or mode
 REPEATED in the schema
 
 ```{r}
@@ -136,8 +136,8 @@ remove_vars_from_csv(in_file, vars_to_remove, out_file = NULL)
 # Move up-to-date files to parent directory
 echo $NEW_CSV  
 echo $NEW_JSON
-PAR_DIR_CSV_NAME="bioSurvey_v1-variables.csv"
-PAR_DIR_JSON_NAME="bioSurvey_v1-lists.json"
+PAR_DIR_CSV_NAME="clinicalBioSurvey_v1-variables.csv"
+PAR_DIR_JSON_NAME="clinicalBioSurvey_v1-lists.json"
 
 cp $NEW_CSV ../$PAR_DIR_CSV_NAME
 cp $NEW_JSON ../$PAR_DIR_JSON_NAME
@@ -167,5 +167,59 @@ rm $NEW_JSON
 
 ```{bash}
 # Replace name of query generator as needed
-node ../bioSurvey_v1-query_generator.js
+node ../clinicalBioSurvey_v1-query_generator.js
+```
+
+**The code below is in development.**
+
+\#### 7. Update scheduled query using bq CLI
+
+```{R}
+# Define parameters
+project          <- "nih-nci-dceg-connect-dev"
+service_account  <- "qa-qc-dev@nih-nci-dceg-connect-dev.iam.gserviceaccount.com"
+query_file       <- "../FlatConnect.participants_JP-dev.sql"
+sched_query_name <- "FlatConnect.participants_JP"
+
+query_str <- readr::read_file(query_file) # read as single string
+
+query_str
+
+# Set environment variables
+Sys.setenv(PROJECT_ID = project)
+Sys.setenv(GCP_SERVICE_ACCOUNT = service_account)
+Sys.setenv(GCP_QUERY = query_str)
+Sys.setenv(DISPLAY_NAME = sched_query_name)
+```
+
+```{R}
+str1        <- '{"query":'
+str2        <- '"write_disposition":"WRITE_TRUNCATE"}'
+params_str  <- paste0(str1, query_str, str2)
+cat(params_str)
+
+```
+
+```{bash}
+# Resource name: projects/1061430463455/locations/us/transferConfigs/6377e882-0000-2736-b618-240588723f18
+str0="'"
+str1='{"query":'
+str2='}'
+str3="'"
+PARAMS_STR=$str0$str1$GCP_QUERY$str2$str3
+# echo $PARAMS_STR
+
+bq ls -j --project_id $PROJECT_ID > /dev/null
+
+bq update \
+--transfer_config \
+--display_name='FlatConnect.participants_JP' \
+--params=$PARAMS_STR \
+
+#bq update \
+#--transfer_config \
+#--params=$PARAMS_STR
+#--display_name='FlatConnect.participants_JP'
+#--service_account_name=$GCP_SERVICE_ACCOUNT
+#--project_id=$PROJECT_ID
 ```

@@ -1,13 +1,10 @@
 const fs = require('fs');
 
-const dataSource = {
-  dev: 'nih-nci-dceg-connect-dev.Connect.module4_v1',
-  stg: 'nih-nci-dceg-connect-stg-5519.Connect.module4_v1',
-  prod: 'nih-nci-dceg-connect-prod-6d04.Connect.module4_v1',
-};
-const pathToConceptIdList = require('./module4_v1-lists');
+const config = require('./'+'query-config.json');
+
+const pathToConceptIdList = require('./'+config.lists_json);
 let variables = fs
-  .readFileSync('./module4_v1-variables.csv', 'utf8')
+  .readFileSync('./'+config.variables_csv, 'utf8')
   .split(/\r?\n/)
   .map((v) => v.trim())
   .filter((v) => v.length > 0);
@@ -19,9 +16,9 @@ variables = new Set([
 
 const selects = generateSelects([...variables], 'row');
 
-for (let tier of Object.keys(dataSource)) {
-  const content = ` CREATE TEMP FUNCTION
-  handleRow(input_row STRING)
+for (let tier of Object.keys(config.data_source)) {
+  const content = `CREATE TEMP FUNCTION
+  handleM1(input_row STRING)
   RETURNS STRING
   LANGUAGE js AS r"""
 
@@ -67,7 +64,7 @@ for (let tier of Object.keys(dataSource)) {
 
   const arraysToBeFlattened=${JSON.stringify(pathToConceptIdList, null, ' ')}
 
-  function handleRowJS(row) {
+  function handleM1JS(row) {
     for (let arrPath of Object.keys(arraysToBeFlattened)) {
       let currObj = {};
       let inputConceptIdList = getNestedObjectValue(row, arrPath);
@@ -86,24 +83,22 @@ for (let tier of Object.keys(dataSource)) {
   }
 
   const row = JSON.parse(input_row);
-  return handleRowJS(row);
+  return handleM1JS(row);
 
 """;
 
-  CREATE OR REPLACE TABLE FlatConnect.module4_v1 AS (
-    WITH
+  CREATE OR REPLACE TABLE ${config.output_table} AS (
+  WITH
   json_data AS (
     SELECT
       Connect_ID,
       uid,
-      [JSON_QUERY(handleRow(TO_JSON_STRING(input_row)), '$.D_716117817')] AS body
+      [handleM1(TO_JSON_STRING(input_row))] AS body
     FROM
-      \`${dataSource[tier]}\` AS input_row where Connect_ID is not null
+      \`${config.data_source[tier]}\` AS input_row where Connect_ID is not null
   ),
   flattened_data AS (
     SELECT
-      Connect_ID,
-      uid,
       ${selects}
     from json_data, UNNEST(body) as row
   )
@@ -113,7 +108,7 @@ FROM flattened_data
 ORDER BY Connect_ID
 )`;
 
-  fs.writeFileSync(`./FlatConnect.module4_v1_JP-${tier}.sql`, content);
+  fs.writeFileSync(`./${config.query_name}-${tier}.sql`, content);
 }
 
 function generateSelects(variables = [], rowName = 'row') {
@@ -139,7 +134,6 @@ function generatePathFromConceptIdList(obj) {
   let result = new Set();
   for (let [path, conceptIdList] of Object.entries(obj)) {
     for (let cid of conceptIdList) {
-      path = path.replace('D_716117817.', '').trim(); // remove 'D_716117817.' prefix
       result.add(path + '.D_' + cid);
     }
   }
