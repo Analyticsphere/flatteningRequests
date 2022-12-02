@@ -54,6 +54,7 @@ Now that we have a new query in the form of variables.csv and lists.json
 files, we need to combine the new json file with the old json file.
 
 ```{r}
+#TODO remove __error__ variable before this step!
 A <- "../module4_v1-lists.json"
 B <- "module4_v1-lists-from-schema.json"
 C <- "module4_v1-lists-union.json"
