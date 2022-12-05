@@ -148,6 +148,5 @@ rm $NEW_JSON
 
 ```{bash}
 # Replace name of query generator as needed
-node M2V1-QueryGenerator.js
+node ../M2V1-QueryGenerator.js
 ```
-
