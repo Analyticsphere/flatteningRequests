@@ -43,7 +43,7 @@ Sys.setenv(OUT_CSV = out_csv)
 # variables.csv and lists.json files.
 out <- filter_vars_from_schema(project, table, schema, out_csv, out_json, 
                                sheet = sheet,       
-                               output_file_type = "js")
+                               output_file_type = "json")
 out$variables[0:10]
 out$array_json[0:10]
 ```
