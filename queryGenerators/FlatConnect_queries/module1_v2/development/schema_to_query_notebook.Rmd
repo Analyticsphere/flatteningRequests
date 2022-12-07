@@ -32,7 +32,7 @@ project  <- "nih-nci-dceg-connect-dev"
 table    <- "Connect.module1_v2"
 schema   <- "module1_v2-schema.xlsx"
 sheet    <- NULL
-out_json <- "module1_v2-lists-from-schema.js" # destination file
+out_json <- "module1_v2-lists-from-schema.json" # destination file
 out_csv  <- "module1_v2-variables-from-schema.csv"
 
 # Set output files to environment variables for easy cleanup later
@@ -43,7 +43,7 @@ Sys.setenv(OUT_CSV = out_csv)
 # variables.csv and lists.json files.
 out <- filter_vars_from_schema(project, table, schema, out_csv, out_json, 
                                sheet = sheet,       
-                               output_file_type = "js")
+                               output_file_type = "json")
 out$variables[0:10]
 out$array_json[0:10]
 ```

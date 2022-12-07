@@ -27,12 +27,12 @@ in the data set for that variable, across all rows.
 
 ```{r}
 project  <- "nih-nci-dceg-connect-dev"
-# project  <- "nih-nci-dceg-connect-stg-5519"
+# project  <- "nih-nci-dceg-connect-stg-5519"1
 # project  <- "nih-nci-dceg-connect-prod-6d04"
 table    <- "Connect.module4_v1"
 schema   <- "module4_v1-schema.xlsx"
 sheet    <- NULL
-out_json <- "module4_v1-lists-from-schema.js" # destination file
+out_json <- "module4_v1-lists-from-schema.json" # destination file
 out_csv  <- "module4_v1-variables-from-schema.csv"
 
 # Set output files to environment variables for easy cleanup later
@@ -43,9 +43,9 @@ Sys.setenv(OUT_CSV = out_csv)
 # variables.csv and lists.json files.
 out <- filter_vars_from_schema(project, table, schema, out_csv, out_json, 
                                sheet = sheet,       
-                               output_file_type = "js")
+                               output_file_type = "json")
 out$variables[0:10]
-out$array_json[0:10]
+out$array_json
 ```
 
 #### 2. Combine json and csv files prior to generating query

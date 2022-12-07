@@ -32,7 +32,7 @@ project  <- "nih-nci-dceg-connect-dev"
 table    <- "Connect.module2_v2"
 schema   <- "module2_v2-schema.xlsx"
 sheet    <- NULL
-out_json <- "module2_v2-lists-from-schema.js" # destination file
+out_json <- "module2_v2-lists-from-schema.json" # destination file
 out_csv  <- "module2_v2-variables-from-schema.csv"
 
 # Set output files to environment variables for easy cleanup later

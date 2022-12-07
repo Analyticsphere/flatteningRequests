@@ -322,7 +322,8 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
   df[] <- lapply(df, factor) 
   
   ## Filter out RECORDS (variables with nested data) and keys
-  df_filt <- df %>% filter(!grepl("__key__", fullname)) %>% filter(!grepl("RECORD", type))
+  patterns_to_remove <- c("__key__","__error__", "__has_error__")
+  df_filt <- df %>% filter(!grepl(paste(patterns_to_remove, collapse="|"), fullname)) %>% filter(!grepl("RECORD", type)) 
   
   ## Get list of variables that do not repeat (destined for M2*-variables.csv)
   df_vars <- df_filt %>% filter(!grepl("REPEATED", mode))
@@ -358,19 +359,14 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
     json_data <- NULL
     
   } else if (output_file_type == "json") {
-    
-    # Write lines 
-    array_list = list()
+  
+    resp <- list()
     for (var_name in df_lists$fullname) {
-      responses_as_chr_array <- get_list_of_unique_responses(var_name, 
-                                                             project, 
-                                                             table)
-      array_list_field_name  <- paste0("array_list", "$", var_name)
-      print(array_list_field_name)
-      assign(array_list_field_name, responses_as_chr_array)
-      array_list
+      responses_list <- get_list_of_unique_responses(var_name, project, table)
+      resp[[var_name]] <- as.array(as.numeric(responses_list))
+      cat(resp[[var_name]])
     }
-    json_data <- toJSON(array_list,pretty=TRUE,auto_unbox=TRUE)
+    json_data <- toJSON(resp,pretty=TRUE,auto_unbox=TRUE)
     write(json_data, out_json)
     
   }
