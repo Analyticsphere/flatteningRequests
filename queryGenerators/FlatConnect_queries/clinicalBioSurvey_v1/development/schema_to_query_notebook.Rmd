@@ -53,9 +53,9 @@ Now that we have a new query in the form of variables.csv and lists.json
 files, we need to combine the new json file with the old json file.
 
 ```{r}
-A <- "M2V2-lists.json"
-B <- "M2V2-lists-from-schema.json"
-C <- "M2V2-lists-union.json"
+A <- "clinicalBioSurvey_v1-lists.json"#"../clinicalBioSurvey_v1-lists.json"
+B <- "clinicalBioSurvey_v1-lists-from-schema.json"
+C <- "clinicalBioSurvey_v1-lists-union.json"
 
 Sys.setenv(UNION_JSON = C) # For easy cleanup later
 
@@ -69,9 +69,9 @@ code will exclude any duplicates.
 
 ```{r}
 # Get union of variable lists
-A_csv <- "M2V2-variables.csv"
-B_csv <- "M2V2-variables-from-schema.csv"
-C_csv <- "M2V2-variables-union.csv"
+A_csv <- ""#"../clinicalBioSurvey_v1-variables.csv"
+B_csv <- "clinicalBioSurvey_v1-variables-from-schema.csv"
+C_csv <- "clinicalBioSurvey_v1-variables-union.csv"
 
 Sys.setenv(UNION_CSV = C_csv) # For easy cleanup later
 
@@ -95,7 +95,7 @@ vars_w_exceptions
 Remove list of variables with exceptions from the data set
 
 ```{r}
-output_filename  <- "M2V2-lists-union-mod.json"
+output_filename  <- "clinicalBioSurvey_v1-lists-union-mod.json"
 Sys.setenv(NEW_JSON = output_filename) # For easy cleanup later
 updated_variables <- remove_vars_from_json(json_file, 
                                            vars_w_exceptions,
@@ -106,7 +106,7 @@ updated_variables
 Add list of variables with exceptions to \*-variables\*.csv
 
 ```{r}
-out_file  <- "M2V2-variables-union-new.csv"
+out_file  <- "clinicalBioSurvey_v1-variables-union-new.csv"
 Sys.setenv(NEW_CSV = out_file) # For easy cleanup 
 add_novel_vars_to_csv(vars_w_exceptions, variables_file, out_file = out_file)
 ```
@@ -136,8 +136,8 @@ remove_vars_from_csv(in_file, vars_to_remove, out_file = NULL)
 # Move up-to-date files to parent directory
 echo $NEW_CSV  
 echo $NEW_JSON
-PAR_DIR_CSV_NAME="M2V2-variables.csv"
-PAR_DIR_JSON_NAME="M2V2-lists.json"
+PAR_DIR_CSV_NAME="clinicalBioSurvey_v1-variables.csv"
+PAR_DIR_JSON_NAME="clinicalBioSurvey_v1-lists.json"
 
 cp $NEW_CSV ../$PAR_DIR_CSV_NAME
 cp $NEW_JSON ../$PAR_DIR_JSON_NAME
@@ -167,5 +167,5 @@ rm $NEW_JSON
 
 ```{bash}
 # Replace name of query generator as needed
-node ../M2V2QueryGenerator.js
+node ../clinicalBioSurvey_v1QueryGenerator.js
 ```
