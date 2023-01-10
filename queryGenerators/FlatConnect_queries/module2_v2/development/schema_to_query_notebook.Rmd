@@ -15,6 +15,23 @@ library(tools)
 source("connect_analytics_helper_functions.R")
 ```
 
+#### 0.5 Get schema from BigQuery
+
+```{r}
+# PROJECT="nih-nci-dceg-connect-prod-6d04"
+# TABLE="Connect.participants"
+# SCHEMA_JSON="participants_schema.json"
+# bq show --schema --format=prettyjson $PROJECT:$TABLE > $SCHEMA_JSON
+
+project     <- "nih-nci-dceg-connect-prod-6d04"
+table       <- "Connect.module2_v2"
+module      <- strsplit(table, split=".", fixed=TRUE)[[1]][2]
+schema_json <- paste0(module, "-schema.json")
+schema_csv  <- paste0(module, "-schema.csv")
+set_default_gcp_project(project)
+get_gcp_table_schema(project, table, schema_json, schema_csv) 
+```
+
 #### 1. Generate \*-variables.csv and \*-lists.json file from source table schema.
 
 Here, we'll generate a new query from a BigQuery table schema, given as
@@ -26,14 +43,18 @@ destined for the list file are assigned a list of CIDs that are present
 in the data set for that variable, across all rows.
 
 ```{r}
-project  <- "nih-nci-dceg-connect-dev"
-# project  <- "nih-nci-dceg-connect-stg-5519"
-# project  <- "nih-nci-dceg-connect-prod-6d04"
-table    <- "Connect.module2_v2"
-schema   <- "module2_v2-schema.xlsx"
-sheet    <- NULL
-out_json <- "module2_v2-lists-from-schema.json" # destination file
-out_csv  <- "module2_v2-variables-from-schema.csv"
+project     <- "nih-nci-dceg-connect-dev"
+# project   <- "nih-nci-dceg-connect-stg-5519"
+# project   <- "nih-nci-dceg-connect-prod-6d04"
+table       <- "Connect.module2_v2"
+schema_json <- "module2_v2-schema.json"
+Sys.setenv(OUT_JSON = out_json)
+Sys.setenv(OUT_CSV = out_csv)
+
+schema      <- "module2_v2-schema.xlsx"
+sheet       <- NULL
+out_json    <- "module2_v2-lists-from-schema.json" # destination file
+out_csv     <- "module2_v2-variables-from-schema.csv"
 
 # Set output files to environment variables for easy cleanup later
 Sys.setenv(OUT_JSON = out_json)

@@ -6,7 +6,7 @@
 #              file. This is useful if you want to combine an automated query 
 #              with a manually edited query.
 # Author:      Jake Peters
-# Date:        October 2022
+# Date:        October-January 2022
 
 get_union_of_json_arrays <- function(json_A, json_B, json_C) { # nolint
   # Description:
@@ -379,6 +379,20 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
 
 
 #TODO function for loading schema in json form and flattening to csv or xlsx.
+set_default_gcp_project <- function(project){
+  bash_cmd_str <- paste0("bq ls -j --project_id ", project, " > /dev/null")
+  system(bash_cmd_str)
+  cat(paste0("\nexecuted command:\n  ", bash_cmd_str, "/n"))
+}
+
+get_gcp_table_schema <- function(
+    project, table, output_json_file, output_csv_file) {
+  bash_cmd_str <- paste0(
+    "bq show --schema --format=prettyjson ", 
+    project, ":", table,' > "', output_json_file, '"')
+  system(bash_cmd_str)
+  cat(paste0("\nexecuted command:\n  ", bash_cmd_str, "/n"))
+}
 
 #TODO function for checking/removing if vars in variables.csv file are RECORDS in the schema
 
