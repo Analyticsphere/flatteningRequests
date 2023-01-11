@@ -68,7 +68,7 @@ CREATE TEMP FUNCTION
 
 """;
 
-  CREATE OR REPLACE TABLE recruitment.recruitment1_WL AS (
+  CREATE OR REPLACE TABLE FlatConnect.participants AS (
   WITH
   json_data AS (
     SELECT

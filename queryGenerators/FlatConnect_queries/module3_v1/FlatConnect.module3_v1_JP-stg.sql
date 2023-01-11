@@ -1,5 +1,5 @@
 CREATE TEMP FUNCTION
-  handleM1(input_row STRING)
+  handleRow(input_row STRING)
   RETURNS STRING
   LANGUAGE js AS r"""
 
@@ -138,7 +138,7 @@ CREATE TEMP FUNCTION
  ]
 }
 
-  function handleM1JS(row) {
+  function handleRow(row) {
     for (let arrPath of Object.keys(arraysToBeFlattened)) {
       let currObj = {};
       let inputConceptIdList = getNestedObjectValue(row, arrPath);
@@ -157,7 +157,7 @@ CREATE TEMP FUNCTION
   }
 
   const row = JSON.parse(input_row);
-  return handleM1JS(row);
+  return handleRow(row);
 
 """;
 
@@ -167,7 +167,7 @@ CREATE TEMP FUNCTION
     SELECT
       Connect_ID,
       uid,
-      [handleM1(TO_JSON_STRING(input_row))] AS body
+      [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       `nih-nci-dceg-connect-stg-5519.Connect.module3_v1` AS input_row where Connect_ID is not null
   ),
