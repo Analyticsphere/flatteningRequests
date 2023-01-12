@@ -58,5 +58,6 @@ def json_schema_to_csv(json_file_name, csv_file_name,
                 else:
                     li.append(None)
             writer.writerow(li)
+    print("generated " + csv_file_name)
             
-json_schema_to_csv('module2_v2-schema.json', 'module2_v2-schema.csv')             
+#json_schema_to_csv('module2_v2-schema.json', 'module2_v2-schema.csv')             

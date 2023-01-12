@@ -6,30 +6,56 @@ editor_options:
     wrap: 72
 ---
 
-#### 0. Load dependencies
+#### 0. Load dependencies and define parameters
 
 ```{r}
 library(jsonlite)
 library(tools)
+library(reticulate)
+library(bigrquery)
+
 # Load helper functions
 source("connect_analytics_helper_functions.R")
+
+########### DEFINE PARAMETERS ###########################
+# project   <- "nih-nci-dceg-connect-dev"
+# project   <- "nih-nci-dceg-connect-stg-5519"
+project <- "nih-nci-dceg-connect-prod-6d04"
+table   <- "Connect.module2_v2"
+#########################################################
+
+# Authenticate to BigQuery
+bq_auth()
+
+# Create temporary directory to store temp files in
+if (!dir.exists("tmp")) {dir.create("tmp")}
 ```
 
 #### 0.5 Get schema from BigQuery
 
 ```{r}
-# PROJECT="nih-nci-dceg-connect-prod-6d04"
-# TABLE="Connect.participants"
-# SCHEMA_JSON="participants_schema.json"
-# bq show --schema --format=prettyjson $PROJECT:$TABLE > $SCHEMA_JSON
-
-project     <- "nih-nci-dceg-connect-prod-6d04"
-table       <- "Connect.module2_v2"
+# Generate file names given table name
 module      <- strsplit(table, split=".", fixed=TRUE)[[1]][2]
-schema_json <- paste0(module, "-schema.json")
-schema_csv  <- paste0(module, "-schema.csv")
+schema_json <- paste0("tmp/", module, "-schema.json")
+schema_csv  <- paste0("tmp/",module, "-schema.csv")
+
+# Pass variables to python for later use
+py$schema_json <- schema_json
+py$schema_csv  <- schema_csv
+
+# Set default GCP project
 set_default_gcp_project(project)
-get_gcp_table_schema(project, table, schema_json, schema_csv) 
+
+# Get the table schema from GCP as a JSON file named schema_json
+get_gcp_table_schema(project, table, schema_json) 
+```
+
+```{python}
+# Import python function from file
+from json_schema_to_csv import json_schema_to_csv
+
+# Generate csv file from json file
+json_schema_to_csv(schema_json, schema_csv)     
 ```
 
 #### 1. Generate \*-variables.csv and \*-lists.json file from source table schema.
@@ -43,30 +69,14 @@ destined for the list file are assigned a list of CIDs that are present
 in the data set for that variable, across all rows.
 
 ```{r}
-project     <- "nih-nci-dceg-connect-dev"
-# project   <- "nih-nci-dceg-connect-stg-5519"
-# project   <- "nih-nci-dceg-connect-prod-6d04"
-table       <- "Connect.module2_v2"
-schema_json <- "module2_v2-schema.json"
-Sys.setenv(OUT_JSON = out_json)
-Sys.setenv(OUT_CSV = out_csv)
-
-schema      <- "module2_v2-schema.xlsx"
-sheet       <- NULL
-out_json    <- "module2_v2-lists-from-schema.json" # destination file
-out_csv     <- "module2_v2-variables-from-schema.csv"
-
-# Set output files to environment variables for easy cleanup later
-Sys.setenv(OUT_JSON = out_json)
-Sys.setenv(OUT_CSV = out_csv)
-
 # Generate the query from the schema in the form of a set of 
 # variables.csv and lists.json files.
-out <- filter_vars_from_schema(project, table, schema, out_csv, out_json, 
-                               sheet = sheet,       
+out_json <- paste0("tmp/", module,"-lists-from-schema.json")
+out_csv  <- paste0("tmp/", module,"-variables-from-schema.csv")
+
+# Get variables and lists files from schema
+filter_vars_from_schema(project, table, schema_csv, out_csv, out_json, 
                                output_file_type = "json")
-out$variables[0:10]
-out$array_json[0:10]
 ```
 
 #### 2. Combine json and csv files prior to generating query
@@ -75,14 +85,15 @@ Now that we have a new query in the form of variables.csv and lists.json
 files, we need to combine the new json file with the old json file.
 
 ```{r}
-A <- "../module2_v2-lists.json"
-B <- "module2_v2-lists-from-schema.json"
-C <- "module2_v2-lists-union.json"
+# -lists.json file from parent folder
+old_lists_json <- paste0("../", module, "-lists.json")
 
-Sys.setenv(UNION_JSON = C) # For easy cleanup later
+# name combined json file
+union_lists_json <- paste0("tmp/", module, "-lists-union.json")
 
-union_json_str <- get_union_of_json_arrays(A, B, C)
-union_json_str
+# Get union of old_lists_json and out_json
+union_json_str <- get_union_of_json_arrays(old_lists_json, out_json, 
+                                           union_lists_json)
 ```
 
 We also need to combine the variables.csv file that was generated from
@@ -90,104 +101,77 @@ the schema with the old, manually generated variables.csv file. This
 code will exclude any duplicates.
 
 ```{r}
-# Get union of variable lists
-A_csv <- "../module2_v2-variables.csv"
-B_csv <- "module2_v2-variables-from-schema.csv"
-C_csv <- "module2_v2-variables-union.csv"
+# Get union of variable files
+# -lists.json file from parent folder
+old_vars_csv   <- paste0("../", module, "-variables.csv")
 
-Sys.setenv(UNION_CSV = C_csv) # For easy cleanup later
+# name combined csv file
+union_vars_csv <- paste0("tmp/", module, "-vars-union.csv")
 
-union_var_chr_array <- get_union_of_variable_csv(A_csv, B_csv, C_csv)
-union_var_chr_array
+union_var_chr_array <- get_union_of_variable_csv(old_vars_csv, out_csv, 
+                                                 union_vars_csv)
 ```
 
 #### 3. Deal with exceptions
 
 ```{r}
-json_file         <- C
-variables_file    <- C_csv
+# Define exceptions
+exceptions <- c(178420302, 958239616, 353358909, 104430631)
+
 # Get a list of variables with arrays containing "exception CID"
-exceptions        <- c(178420302, 958239616, 353358909, 104430631)
-vars_w_exceptions <- get_vars_with_specified_vals(json_file, 
+vars_w_exceptions <- get_vars_with_specified_vals(union_lists_json, 
                                                   exceptions, 
                                                   max_array_len = 2) 
 vars_w_exceptions
-```
 
-Remove list of variables with exceptions from the data set
-
-```{r}
-output_filename  <- "module2_v2-lists-union-mod.json"
-Sys.setenv(NEW_JSON = output_filename) # For easy cleanup later
-updated_variables <- remove_vars_from_json(json_file, 
+# Remove list of variables with exceptions from the data set
+new_lists_json    <- paste0("tmp/", module, "-lists-union-mod.json")
+updated_variables <- remove_vars_from_json(union_lists_json, 
                                            vars_w_exceptions,
-                                           output_filename = output_filename) 
-updated_variables
+                                           output_filename = new_lists_json) 
+
+# Add list of variables with exceptions to \*-variables\*.csv
+new_vars_csv  <- paste0("tmp/", module, "-variables-union-mod.csv")
+
+add_novel_vars_to_csv(vars_w_exceptions, union_vars_csv, 
+                      out_file = new_vars_csv)
 ```
 
-Add list of variables with exceptions to \*-variables\*.csv
-
-```{r}
-out_file  <- "module2_v2-variables-union-new.csv"
-Sys.setenv(NEW_CSV = out_file) # For easy cleanup 
-add_novel_vars_to_csv(vars_w_exceptions, variables_file, out_file = out_file)
-```
-
-Get list of variables from csv file that are of typ RECORD or mode
+Get list of variables from csv file that are of type RECORD or mode
 REPEATED in the schema
 
 ```{r}
 #TODO This chunk needs to be tested.
-csv_file      <- out_file
-recs_and_reps <- get_record_and_repeated_vars(project, table, schema, csv_file)
-recs_and_reps
-```
+vars_to_remove <- get_record_and_repeated_vars(project, table, schema_csv, 
+                                              new_vars_csv)
+vars_to_remove
 
-Remove these variables from the csv file
-
-```{r}
-#TODO This chunk needs to be tested.
-in_file        <- C_csv
-vars_to_remove <- recs_and_reps
-remove_vars_from_csv(in_file, vars_to_remove, out_file = NULL)
+# Remove these variables from the new csv file
+if ( length(vars_to_remove ) != 0) {
+  remove_vars_from_csv(new_vars_csv, vars_to_remove)
+}
 ```
 
 #### 4. Move modified lists.json and variables.csv files to parent directory
 
-```{bash}
+```{r}
 # Move up-to-date files to parent directory
-echo $NEW_CSV  
-echo $NEW_JSON
-PAR_DIR_CSV_NAME="module2_v2-variables.csv"
-PAR_DIR_JSON_NAME="module2_v2-lists.json"
-
-cp $NEW_CSV ../$PAR_DIR_CSV_NAME
-cp $NEW_JSON ../$PAR_DIR_JSON_NAME
+file.rename(new_vars_csv, old_vars_csv)
+file.rename(new_lists_json, old_lists_json)
 ```
 
 #### 5. Clean up intermediate files from working directory
 
-```{bash}
+```{r}
 # Delete intermediate files from directory
-echo "The files that will be removed are:"
-echo $OUT_JSON
-echo $OUT_CSV
-echo $UNION_JSON
-echo $UNION_CSV
-echo $NEW_CSV  
-echo $NEW_JSON
-
-rm $OUT_JSON
-rm $OUT_CSV
-rm $UNION_JSON
-rm $UNION_CSV
-rm $NEW_CSV  
-rm $NEW_JSON
+unlink("tmp", recursive=TRUE)
 ```
 
 #### 6. Generate query using Warren-style Query Generator
 
 ```{bash}
 # Replace name of query generator as needed
-node ../module2_v2-query_generator.js
+cd ..
+node module2_v2-query_generator.js
+cd development
 ```

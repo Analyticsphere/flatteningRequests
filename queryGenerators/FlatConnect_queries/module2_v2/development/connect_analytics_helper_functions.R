@@ -29,7 +29,7 @@ get_union_of_json_arrays <- function(json_A, json_B, json_C) { # nolint
   require(tools)
   
   # If a and b are files convert files to R lists
-  if (tools::file_ext(A) == "json") {
+  if (tools::file_ext(json_A) == "json") {
     list_A <- jsonlite::fromJSON(json_A)
     list_B <- jsonlite::fromJSON(json_B)
   }
@@ -130,7 +130,7 @@ get_vars_with_specified_vals <- function(json, vals, max_array_len = Inf) {
   require(tools)
   
   # If json is file convert file to R lists, otherwise assume already are
-  if (tools::file_ext(A) == "json") {
+  if (tools::file_ext(json) == "json") {
     var_list <- jsonlite::fromJSON(json)
   }
   
@@ -178,7 +178,7 @@ remove_vars_from_json <-
 
   # If json is file convert file to R lists, otherwise assume already are
   is_file <- FALSE
-  if (tools::file_ext(A) == "json") {
+  if (tools::file_ext(json) == "json") {
     var_list <- jsonlite::fromJSON(json)
     is_file <- TRUE
   }
@@ -282,7 +282,8 @@ get_list_of_unique_responses <- function(var_name, project, table){
 }
 
 filter_vars_from_schema <- function(project, table, schema, out_csv, out_json, 
-                                    sheet=NULL, output_file_type = "json") {
+                                    output_file_type = "json"
+                                    ) {
   # Description
   #   This function filters the variables in the schema of a bigquery table by 
   #   type and puts them in a *-lists.json file if they return json arrays or a
@@ -312,10 +313,13 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
   require("jsonlite")
   
   billing <- project # Billing should be same as project
-  bq_auth() # Authenticate with BigQuery (Note: project & billing used here)
+  
+  # Authenticate with BigQuery 
+  # bq_auth()
   
   ## Get schema data for Version 1 and Version 2
-  df <- read_excel(schema, sheet = sheet) # Module 1 Version 1 Schema
+  # df <- read_excel(schema, sheet = sheet) # Module 1 Version 1 Schema
+  df <- read.csv(schema, header=TRUE)
   
   # Make all columns factors so they can be used when filtering.
   # The "[]" keeps the dataframe structure.
@@ -323,7 +327,7 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
   
   ## Filter out RECORDS (variables with nested data) and keys
   patterns_to_remove <- c("__key__","__error__", "__has_error__")
-  df_filt <- df %>% filter(!grepl(paste(patterns_to_remove, collapse="|"), fullname)) %>% filter(!grepl("RECORD", type)) 
+  df_filt <- df %>% filter(!grepl(paste(patterns_to_remove, collapse="|"), name)) %>% filter(!grepl("RECORD", type)) 
   
   ## Get list of variables that do not repeat (destined for M2*-variables.csv)
   df_vars <- df_filt %>% filter(!grepl("REPEATED", mode))
@@ -332,7 +336,7 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
   df_lists <- df_filt %>% filter(grepl("REPEATED", mode))
   
   ## Export variables to M2V*-variables.csv file for queryGenerator
-  write.table(df_vars$fullname, file = out_csv, col.names = FALSE,
+  write.table(df_vars$name, file = out_csv, col.names = FALSE,
               row.names = FALSE, quote = FALSE, sep = ","
   )
   
@@ -346,7 +350,7 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
     # Write lines
     write(opening_line, file = out_json, append = FALSE) # Overwrite existing file
     cnt <- 0
-    for (var_name in df_lists$fullname) {
+    for (var_name in df_lists$name) {
       cnt            <- cnt + 1
       responses_list <- get_list_of_unique_responses(var_name, project, table)
       responses_str  <- paste(responses_list, collapse = ", ")
@@ -361,7 +365,7 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
   } else if (output_file_type == "json") {
   
     resp <- list()
-    for (var_name in df_lists$fullname) {
+    for (var_name in df_lists$name) {
       responses_list <- get_list_of_unique_responses(var_name, project, table)
       resp[[var_name]] <- as.array(as.numeric(responses_list))
       cat(resp[[var_name]])
@@ -372,26 +376,25 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
   }
   
   output_list            <- list()
-  output_list$variables  <- df_vars$fullname
+  output_list$variables  <- df_vars$name
   output_list$array_json <- json_data
   return(output_list)
 }
 
 
-#TODO function for loading schema in json form and flattening to csv or xlsx.
 set_default_gcp_project <- function(project){
   bash_cmd_str <- paste0("bq ls -j --project_id ", project, " > /dev/null")
   system(bash_cmd_str)
-  cat(paste0("\nexecuted command:\n  ", bash_cmd_str, "/n"))
+  cat(paste0("\nset defaut gcp project with command:\n\n  ", bash_cmd_str, "\n"))
 }
 
 get_gcp_table_schema <- function(
-    project, table, output_json_file, output_csv_file) {
+    project, table, output_json_file) {
   bash_cmd_str <- paste0(
     "bq show --schema --format=prettyjson ", 
     project, ":", table,' > "', output_json_file, '"')
   system(bash_cmd_str)
-  cat(paste0("\nexecuted command:\n  ", bash_cmd_str, "/n"))
+  cat(paste0("\ngot gcp table schema with command:\n\n  ", bash_cmd_str, "\n"))
 }
 
 #TODO function for checking/removing if vars in variables.csv file are RECORDS in the schema
@@ -413,7 +416,9 @@ get_record_and_repeated_vars <- function(project, table, schema, csv_file) {
   require("dplyr")
   
   ## Get schema 
-  df <- read_excel(schema, sheet = sheet) 
+  #df <- read_excel(schema, sheet = sheet) 
+  df <- read.csv(schema, header=TRUE)
+  
   df[] <- lapply(df, factor) 
   
   ## Get vars of type record or repeated
