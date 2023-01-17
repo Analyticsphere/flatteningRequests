@@ -170,8 +170,9 @@ unlink("tmp", recursive=TRUE)
 #### 6. Generate query using Warren-style Query Generator
 
 ```{bash}
-# Replace name of query generator as needed
+# Navigate to parent directory, run query generator, navigate back to 
+# development directory
 cd ..
-node module2_v2-query_generator.js
+node *-query_generator.js
 cd development
 ```

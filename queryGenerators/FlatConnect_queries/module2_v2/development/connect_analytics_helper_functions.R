@@ -381,7 +381,6 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
   return(output_list)
 }
 
-
 set_default_gcp_project <- function(project){
   bash_cmd_str <- paste0("bq ls -j --project_id ", project, " > /dev/null")
   system(bash_cmd_str)
