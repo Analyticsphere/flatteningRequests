@@ -45,11 +45,10 @@ def json_schema_to_csv(json_file_name, csv_file_name,
             
             # does not have children, dump data to file
             data_out.append(data_obj)
-    
-    # Write data_out to csv file
+            
     with open(csv_file_name, 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(keys) # Make header for csv
+        writer.writerow(keys)
         
         for i in data_out:
             li = []
@@ -59,5 +58,6 @@ def json_schema_to_csv(json_file_name, csv_file_name,
                 else:
                     li.append(None)
             writer.writerow(li)
+    print("generated " + csv_file_name)
             
-# json_schema_to_csv('module2_v2-schema.json', 'module2_v2-schema.csv')             
+#json_schema_to_csv('module2_v2-schema.json', 'module2_v2-schema.csv')             
