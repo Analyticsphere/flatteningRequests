@@ -28,7 +28,7 @@ table   <- "Connect.participants"
 bq_auth()
 ```
 
-#### 0.5 Get schema from BigQuery
+#### 1. Get schema from BigQuery as a JSON file (only format option)
 
 ```{r}
 # Generate file names given table name
@@ -51,6 +51,8 @@ set_default_gcp_project(project)
 get_gcp_table_schema(project, table, schema_json) 
 ```
 
+#### 2. Convert schema from JSON to CSV
+
 ```{python}
 # Import python function from file
 from gcp_query_tools.json_schema_to_csv import json_schema_to_csv
@@ -59,15 +61,15 @@ from gcp_query_tools.json_schema_to_csv import json_schema_to_csv
 json_schema_to_csv(r.schema_json, r.schema_csv)     
 ```
 
-#### 1. Generate \*-variables.csv and \*-lists.json file from source table schema.
+#### 3. Generate \*-variables.csv and \*-lists.json file from source table schema.
 
-Here, we'll generate a new query from a BigQuery table schema, given as
-an excel sheet which can be exported from BigQuery. Our queries require
-a query generator, a variables.csv file and a lists.json file. This
-function generates filters the variables in the schema based on whether
-they should be in the variables file or the list file. All variables
-destined for the list file are assigned a list of CIDs that are present
-in the data set for that variable, across all rows.
+Here, we'll generate a new query from a BigQuery table schema, Our
+queries require a query_generator.js, \*-variables.csv and a
+\*-lists.json. This function generates filters the variables in the
+schema based on whether they should be in the variables.csv file or the
+\*-list.json file. All variables destined for the list file are assigned
+a list of CIDs that are present in the data set for that variable,
+across all rows.
 
 ```{r}
 # Generate the query from the schema in the form of a set of 
@@ -80,7 +82,7 @@ filter_vars_from_schema(project, table, schema_csv, out_csv, out_json,
                                output_file_type = "json")
 ```
 
-#### 2. Combine json and csv files prior to generating query
+#### 4. Combine json and csv files prior to generating query
 
 Now that we have a new query in the form of variables.csv and lists.json
 files, we need to combine the new json file with the old json file.
@@ -110,12 +112,13 @@ old_vars_csv   <- paste0(module_folder, module, "-variables.csv")
 
 # name combined csv file
 union_vars_csv <- paste0(tmp_folder, module, "-vars-union.csv")
+union_vars_csv
 
 union_var_chr_array <- get_union_of_variable_csv(old_vars_csv, out_csv, 
                                                  union_vars_csv)
 ```
 
-#### 3. Deal with exceptions
+#### 5. Deal with exceptions
 
 ```{r}
 # Define exceptions
@@ -141,7 +144,8 @@ add_novel_vars_to_csv(vars_w_exceptions, union_vars_csv,
 ```
 
 Get list of variables from csv file that are of type RECORD or mode
-REPEATED in the schema
+REPEATED in the schema. There shouldn't be any left at this point, but
+just in case...
 
 ```{r}
 #TODO This chunk needs to be tested.
@@ -155,7 +159,7 @@ if ( length(vars_to_remove ) != 0) {
 }
 ```
 
-#### 4. Move modified lists.json and variables.csv files to parent directory
+#### 6. Move modified lists.json and variables.csv files to parent directory
 
 ```{r}
 # Move up-to-date files to parent directory
@@ -163,14 +167,14 @@ file.rename(new_vars_csv, old_vars_csv)
 file.rename(new_lists_json, old_lists_json)
 ```
 
-#### 5. Clean up intermediate files from working directory
+#### 7. Clean up intermediate files from working directory
 
 ```{r}
 # Delete intermediate files from directory
 unlink(tmp_folder, recursive=TRUE)
 ```
 
-#### 6. Generate query using Warren-style Query Generator
+#### 8. Generate query using Warren Lu-style Query Generator
 
 ```{r}
 working_dir     <- getwd()
