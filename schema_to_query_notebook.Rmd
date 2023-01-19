@@ -31,22 +31,18 @@ bq_auth()
 #### 0.5 Get schema from BigQuery
 
 ```{r}
-library(reticulate)
-
 # Generate file names given table name
 module        <- strsplit(table, split=".", fixed=TRUE)[[1]][2]
-module_folder <- paste0("queryGenerators/FlatConnect_queries/", module)
+query_folder  <- "queryGenerators/FlatConnect_queries/"
+module_folder <- paste0(query_folder, module, "/")
 
 # Create temporary directory to store temp files in
-tmp_folder <- paste0(module_folder,"/tmp")
+tmp_folder <- paste0(module_folder,"tmp/")
 if (!dir.exists(tmp_folder)) {dir.create(tmp_folder)}
 
-schema_json   <- paste0(tmp_folder,"/", module, "-schema.json")
-schema_csv    <- paste0(tmp_folder,"/",module, "-schema.csv")
-
-# Pass variables to python for later use
-py$schema_json <- schema_json
-py$schema_csv  <- schema_csv
+# Name schema files
+schema_json   <- paste0(tmp_folder,module,"-schema.json")
+schema_csv    <- paste0(tmp_folder,module,"-schema.csv")
 
 # Set default GCP project
 set_default_gcp_project(project)
@@ -60,7 +56,7 @@ get_gcp_table_schema(project, table, schema_json)
 from gcp_query_tools.json_schema_to_csv import json_schema_to_csv
 
 # Generate csv file from json file
-json_schema_to_csv(schema_json, schema_csv)     
+json_schema_to_csv(r.schema_json, r.schema_csv)     
 ```
 
 #### 1. Generate \*-variables.csv and \*-lists.json file from source table schema.
@@ -76,8 +72,8 @@ in the data set for that variable, across all rows.
 ```{r}
 # Generate the query from the schema in the form of a set of 
 # variables.csv and lists.json files.
-out_json <- paste0("tmp/", module,"-lists-from-schema.json")
-out_csv  <- paste0("tmp/", module,"-variables-from-schema.csv")
+out_json <- paste0(tmp_folder, module, "-lists-from-schema.json")
+out_csv  <- paste0(tmp_folder, module, "-variables-from-schema.csv")
 
 # Get variables and lists files from schema
 filter_vars_from_schema(project, table, schema_csv, out_csv, out_json, 
@@ -91,10 +87,12 @@ files, we need to combine the new json file with the old json file.
 
 ```{r}
 # -lists.json file from parent folder
-old_lists_json <- paste0("../", module, "-lists.json")
+old_lists_json <- paste0(module_folder, module, "-lists.json")
+old_lists_json
 
 # name combined json file
-union_lists_json <- paste0("tmp/", module, "-lists-union.json")
+union_lists_json <- paste0(tmp_folder, module, "-lists-union.json")
+union_lists_json
 
 # Get union of old_lists_json and out_json
 union_json_str <- get_union_of_json_arrays(old_lists_json, out_json, 
@@ -108,10 +106,10 @@ code will exclude any duplicates.
 ```{r}
 # Get union of variable files
 # -lists.json file from parent folder
-old_vars_csv   <- paste0("../", module, "-variables.csv")
+old_vars_csv   <- paste0(module_folder, module, "-variables.csv")
 
 # name combined csv file
-union_vars_csv <- paste0("tmp/", module, "-vars-union.csv")
+union_vars_csv <- paste0(tmp_folder, module, "-vars-union.csv")
 
 union_var_chr_array <- get_union_of_variable_csv(old_vars_csv, out_csv, 
                                                  union_vars_csv)
@@ -130,13 +128,13 @@ vars_w_exceptions <- get_vars_with_specified_vals(union_lists_json,
 vars_w_exceptions
 
 # Remove list of variables with exceptions from the data set
-new_lists_json    <- paste0("tmp/", module, "-lists-union-mod.json")
+new_lists_json    <- paste0(tmp_folder, module, "-lists-union-mod.json")
 updated_variables <- remove_vars_from_json(union_lists_json, 
                                            vars_w_exceptions,
                                            output_filename = new_lists_json) 
 
 # Add list of variables with exceptions to \*-variables\*.csv
-new_vars_csv  <- paste0("tmp/", module, "-variables-union-mod.csv")
+new_vars_csv  <- paste0(tmp_folder, module, "-variables-union-mod.csv")
 
 add_novel_vars_to_csv(vars_w_exceptions, union_vars_csv, 
                       out_file = new_vars_csv)
@@ -169,15 +167,19 @@ file.rename(new_lists_json, old_lists_json)
 
 ```{r}
 # Delete intermediate files from directory
-unlink("tmp", recursive=TRUE)
+unlink(tmp_folder, recursive=TRUE)
 ```
 
 #### 6. Generate query using Warren-style Query Generator
 
-```{bash}
-# Navigate to parent directory, run query generator, navigate back to 
-# development directory
-cd ..
-node *-query_generator.js
-cd development
+```{r}
+working_dir     <- getwd()
+query_generator <- paste0(module, "-query_generator.js")
+Sys.setenv(MODULE_FOLDER = module_folder,
+           QUERY_GENERATOR = query_generator,
+           WORKNG_DIR = working_dir)
+
+# Using shell commands, go to the module folder, run the query generator (node.js),
+# and return to the working directory.
+system("cd ${MODULE_FOLDER} && node ${QUERY_GENERATOR}; cd ${WORKING_DIR}")
 ```

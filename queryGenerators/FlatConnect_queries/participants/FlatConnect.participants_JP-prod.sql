@@ -185,7 +185,7 @@ CREATE TEMP FUNCTION
 """;
 
   CREATE OR REPLACE TABLE FlatConnect.participants_JP 
-	OPTIONS (description="Source table: Connect.participantsScheduled Query: FlatConnect.participants_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/participants; Team: AnalyticsMaintainer: Jake Peters; Super Users: Jing, Kelsey; Notes: This table is a flattened version of FlatConnect.participants. It is used for recruitment reporting purposes.") 
+	OPTIONS (description="Source table: Connect.participants; Scheduled Query: FlatConnect.participants_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/participants; Team: Analytics; Maintainer: Jake Peters; Super Users: Jing, Kelsey; Notes: This table is a flattened version of Connect.participants. It is used for recruitment reporting purposes.") 
  AS (
   WITH
   json_data AS (
