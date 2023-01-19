@@ -15,20 +15,17 @@ library(reticulate)
 library(bigrquery)
 
 # Load helper functions
-source("connect_analytics_helper_functions.R")
+source("gcp_query_tools/connect_analytics_helper_functions.R")
 
 ########### DEFINE PARAMETERS ###########################
 # project   <- "nih-nci-dceg-connect-dev"
 # project   <- "nih-nci-dceg-connect-stg-5519"
 project <- "nih-nci-dceg-connect-prod-6d04"
-table   <- "Connect.participants"
+table   <- "Connect.participants" 
 #########################################################
 
 # Authenticate to BigQuery
 bq_auth()
-
-# Create temporary directory to store temp files in
-if (!dir.exists("tmp")) {dir.create("tmp")}
 ```
 
 #### 0.5 Get schema from BigQuery
@@ -37,9 +34,15 @@ if (!dir.exists("tmp")) {dir.create("tmp")}
 library(reticulate)
 
 # Generate file names given table name
-module      <- strsplit(table, split=".", fixed=TRUE)[[1]][2]
-schema_json <- paste0("tmp/", module, "-schema.json")
-schema_csv  <- paste0("tmp/",module, "-schema.csv")
+module        <- strsplit(table, split=".", fixed=TRUE)[[1]][2]
+module_folder <- paste0("queryGenerators/FlatConnect_queries/", module)
+
+# Create temporary directory to store temp files in
+tmp_folder <- paste0(module_folder,"/tmp")
+if (!dir.exists(tmp_folder)) {dir.create(tmp_folder)}
+
+schema_json   <- paste0(tmp_folder,"/", module, "-schema.json")
+schema_csv    <- paste0(tmp_folder,"/",module, "-schema.csv")
 
 # Pass variables to python for later use
 py$schema_json <- schema_json
@@ -54,7 +57,7 @@ get_gcp_table_schema(project, table, schema_json)
 
 ```{python}
 # Import python function from file
-from json_schema_to_csv import json_schema_to_csv
+from gcp_query_tools.json_schema_to_csv import json_schema_to_csv
 
 # Generate csv file from json file
 json_schema_to_csv(schema_json, schema_csv)     

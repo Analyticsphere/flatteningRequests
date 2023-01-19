@@ -7,6 +7,7 @@
     "variables_csv":  "bioSurvey_v1-variables.csv",
     "lists_json":     "bioSurvey_v1-lists.json",
     "query_name":     "FlatConnect.bioSurvey_v1_JP",
-    "output_table":   "FlatConnect.bioSurvey_v1_JP"
+    "output_table":   "FlatConnect.bioSurvey_v1_JP",
+    "table_description": "Source table: Connect.bioSurvey_v1; Scheduled Query: FlatConnect.bioSurvey_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/bioSurvey_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.bioSurvey_v1."
 }
     

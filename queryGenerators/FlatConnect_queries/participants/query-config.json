@@ -4,9 +4,10 @@
       "stg":  "nih-nci-dceg-connect-stg-5519.Connect.participants",
       "prod": "nih-nci-dceg-connect-prod-6d04.Connect.participants"
     },
-    "variables_csv":  "participants-variables.csv",
-    "lists_json":     "participants-lists.json",
-    "query_name":     "FlatConnect.participants_JP",
-    "output_table":   "FlatConnect.participants_JP"
+    "variables_csv":    "participants-variables.csv",
+    "lists_json":       "participants-lists.json",
+    "query_name":       "FlatConnect.participants_JP",
+    "output_table":     "FlatConnect.participants_JP",
+    "table_description": "Source table: Connect.participants; Scheduled Query: FlatConnect.participants_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/participants; Team: Analytics; Maintainer: Jake Peters; Super Users: Jing, Kelsey; Notes: This table is a flattened version of Connect.participants. It is used for recruitment reporting purposes."
 }
     
