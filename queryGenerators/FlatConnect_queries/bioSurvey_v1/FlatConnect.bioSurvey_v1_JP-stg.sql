@@ -173,7 +173,9 @@ CREATE TEMP FUNCTION
 
 """;
 
-  CREATE OR REPLACE TABLE FlatConnect.bioSurvey_v1_JP AS (
+  CREATE OR REPLACE TABLE FlatConnect.bioSurvey_v1_JP 
+OPTIONS (description="Source table: Connect.bioSurvey_v1; Scheduled Query: FlatConnect.bioSurvey_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/bioSurvey_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.bioSurvey_v1.") 
+AS (
   WITH
   json_data AS (
     SELECT
@@ -240,7 +242,6 @@ REPLACE(JSON_QUERY(row,'$.D_220055064_8_8.D_220055064_8_8'), '\"', '') AS D_2200
 REPLACE(JSON_QUERY(row,'$.D_220055064_9_9.D_220055064_9_9'), '\"', '') AS D_220055064_9_9_D_220055064_9_9,
 REPLACE(JSON_QUERY(row,'$.D_220055064_9_9.D_395747093_9_9'), '\"', '') AS D_220055064_9_9_D_395747093_9_9,
 REPLACE(JSON_QUERY(row,'$.D_234714655'), '\"', '') AS D_234714655,
-REPLACE(JSON_QUERY(row,'$.D_265193023'), '\"', '') AS D_265193023,
 REPLACE(JSON_QUERY(row,'$.D_273371161'), '\"', '') AS D_273371161,
 REPLACE(JSON_QUERY(row,'$.D_294886836'), '\"', '') AS D_294886836,
 REPLACE(JSON_QUERY(row,'$.D_299417266'), '\"', '') AS D_299417266,
@@ -279,7 +280,6 @@ REPLACE(JSON_QUERY(row,'$.D_430166879_2_2'), '\"', '') AS D_430166879_2_2,
 REPLACE(JSON_QUERY(row,'$.D_451163824_1_1'), '\"', '') AS D_451163824_1_1,
 REPLACE(JSON_QUERY(row,'$.D_451163824_2_2'), '\"', '') AS D_451163824_2_2,
 REPLACE(JSON_QUERY(row,'$.D_451163824_3_3'), '\"', '') AS D_451163824_3_3,
-REPLACE(JSON_QUERY(row,'$.D_459098666'), '\"', '') AS D_459098666,
 REPLACE(JSON_QUERY(row,'$.D_460873842'), '\"', '') AS D_460873842,
 REPLACE(JSON_QUERY(row,'$.D_470484596.D_214414872'), '\"', '') AS D_470484596_D_214414872,
 REPLACE(JSON_QUERY(row,'$.D_470484596.D_235386560'), '\"', '') AS D_470484596_D_235386560,
@@ -522,6 +522,7 @@ REPLACE(JSON_QUERY(row,'$.D_930944000_2_2'), '\"', '') AS D_930944000_2_2,
 REPLACE(JSON_QUERY(row,'$.D_934384452'), '\"', '') AS D_934384452,
 REPLACE(JSON_QUERY(row,'$.D_957305523'), '\"', '') AS D_957305523,
 REPLACE(JSON_QUERY(row,'$.D_959877599.D_700620868'), '\"', '') AS D_959877599_D_700620868,
+REPLACE(JSON_QUERY(row,'$.D_959877599_D_908044428'), '\"', '') AS D_959877599_D_908044428,
 REPLACE(JSON_QUERY(row,'$.D_980800222_1_1.D_173502329_1'), '\"', '') AS D_980800222_1_1_D_173502329_1,
 REPLACE(JSON_QUERY(row,'$.D_980800222_1_1.D_173502329_1_1'), '\"', '') AS D_980800222_1_1_D_173502329_1_1,
 REPLACE(JSON_QUERY(row,'$.D_980800222_1_1.D_173502329_1_1u25_20required'), '\"', '') AS D_980800222_1_1_D_173502329_1_1u25_20required,
@@ -553,7 +554,6 @@ REPLACE(JSON_QUERY(row,'$.D_980800222_6_6.D_366972678_6_6'), '\"', '') AS D_9808
 REPLACE(JSON_QUERY(row,'$.D_983043203'), '\"', '') AS D_983043203,
 REPLACE(JSON_QUERY(row,'$.D_984121390_1_1'), '\"', '') AS D_984121390_1_1,
 REPLACE(JSON_QUERY(row,'$.D_984121390_2_2'), '\"', '') AS D_984121390_2_2,
-REPLACE(JSON_QUERY(row,'$.treeJSON'), '\"', '') AS treeJSON,
 REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid
     from json_data, UNNEST(body) as row
   )
