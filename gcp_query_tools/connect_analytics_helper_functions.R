@@ -26,13 +26,9 @@ get_union_of_json_arrays <- function(json_A, json_B, json_C) { # nolint
   #   Writes list_C_as_JSON_str to a file with a name given by json_C.
     
   require(jsonlite)
-  require(tools)
-  
-  # If a and b are files convert files to R lists
-  if (tools::file_ext(json_A) == "json") {
-    list_A <- jsonlite::fromJSON(json_A)
-    list_B <- jsonlite::fromJSON(json_B)
-  }
+
+  list_A <- jsonlite::fromJSON(json_A)
+  list_B <- jsonlite::fromJSON(json_B)
   list_C <- list()
   
   # Get variable names unique to A, unique to B or common to both
@@ -49,6 +45,9 @@ get_union_of_json_arrays <- function(json_A, json_B, json_C) { # nolint
     
     # Get array of unique values found in A and B combined
     array_C <- union(array_A, array_B)
+    print("array_A = ", array_A)
+    print("array_B = ", array_B)
+    print("array_C = ", array_C)
     
     # Add array to list_C under listC$variable_name
     eval(parse(text = (paste0("list_C$", variable_name, " <- array_C"))))
@@ -67,18 +66,25 @@ get_union_of_json_arrays <- function(json_A, json_B, json_C) { # nolint
     array <- eval(parse(text = paste0("list_B$", variable_name)))
     eval(parse(text = (paste0("list_C$", variable_name, " <- array"))))
   }
-  
-  # Sort variables in list_C
-  list_C <- lapply(list_C, sort)         # Sort CIDs within JSON arrays
-  list_C <- list_C[order(names(list_C))] # Sort variables
-  
-  # Convert list C to JSON string
-  list_C_as_JSON_str <- jsonlite::prettify(jsonlite::toJSON(list_C), indent = 4)
-  
-  # Export JSON string to file
-  write(list_C_as_JSON_str, json_C)
-  
-  return(list_C_as_JSON_str)
+
+  # If there are no variables in list_C, return Null
+  if (length(names(list_C)) == 0) {
+    # Export empty JSON string to file
+    write("[]", json_C)
+    return(NULL)
+  } else {
+    # Sort variables in list_C
+    list_C <- lapply(list_C, sort)         # Sort CIDs within JSON arrays
+    list_C <- list_C[order(names(list_C))] # Sort variables
+
+    # Convert list C to JSON string
+    list_C_as_JSON_str <- jsonlite::prettify(jsonlite::toJSON(list_C), indent = 4)
+
+    # Export JSON string to file
+    write(list_C_as_JSON_str, json_C)
+
+    return(list_C_as_JSON_str)
+  }
 }
 
 get_union_of_variable_csv <- function(A, B, C) {
@@ -326,7 +332,8 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
   df[] <- lapply(df, factor) 
   
   ## Filter out RECORDS (variables with nested data) and keys
-  patterns_to_remove <- c("__key__","__error__", "__has_error__")
+  patterns_to_remove <- c("__key__","__error__", "__has_error__", "treeJSON",
+                          "Module2","D_726699695","D_299215535","D_166676176")
   df_filt <- df %>% filter(!grepl(paste(patterns_to_remove, collapse="|"), name)) %>% filter(!grepl("RECORD", type)) 
   
   ## Get list of variables that do not repeat (destined for M2*-variables.csv)

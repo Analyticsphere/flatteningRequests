@@ -53,13 +53,20 @@ get_gcp_table_schema(project, table, schema_json)
 
 #### 2. Convert schema from JSON to CSV
 
-```{python}
-# Import python function from file
-from gcp_query_tools.json_schema_to_csv import json_schema_to_csv
-
-# Generate csv file from json file
-json_schema_to_csv(r.schema_json, r.schema_csv)     
+# Set up python
+```{r}
+# Set environment variables
+# Variables with these properties will be filtered out. String cannot contain spaces.
+schema_filter <- '{"name":["__key__","__error__","__has_error__","treeJSON","allEmails","allPhoneNo"],"type":["RECORD"]}'
+py_func <- 'gcp_query_tools/json_schema_to_csv_b.py'
+Sys.setenv(SCHEMA_CSV = schema_csv)
+Sys.setenv(SCHEMA_JSON = schema_json)
+Sys.setenv(SCHEMA_FILTER = schema_filter)
+Sys.setenv(PY_FUNC = py_func)
+system('python3 $PY_FUNC $SCHEMA_JSON $SCHEMA_CSV $SCHEMA_FILTER')
 ```
+
+
 
 #### 3. Generate \*-variables.csv and \*-lists.json file from source table schema.
 
@@ -99,6 +106,8 @@ union_lists_json
 # Get union of old_lists_json and out_json
 union_json_str <- get_union_of_json_arrays(old_lists_json, out_json, 
                                            union_lists_json)
+
+print(union_json_str)
 ```
 
 We also need to combine the variables.csv file that was generated from
@@ -186,4 +195,55 @@ Sys.setenv(MODULE_FOLDER = module_folder,
 # Using shell commands, go to the module folder, run the query generator (node.js),
 # and return to the working directory.
 system("cd ${MODULE_FOLDER} && node ${QUERY_GENERATOR}; cd ${WORKING_DIR}")
+```
+
+#### 9. TODO: Update scheduled queries in GCP programatically
+
+
+
+```{python}
+from google.cloud import bigquery_datatransfer
+from google.protobuf import field_mask_pb2
+import json
+
+# Load configuration file
+query_config_file = r.module_folder + "query-config.json"
+with open(query_config_file) as f:
+  query_config = json.load(f)
+
+print(query_config["resource_name"]["dev"])
+print(query_config["resource_name"]["stg"])
+print(query_config["resource_name"]["prod"])
+
+#TODO: Loop through each tier
+
+query_file = r.module_folder + query_config["query_name"] + "-prod.sql"
+print("query_file: " + query_file)
+with open(query_file) as file:
+    query_str = file.read()
+print("query_str: \n\n" + query_str[0:200])
+    
+query_string = """q""".replace("q", query_str)
+
+service_account_name = "qa-qc-prod@nih-nci-dceg-connect-prod-6d04.iam.gserviceaccount.com"
+#TODO: Put transfer configs in config file for each tier and write a function to get transfer_config_name from GCP.
+
+transfer_config_name = "projects/155089172944/locations/us/transferConfigs/63a134bd-0000-2c48-8c16-883d24f91d30"
+new_display_name = r.module_folder + query_config["query_name"]
+
+transfer_client = bigquery_datatransfer.DataTransferServiceClient()
+
+transfer_config = bigquery_datatransfer.TransferConfig(name=transfer_config_name)
+transfer_config.display_name = new_display_name
+transfer_config.params = {"query": query_string, "write_disposition": "WRITE_TRUNCATE"}
+
+transfer_config = transfer_client.update_transfer_config(
+    {
+        "transfer_config": transfer_config,
+        "update_mask": field_mask_pb2.FieldMask(paths=["display_name"]),
+    }
+)
+
+print(f"Updated config: '{transfer_config.name}'")
+print(f"New display name: '{transfer_config.display_name}'")
 ```
