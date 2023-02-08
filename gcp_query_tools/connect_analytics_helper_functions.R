@@ -45,9 +45,9 @@ get_union_of_json_arrays <- function(json_A, json_B, json_C) { # nolint
     
     # Get array of unique values found in A and B combined
     array_C <- union(array_A, array_B)
-    print("array_A = ", array_A)
-    print("array_B = ", array_B)
-    print("array_C = ", array_C)
+    # print("array_A = ", array_A)
+    # print("array_B = ", array_B)
+    # print("array_C = ", array_C)
     
     # Add array to list_C under listC$variable_name
     eval(parse(text = (paste0("list_C$", variable_name, " <- array_C"))))

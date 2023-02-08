@@ -94,7 +94,6 @@ AS (
   json_data AS (
     SELECT
       Connect_ID,
-      uid,
       [handleM1(TO_JSON_STRING(input_row))] AS body
     FROM
       \`${config.data_source[tier]}\` AS input_row where Connect_ID is not null

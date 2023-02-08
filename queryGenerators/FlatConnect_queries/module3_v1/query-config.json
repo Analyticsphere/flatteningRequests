@@ -8,6 +8,11 @@
     "lists_json":     "module3_v1-lists.json",
     "query_name":     "FlatConnect.module3_v1_JP",
     "output_table":   "FlatConnect.module3_v1_JP",
+    "resource_name": {
+      "dev":  "projects/1061430463455/locations/us/transferConfigs/6393272e-0000-2e3f-859f-f40304358318",
+      "stg":  "projects/810867956467/locations/us/transferConfigs/6387ab5c-0000-27a1-9440-883d24f7fd24",
+      "prod": "projects/155089172944/locations/us/transferConfigs/63a135ba-0000-2c48-8c16-883d24f91d30"
+    },
     "table_description": "Source table: Connect.module4_v1; Scheduled Query: FlatConnect.module3_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/module3_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.module3_v1."
 }
     

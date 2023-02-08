@@ -21,7 +21,7 @@ source("gcp_query_tools/connect_analytics_helper_functions.R")
 # project   <- "nih-nci-dceg-connect-dev"
 # project   <- "nih-nci-dceg-connect-stg-5519"
 project <- "nih-nci-dceg-connect-prod-6d04"
-table   <- "Connect.participants" 
+table   <- "Connect.biospecimen" 
 #########################################################
 
 # Authenticate to BigQuery
@@ -197,53 +197,23 @@ Sys.setenv(MODULE_FOLDER = module_folder,
 system("cd ${MODULE_FOLDER} && node ${QUERY_GENERATOR}; cd ${WORKING_DIR}")
 ```
 
-#### 9. TODO: Update scheduled queries in GCP programatically
+#### 9. Update scheduled queries in GCP programatically
 
+```{r}
+# Note: If you get this error 
+#     "Handshake failed with fatal error SSL_ERROR_SSL: 
+#      error:1000007d:SSL routines:OPENSSL_internal:CERTIFICATE_VERIFY_FAILED"
+#      disconnect from the VPN and try again. It seems like NIH blocks this.
+py_func <- 'gcp_query_tools/update_gcp_scheduled_query_b.py'
+Sys.setenv(PY_FUNC = py_func, RUN_NOW = TRUE)
 
+project_id_list = c("nih-nci-dceg-connect-dev", 
+                    "nih-nci-dceg-connect-stg-5519")
+#                 "nih-nci-dceg-connect-prod-6d04")
 
-```{python}
-from google.cloud import bigquery_datatransfer
-from google.protobuf import field_mask_pb2
-import json
-
-# Load configuration file
-query_config_file = r.module_folder + "query-config.json"
-with open(query_config_file) as f:
-  query_config = json.load(f)
-
-print(query_config["resource_name"]["dev"])
-print(query_config["resource_name"]["stg"])
-print(query_config["resource_name"]["prod"])
-
-#TODO: Loop through each tier
-
-query_file = r.module_folder + query_config["query_name"] + "-prod.sql"
-print("query_file: " + query_file)
-with open(query_file) as file:
-    query_str = file.read()
-print("query_str: \n\n" + query_str[0:200])
-    
-query_string = """q""".replace("q", query_str)
-
-service_account_name = "qa-qc-prod@nih-nci-dceg-connect-prod-6d04.iam.gserviceaccount.com"
-#TODO: Put transfer configs in config file for each tier and write a function to get transfer_config_name from GCP.
-
-transfer_config_name = "projects/155089172944/locations/us/transferConfigs/63a134bd-0000-2c48-8c16-883d24f91d30"
-new_display_name = r.module_folder + query_config["query_name"]
-
-transfer_client = bigquery_datatransfer.DataTransferServiceClient()
-
-transfer_config = bigquery_datatransfer.TransferConfig(name=transfer_config_name)
-transfer_config.display_name = new_display_name
-transfer_config.params = {"query": query_string, "write_disposition": "WRITE_TRUNCATE"}
-
-transfer_config = transfer_client.update_transfer_config(
-    {
-        "transfer_config": transfer_config,
-        "update_mask": field_mask_pb2.FieldMask(paths=["display_name"]),
-    }
-)
-
-print(f"Updated config: '{transfer_config.name}'")
-print(f"New display name: '{transfer_config.display_name}'")
+# system("gcloud auth login") # Use this to authenticate if needed
+for (project_id in project_id_list){
+  Sys.setenv(PROJECT_ID = project_id)
+  system('python3 $PY_FUNC $PROJECT_ID $MODULE_FOLDER $RUN_NOW')
+}
 ```

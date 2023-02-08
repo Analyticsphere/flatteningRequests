@@ -8,6 +8,11 @@
     "lists_json":     "menstrualSurvey_v1-lists.json",
     "query_name":     "FlatConnect.menstrualSurvey_v1_JP",
     "output_table":   "FlatConnect.menstrualSurvey_v1_JP",
+    "resource_name": {
+      "dev":  "projects/1061430463455/locations/us/transferConfigs/6385c748-0000-2467-aec9-f4f5e80cad6c",
+      "stg":  "projects/810867956467/locations/us/transferConfigs/63f68cb5-0000-2de9-8e9b-001a114f4c2c",
+      "prod": "projects/155089172944/locations/us/transferConfigs/639f4637-0000-22a4-8299-94eb2c1bd356"
+    },
     "table_description": "Source table: menstrualSurvey_v1; Scheduled Query: FlatConnect.menstrualSurvey_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/menstrualSurvey_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.menstrualSurvey_v1."
 }
     

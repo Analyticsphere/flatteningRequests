@@ -7,7 +7,12 @@
     "variables_csv":  "module2_v2-variables.csv",
     "lists_json":     "module2_v2-lists.json",
     "query_name":     "FlatConnect.module2_v2_JP",
-    "output_table":   "FlatConnect.module2_v2_JP",
+    "output_table":   "FlatConnect.module2_v2_JP",    
+    "resource_name": {
+      "dev":  "projects/1061430463455/locations/us/transferConfigs/63935df6-0000-2e74-a771-2405888518b0",
+      "stg":  "projects/810867956467/locations/us/transferConfigs/6387b131-0000-2358-a40b-582429aafaac",
+      "prod": "projects/155089172944/locations/us/transferConfigs/64120cbd-0000-2223-9479-089e08289458"
+    },
     "table_description": "Source table: Connect.module2_v2; Scheduled Query: FlatConnect.module2_v2_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/module2_v2; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.module2_v2."
 }
     

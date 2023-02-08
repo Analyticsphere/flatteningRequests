@@ -1759,134 +1759,257 @@ display: none;
 
 
 <!-- rnb-text-begin -->
-<div id="load-dependencies" class="section level4">
-<h4>0. Load dependencies</h4>
+<div id="load-dependencies-and-define-parameters" class="section level4">
+<h4>0. Load dependencies and define parameters</h4>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShqc29ubGl0ZSlcbmxpYnJhcnkodG9vbHMpXG4jIExvYWQgaGVscGVyIGZ1bmN0aW9uc1xuc291cmNlKFwiY29ubmVjdF9hbmFseXRpY3NfaGVscGVyX2Z1bmN0aW9ucy5SXCIpXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShqc29ubGl0ZSlcbmxpYnJhcnkodG9vbHMpXG5saWJyYXJ5KHJldGljdWxhdGUpXG5saWJyYXJ5KGJpZ3JxdWVyeSlcblxuIyBMb2FkIGhlbHBlciBmdW5jdGlvbnNcbnNvdXJjZShcImdjcF9xdWVyeV90b29scy9jb25uZWN0X2FuYWx5dGljc19oZWxwZXJfZnVuY3Rpb25zLlJcIilcblxuIyMjIyMjIyMjIyMgREVGSU5FIFBBUkFNRVRFUlMgIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjXG4jIHByb2plY3QgICA8LSBcIm5paC1uY2ktZGNlZy1jb25uZWN0LWRldlwiXG4jIHByb2plY3QgICA8LSBcIm5paC1uY2ktZGNlZy1jb25uZWN0LXN0Zy01NTE5XCJcbnByb2plY3QgPC0gXCJuaWgtbmNpLWRjZWctY29ubmVjdC1wcm9kLTZkMDRcIlxudGFibGUgICA8LSBcIkNvbm5lY3QuYmlvc3BlY2ltZW5cIiBcbiMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjI1xuXG4jIEF1dGhlbnRpY2F0ZSB0byBCaWdRdWVyeVxuYnFfYXV0aCgpXG5gYGAifQ== -->
 <pre class="r"><code>library(jsonlite)
 library(tools)
+library(reticulate)
+library(bigrquery)
+
 # Load helper functions
-source(&quot;connect_analytics_helper_functions.R&quot;)</code></pre>
+source(&quot;gcp_query_tools/connect_analytics_helper_functions.R&quot;)
+
+########### DEFINE PARAMETERS ###########################
+# project   &lt;- &quot;nih-nci-dceg-connect-dev&quot;
+# project   &lt;- &quot;nih-nci-dceg-connect-stg-5519&quot;
+project &lt;- &quot;nih-nci-dceg-connect-prod-6d04&quot;
+table   &lt;- &quot;Connect.biospecimen&quot; 
+#########################################################
+
+# Authenticate to BigQuery
+bq_auth()</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
-<div id="generate--variables.csv-and--lists.json-file-from-source-table-schema." class="section level4">
-<h4>1. Generate *-variables.csv and *-lists.json file from source table
-schema.</h4>
-<p>Here, we’ll generate a new query from a BigQuery table schema, given
-as an excel sheet which can be exported from BigQuery. Our queries
-require a query generator, a variables.csv file and a lists.json file.
-This function generates filters the variables in the schema based on
-whether they should be in the variables file or the list file. All
-variables destined for the list file are assigned a list of CIDs that
-are present in the data set for that variable, across all rows.</p>
+<div id="get-schema-from-bigquery-as-a-json-file-only-format-option" class="section level4">
+<h4>1. Get schema from BigQuery as a JSON file (only format option)</h4>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJvamVjdCAgPC0gXCJuaWgtbmNpLWRjZWctY29ubmVjdC1kZXZcIlxuIyBwcm9qZWN0ICA8LSBcIm5paC1uY2ktZGNlZy1jb25uZWN0LXN0Zy01NTE5XCJcbnRhYmxlICAgIDwtIFwiQ29ubmVjdC5jbGluaWNhbEJpb1N1cnZleV92MVwiXG5zY2hlbWEgICA8LSBcImNsaW5pY2FsQmlvU3VydmV5X3YxLXNjaGVtYS54bHN4XCJcbnNoZWV0ICAgIDwtIE5VTExcbm91dF9qc29uIDwtIFwiY2xpbmljYWxCaW9TdXJ2ZXlfdjEtbGlzdHMtZnJvbS1zY2hlbWEuanNcIiAjIGRlc3RpbmF0aW9uIGZpbGVcbm91dF9jc3YgIDwtIFwiY2xpbmljYWxCaW9TdXJ2ZXlfdjEtdmFyaWFibGVzLWZyb20tc2NoZW1hLmNzdlwiXG5cbiMgU2V0IG91dHB1dCBmaWxlcyB0byBlbnZpcm9ubWVudCB2YXJpYWJsZXMgZm9yIGVhc3kgY2xlYW51cCBsYXRlclxuU3lzLnNldGVudihPVVRfSlNPTiA9IG91dF9qc29uKVxuU3lzLnNldGVudihPVVRfQ1NWID0gb3V0X2NzdilcblxuIyBHZW5lcmF0ZSB0aGUgcXVlcnkgZnJvbSB0aGUgc2NoZW1hIGluIHRoZSBmb3JtIG9mIGEgc2V0IG9mIFxuIyB2YXJpYWJsZXMuY3N2IGFuZCBsaXN0cy5qc29uIGZpbGVzLlxub3V0IDwtIGZpbHRlcl92YXJzX2Zyb21fc2NoZW1hKHByb2plY3QsIHRhYmxlLCBzY2hlbWEsIG91dF9jc3YsIG91dF9qc29uLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzaGVldCA9IHNoZWV0LCAgICAgICBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBvdXRwdXRfZmlsZV90eXBlID0gXCJqc1wiKVxuYGBgIn0= -->
-<pre class="r"><code>project  &lt;- &quot;nih-nci-dceg-connect-dev&quot;
-# project  &lt;- &quot;nih-nci-dceg-connect-stg-5519&quot;
-table    &lt;- &quot;Connect.clinicalBioSurvey_v1&quot;
-schema   &lt;- &quot;clinicalBioSurvey_v1-schema.xlsx&quot;
-sheet    &lt;- NULL
-out_json &lt;- &quot;clinicalBioSurvey_v1-lists-from-schema.js&quot; # destination file
-out_csv  &lt;- &quot;clinicalBioSurvey_v1-variables-from-schema.csv&quot;
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShqc29ubGl0ZSlcbmxpYnJhcnkodG9vbHMpXG5saWJyYXJ5KHJldGljdWxhdGUpXG5saWJyYXJ5KGJpZ3JxdWVyeSlcblxuIyBMb2FkIGhlbHBlciBmdW5jdGlvbnNcbnNvdXJjZShcImdjcF9xdWVyeV90b29scy9jb25uZWN0X2FuYWx5dGljc19oZWxwZXJfZnVuY3Rpb25zLlJcIilcblxuIyMjIyMjIyMjIyMgREVGSU5FIFBBUkFNRVRFUlMgIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjXG4jIHByb2plY3QgICA8LSBcIm5paC1uY2ktZGNlZy1jb25uZWN0LWRldlwiXG4jIHByb2plY3QgICA8LSBcIm5paC1uY2ktZGNlZy1jb25uZWN0LXN0Zy01NTE5XCJcbnByb2plY3QgPC0gXCJuaWgtbmNpLWRjZWctY29ubmVjdC1wcm9kLTZkMDRcIlxudGFibGUgICA8LSBcIkNvbm5lY3QuYmlvc3BlY2ltZW5cIiBcbiMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjI1xuXG4jIEF1dGhlbnRpY2F0ZSB0byBCaWdRdWVyeVxuYnFfYXV0aCgpXG5gYGAifQ== -->
+<pre class="r"><code>library(jsonlite)
+library(tools)
+library(reticulate)
+library(bigrquery)
 
-# Set output files to environment variables for easy cleanup later
-Sys.setenv(OUT_JSON = out_json)
-Sys.setenv(OUT_CSV = out_csv)
+# Load helper functions
+source(&quot;gcp_query_tools/connect_analytics_helper_functions.R&quot;)
 
-# Generate the query from the schema in the form of a set of 
-# variables.csv and lists.json files.
-out &lt;- filter_vars_from_schema(project, table, schema, out_csv, out_json, 
-                               sheet = sheet,       
-                               output_file_type = &quot;js&quot;)</code></pre>
+########### DEFINE PARAMETERS ###########################
+# project   &lt;- &quot;nih-nci-dceg-connect-dev&quot;
+# project   &lt;- &quot;nih-nci-dceg-connect-stg-5519&quot;
+project &lt;- &quot;nih-nci-dceg-connect-prod-6d04&quot;
+table   &lt;- &quot;Connect.biospecimen&quot; 
+#########################################################
+
+# Authenticate to BigQuery
+bq_auth()</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiByZWFkeGxcbkxvYWRpbmcgcmVxdWlyZWQgcGFja2FnZTogZHBseXJcblxuQXR0YWNoaW5nIHBhY2thZ2U6IOKAmGRwbHly4oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0cyBhcmUgbWFza2VkIGZyb20g4oCYcGFja2FnZTpzdGF0c+KAmTpcblxuICAgIGZpbHRlciwgbGFnXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0cyBhcmUgbWFza2VkIGZyb20g4oCYcGFja2FnZTpiYXNl4oCZOlxuXG4gICAgaW50ZXJzZWN0LCBzZXRkaWZmLCBzZXRlcXVhbCwgdW5pb25cblxuTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBiaWdycXVlcnlcblJlZ2lzdGVyZWQgUzMgbWV0aG9kcyBvdmVyd3JpdHRlbiBieSAnZGJwbHlyJzpcbiAgbWV0aG9kICAgICAgICAgZnJvbVxuICBwcmludC50YmxfbGF6eSAgICAgXG4gIHByaW50LnRibF9zcWwgICAgICBcblRoZSBiaWdycXVlcnkgcGFja2FnZSBpcyByZXF1ZXN0aW5nIGFjY2VzcyB0byB5b3VyIEdvb2dsZSBhY2NvdW50LlxuU2VsZWN0IGEgcHJlLWF1dGhvcmlzZWQgYWNjb3VudCBvciBlbnRlciAnMCcgdG8gb2J0YWluIGEgbmV3IHRva2VuLlxuUHJlc3MgRXNjL0N0cmwgKyBDIHRvIGNhbmNlbC5cbiJ9 -->
-<pre><code>Loading required package: readxl
-Loading required package: dplyr
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="convert-schema-from-json-to-csv" class="section level4">
+<h4>2. Convert schema from JSON to CSV</h4>
+</div>
+<div id="set-up-python" class="section level1">
+<h1>Set up python</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHZW5lcmF0ZSBmaWxlIG5hbWVzIGdpdmVuIHRhYmxlIG5hbWVcbm1vZHVsZSAgICAgICAgPC0gc3Ryc3BsaXQodGFibGUsIHNwbGl0PVwiLlwiLCBmaXhlZD1UUlVFKVtbMV1dWzJdXG5xdWVyeV9mb2xkZXIgIDwtIFwicXVlcnlHZW5lcmF0b3JzL0ZsYXRDb25uZWN0X3F1ZXJpZXMvXCJcbm1vZHVsZV9mb2xkZXIgPC0gcGFzdGUwKHF1ZXJ5X2ZvbGRlciwgbW9kdWxlLCBcIi9cIilcblxuIyBDcmVhdGUgdGVtcG9yYXJ5IGRpcmVjdG9yeSB0byBzdG9yZSB0ZW1wIGZpbGVzIGluXG50bXBfZm9sZGVyIDwtIHBhc3RlMChtb2R1bGVfZm9sZGVyLFwidG1wL1wiKVxuaWYgKCFkaXIuZXhpc3RzKHRtcF9mb2xkZXIpKSB7ZGlyLmNyZWF0ZSh0bXBfZm9sZGVyKX1cblxuIyBOYW1lIHNjaGVtYSBmaWxlc1xuc2NoZW1hX2pzb24gICA8LSBwYXN0ZTAodG1wX2ZvbGRlcixtb2R1bGUsXCItc2NoZW1hLmpzb25cIilcbnNjaGVtYV9jc3YgICAgPC0gcGFzdGUwKHRtcF9mb2xkZXIsbW9kdWxlLFwiLXNjaGVtYS5jc3ZcIilcblxuIyBTZXQgZGVmYXVsdCBHQ1AgcHJvamVjdFxuc2V0X2RlZmF1bHRfZ2NwX3Byb2plY3QocHJvamVjdClcbmBgYCJ9 -->
+<pre class="r"><code># Generate file names given table name
+module        &lt;- strsplit(table, split=&quot;.&quot;, fixed=TRUE)[[1]][2]
+query_folder  &lt;- &quot;queryGenerators/FlatConnect_queries/&quot;
+module_folder &lt;- paste0(query_folder, module, &quot;/&quot;)
 
-Attaching package: ‘dplyr’
+# Create temporary directory to store temp files in
+tmp_folder &lt;- paste0(module_folder,&quot;tmp/&quot;)
+if (!dir.exists(tmp_folder)) {dir.create(tmp_folder)}
 
-The following objects are masked from ‘package:stats’:
+# Name schema files
+schema_json   &lt;- paste0(tmp_folder,module,&quot;-schema.json&quot;)
+schema_csv    &lt;- paste0(tmp_folder,module,&quot;-schema.csv&quot;)
 
-    filter, lag
-
-The following objects are masked from ‘package:base’:
-
-    intersect, setdiff, setequal, union
-
-Loading required package: bigrquery
-Registered S3 methods overwritten by &#39;dbplyr&#39;:
-  method         from
-  print.tbl_lazy     
-  print.tbl_sql      
-The bigrquery package is requesting access to your Google account.
-Select a pre-authorised account or enter &#39;0&#39; to obtain a new token.
-Press Esc/Ctrl + C to cancel.</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiXG4xOiBwZXRlcnNqbUBuaWguZ292XG4ifQ== -->
+# Set default GCP project
+set_default_gcp_project(project)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5zZXQgZGVmYXV0IGdjcCBwcm9qZWN0IHdpdGggY29tbWFuZDpcblxuICBicSBscyAtaiAtLXByb2plY3RfaWQgbmloLW5jaS1kY2VnLWNvbm5lY3QtcHJvZC02ZDA0ID4gL2Rldi9udWxsXG4ifQ== -->
 <pre><code>
-1: petersjm@nih.gov</code></pre>
+set defaut gcp project with command:
+
+  bq ls -j --project_id nih-nci-dceg-connect-prod-6d04 &gt; /dev/null</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuMVxuYGBgIn0= -->
-<pre class="r"><code>1</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHZXQgdGhlIHRhYmxlIHNjaGVtYSBmcm9tIEdDUCBhcyBhIEpTT04gZmlsZSBuYW1lZCBzY2hlbWFfanNvblxuZ2V0X2djcF90YWJsZV9zY2hlbWEocHJvamVjdCwgdGFibGUsIHNjaGVtYV9qc29uKSBcbmBgYCJ9 -->
+<pre class="r"><code># Get the table schema from GCP as a JSON file named schema_json
+get_gcp_table_schema(project, table, schema_json) </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiQXV0by1yZWZyZXNoaW5nIHN0YWxlIE9BdXRoIHRva2VuLlxuQ29tcGxldGVcbkJpbGxlZDogMTAuNDkgTUJcbkRvd25sb2FkaW5nIGZpcnN0IGNodW5rIG9mIGRhdGEuXG5GaXJzdCBjaHVuayBpbmNsdWRlcyBhbGwgcmVxdWVzdGVkIHJvd3MuXG5Db21wbGV0ZVxuQmlsbGVkOiAwIEJcbkRvd25sb2FkaW5nIGZpcnN0IGNodW5rIG9mIGRhdGEuXG5GaXJzdCBjaHVuayBpbmNsdWRlcyBhbGwgcmVxdWVzdGVkIHJvd3MuXG5Db21wbGV0ZVxuQmlsbGVkOiAxMC40OSBNQlxuRG93bmxvYWRpbmcgZmlyc3QgY2h1bmsgb2YgZGF0YS5cbkZpcnN0IGNodW5rIGluY2x1ZGVzIGFsbCByZXF1ZXN0ZWQgcm93cy5cbkNvbXBsZXRlXG5CaWxsZWQ6IDEwLjQ5IE1CXG5Eb3dubG9hZGluZyBmaXJzdCBjaHVuayBvZiBkYXRhLlxuRmlyc3QgY2h1bmsgaW5jbHVkZXMgYWxsIHJlcXVlc3RlZCByb3dzLlxuIn0= -->
-<pre><code>Auto-refreshing stale OAuth token.
-Complete
-Billed: 10.49 MB
-Downloading first chunk of data.
-First chunk includes all requested rows.
-Complete
-Billed: 0 B
-Downloading first chunk of data.
-First chunk includes all requested rows.
-Complete
-Billed: 10.49 MB
-Downloading first chunk of data.
-First chunk includes all requested rows.
-Complete
-Billed: 10.49 MB
-Downloading first chunk of data.
-First chunk includes all requested rows.</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiXG5nb3QgZ2NwIHRhYmxlIHNjaGVtYSB3aXRoIGNvbW1hbmQ6XG5cbiAgYnEgc2hvdyAtLXNjaGVtYSAtLWZvcm1hdD1wcmV0dHlqc29uIG5paC1uY2ktZGNlZy1jb25uZWN0LXByb2QtNmQwNDpDb25uZWN0LmJpb3NwZWNpbWVuID4gXCJxdWVyeUdlbmVyYXRvcnMvRmxhdENvbm5lY3RfcXVlcmllcy9iaW9zcGVjaW1lbi90bXAvYmlvc3BlY2ltZW4tc2NoZW1hLmpzb25cIlxuIn0= -->
+<pre><code>
+got gcp table schema with command:
+
+  bq show --schema --format=prettyjson nih-nci-dceg-connect-prod-6d04:Connect.biospecimen &gt; &quot;queryGenerators/FlatConnect_queries/biospecimen/tmp/biospecimen-schema.json&quot;</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxub3V0JHZhcmlhYmxlc1swOjEwXVxuYGBgIn0= -->
-<pre class="r"><code>out$variables[0:10]</code></pre>
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="generate--variables.csv-and--lists.json-file-from-source-table-schema." class="section level4">
+<h4>3. Generate *-variables.csv and *-lists.json file from source table
+schema.</h4>
+<p>Here, we’ll generate a new query from a BigQuery table schema, Our
+queries require a query_generator.js, *-variables.csv and a
+*-lists.json. This function generates filters the variables in the
+schema based on whether they should be in the variables.csv file or the
+*-list.json file. All variables destined for the list file are assigned
+a list of CIDs that are present in the data set for that variable,
+across all rows.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTZXQgZW52aXJvbm1lbnQgdmFyaWFibGVzXG4jIFZhcmlhYmxlcyB3aXRoIHRoZXNlIHByb3BlcnRpZXMgd2lsbCBiZSBmaWx0ZXJlZCBvdXQuIFN0cmluZyBjYW5ub3QgY29udGFpbiBzcGFjZXMuXG5zY2hlbWFfZmlsdGVyIDwtICd7XCJuYW1lXCI6W1wiX19rZXlfX1wiLFwiX19lcnJvcl9fXCIsXCJfX2hhc19lcnJvcl9fXCIsXCJ0cmVlSlNPTlwiLFwiYWxsRW1haWxzXCIsXCJhbGxQaG9uZU5vXCJdLFwidHlwZVwiOltcIlJFQ09SRFwiXX0nXG5weV9mdW5jIDwtICdnY3BfcXVlcnlfdG9vbHMvanNvbl9zY2hlbWFfdG9fY3N2X2IucHknXG5TeXMuc2V0ZW52KFNDSEVNQV9DU1YgPSBzY2hlbWFfY3N2KVxuU3lzLnNldGVudihTQ0hFTUFfSlNPTiA9IHNjaGVtYV9qc29uKVxuU3lzLnNldGVudihTQ0hFTUFfRklMVEVSID0gc2NoZW1hX2ZpbHRlcilcblN5cy5zZXRlbnYoUFlfRlVOQyA9IHB5X2Z1bmMpXG5zeXN0ZW0oJ3B5dGhvbjMgJFBZX0ZVTkMgJFNDSEVNQV9KU09OICRTQ0hFTUFfQ1NWICRTQ0hFTUFfRklMVEVSJylcbmBgYCJ9 -->
+<pre class="r"><code># Set environment variables
+# Variables with these properties will be filtered out. String cannot contain spaces.
+schema_filter &lt;- &#39;{&quot;name&quot;:[&quot;__key__&quot;,&quot;__error__&quot;,&quot;__has_error__&quot;,&quot;treeJSON&quot;,&quot;allEmails&quot;,&quot;allPhoneNo&quot;],&quot;type&quot;:[&quot;RECORD&quot;]}&#39;
+py_func &lt;- &#39;gcp_query_tools/json_schema_to_csv_b.py&#39;
+Sys.setenv(SCHEMA_CSV = schema_csv)
+Sys.setenv(SCHEMA_JSON = schema_json)
+Sys.setenv(SCHEMA_FILTER = schema_filter)
+Sys.setenv(PY_FUNC = py_func)
+system(&#39;python3 $PY_FUNC $SCHEMA_JSON $SCHEMA_CSV $SCHEMA_FILTER&#39;)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSBEXzc3NTMxMzAzMF8yXzIgRF82OTQ1MDM0MzdfMl8yIERfNjk0NTAzNDM3XzFfMSBEXzUxODkxNjk4MSAgICAgRF8xMDg3MzMxMDJfMl8yXG4gWzZdIERfNTkxODI2MTQ0ICAgICBEXzc3NTMxMzAzMF8xXzEgdWlkICAgICAgICAgICAgIERfMzgwNjAzMzkyICAgICBEXzI3MzM3MTE2MSAgICBcbjI4OCBMZXZlbHM6IF9fZXJyb3JfXyBfX2hhc19lcnJvcl9fIF9fa2V5X18gX19rZXlfXy5hcHAgX19rZXlfXy5pZCAuLi4gdWlkXG4ifQ== -->
-<pre><code> [1] D_775313030_2_2 D_694503437_2_2 D_694503437_1_1 D_518916981     D_108733102_2_2
- [6] D_591826144     D_775313030_1_1 uid             D_380603392     D_273371161    
-288 Levels: __error__ __has_error__ __key__ __key__.app __key__.id ... uid</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxub3V0JGFycmF5X2pzb25bMDoxMF1cbmBgYCJ9 -->
-<pre class="r"><code>out$array_json[0:10]</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiTlVMTFxuIn0= -->
-<pre><code>NULL</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiYXJnc1swXTogcXVlcnlHZW5lcmF0b3JzL0ZsYXRDb25uZWN0X3F1ZXJpZXMvYmlvc3BlY2ltZW4vdG1wL2Jpb3NwZWNpbWVuLXNjaGVtYS5qc29uXG5nZW5lcmF0ZWQgcXVlcnlHZW5lcmF0b3JzL0ZsYXRDb25uZWN0X3F1ZXJpZXMvYmlvc3BlY2ltZW4vdG1wL2Jpb3NwZWNpbWVuLXNjaGVtYS5jc3ZcbiJ9 -->
+<pre><code>args[0]: queryGenerators/FlatConnect_queries/biospecimen/tmp/biospecimen-schema.json
+generated queryGenerators/FlatConnect_queries/biospecimen/tmp/biospecimen-schema.csv</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
-<div id="combine-json-and-csv-files-from-manual-queries-with-schema-informed-query" class="section level4">
-<h4>2. Combine json and csv files from manual queries with
-schema-informed query</h4>
+<div id="combine-json-and-csv-files-prior-to-generating-query" class="section level4">
+<h4>4. Combine json and csv files prior to generating query</h4>
 <p>Now that we have a new query in the form of variables.csv and
 lists.json files, we need to combine the new json file with the old json
 file.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuQSA8LSBcImNsaW5pY2FsQmlvU3VydmV5X3YxLWxpc3RzLmpzb25cIlxuQiA8LSBcImNsaW5pY2FsQmlvU3VydmV5X3YxLmpzb25cIlxuQyA8LSBcImNsaW5pY2FsQmlvU3VydmV5X3YxLWxpc3RzLXVuaW9uLmpzb25cIlxuXG5TeXMuc2V0ZW52KFVOSU9OX0pTT04gPSBDKSAjIEZvciBlYXN5IGNsZWFudXAgbGF0ZXJcblxudW5pb25fanNvbl9zdHIgPC0gZ2V0X3VuaW9uX29mX2pzb25fYXJyYXlzKEEsIEIsIEMpXG51bmlvbl9qc29uX3N0clxuYGBgIn0= -->
-<pre class="r"><code>A &lt;- &quot;clinicalBioSurvey_v1-lists.json&quot;
-B &lt;- &quot;clinicalBioSurvey_v1.json&quot;
-C &lt;- &quot;clinicalBioSurvey_v1-lists-union.json&quot;
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHZW5lcmF0ZSB0aGUgcXVlcnkgZnJvbSB0aGUgc2NoZW1hIGluIHRoZSBmb3JtIG9mIGEgc2V0IG9mIFxuIyB2YXJpYWJsZXMuY3N2IGFuZCBsaXN0cy5qc29uIGZpbGVzLlxub3V0X2pzb24gPC0gcGFzdGUwKHRtcF9mb2xkZXIsIG1vZHVsZSwgXCItbGlzdHMtZnJvbS1zY2hlbWEuanNvblwiKVxub3V0X2NzdiAgPC0gcGFzdGUwKHRtcF9mb2xkZXIsIG1vZHVsZSwgXCItdmFyaWFibGVzLWZyb20tc2NoZW1hLmNzdlwiKVxuXG4jIEdldCB2YXJpYWJsZXMgYW5kIGxpc3RzIGZpbGVzIGZyb20gc2NoZW1hXG5maWx0ZXJfdmFyc19mcm9tX3NjaGVtYShwcm9qZWN0LCB0YWJsZSwgc2NoZW1hX2Nzdiwgb3V0X2Nzdiwgb3V0X2pzb24sIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG91dHB1dF9maWxlX3R5cGUgPSBcImpzb25cIilcbmBgYCJ9 -->
+<pre class="r"><code># Generate the query from the schema in the form of a set of 
+# variables.csv and lists.json files.
+out_json &lt;- paste0(tmp_folder, module, &quot;-lists-from-schema.json&quot;)
+out_csv  &lt;- paste0(tmp_folder, module, &quot;-variables-from-schema.csv&quot;)
 
-Sys.setenv(UNION_JSON = C) # For easy cleanup later
-
-union_json_str &lt;- get_union_of_json_arrays(A, B, C)
-union_json_str</code></pre>
+# Get variables and lists files from schema
+filter_vars_from_schema(project, table, schema_csv, out_csv, out_json, 
+                               output_file_type = &quot;json&quot;)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiJHZhcmlhYmxlc1xuICBbMV0gZF8zMzE1ODQ1NzEgICAgICAgICAgICAgICAgICAgICAgICAgZF85NTEzNTUyMTEgICAgICAgICAgICAgICAgICAgICAgICAgQ29ubmVjdF9JRCAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgWzRdIGRfODI3MjIwNDM3ICAgICAgICAgICAgICAgICAgICAgICAgIHNpdGVBY3JvbnltICAgICAgICAgICAgICAgICAgICAgICAgIGRfODIwNDc2ODgwICAgICAgICAgICAgICAgICAgICAgICAgXG4gIFs3XSBpZCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBkXzM4NzEwODA2NSAgICAgICAgICAgICAgICAgICAgICAgICB0b2tlbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuIFsxMF0gZF82NTA1MTY5NjAgICAgICAgICAgICAgICAgICAgICAgICAgZF82NzgxNjY1MDUgICAgICAgICAgICAgICAgICAgICAgICAgZF8zMzg1NzAyNjUgICAgICAgICAgICAgICAgICAgICAgICBcbiBbMTNdIGRfNTU2Nzg4MTc4ICAgICAgICAgICAgICAgICAgICAgICAgIGRfNDEwOTEyMzQ1ICAgICAgICAgICAgICAgICAgICAgICAgIGRfOTI2NDU3MTE5ICAgICAgICAgICAgICAgICAgICAgICAgXG4gWzE2XSBkXzkyODY5MzEyMCAgICAgICAgICAgICAgICAgICAgICAgICBkXzY0Njg5OTc5NiAgICAgICAgICAgICAgICAgICAgICAgICBkXzkxNTgzODk3NCAgICAgICAgICAgICAgICAgICAgICAgIFxuIFsxOV0gZF83ODcyMzc1NDMuZF84MjU1ODI0OTQgICAgICAgICAgICAgZF83ODcyMzc1NDMuZF81OTM4NDM1NjEgICAgICAgICAgICAgZF8yMjM5OTk1NjkuZF84MjU1ODI0OTQgICAgICAgICAgICBcbiBbMjJdIGRfMjIzOTk5NTY5LmRfNTkzODQzNTYxICAgICAgICAgICAgIGRfMTQzNjE1NjQ2LmRfODI1NTgyNDk0ICAgICAgICAgICAgIGRfMTQzNjE1NjQ2LmRfNjc4ODU3MjE1ICAgICAgICAgICAgXG4gWzI1XSBkXzE0MzYxNTY0Ni5kXzc2MjEyNDAyNyAgICAgICAgICAgICBkXzE0MzYxNTY0Ni5kXzU5Mzg0MzU2MSAgICAgICAgICAgICBkXzE0MzYxNTY0Ni5kXzkyNjQ1NzExOSAgICAgICAgICAgIFxuIFsyOF0gZF8xNDM2MTU2NDYuZF81MzY3MTA1NDcgICAgICAgICAgICAgZF8xNDM2MTU2NDYuZF8zMzgyODYwNDkgICAgICAgICAgICAgZF8xNDM2MTU2NDYuZF84ODM3MzI1MjMgICAgICAgICAgICBcbiBbMzFdIGRfMjk5NTUzOTIxLmRfODI1NTgyNDk0ICAgICAgICAgICAgIGRfMjk5NTUzOTIxLmRfNjc4ODU3MjE1ICAgICAgICAgICAgIGRfMjk5NTUzOTIxLmRfNzYyMTI0MDI3ICAgICAgICAgICAgXG4gWzM0XSBkXzI5OTU1MzkyMS5kXzU5Mzg0MzU2MSAgICAgICAgICAgICBkXzI5OTU1MzkyMS5kXzkyNjQ1NzExOSAgICAgICAgICAgICBkXzI5OTU1MzkyMS5kXzMzODI4NjA0OSAgICAgICAgICAgIFxuIFszN10gZF8yOTk1NTM5MjEuZF84ODM3MzI1MjMgICAgICAgICAgICAgZF8yOTk1NTM5MjEuZF81MzY3MTA1NDcgICAgICAgICAgICAgZF83MDM5NTQzNzEuZF84MjU1ODI0OTQgICAgICAgICAgICBcbiBbNDBdIGRfNzAzOTU0MzcxLmRfNjc4ODU3MjE1ICAgICAgICAgICAgIGRfNzAzOTU0MzcxLmRfNzYyMTI0MDI3ICAgICAgICAgICAgIGRfNzAzOTU0MzcxLmRfNTkzODQzNTYxICAgICAgICAgICAgXG4gWzQzXSBkXzcwMzk1NDM3MS5kXzkyNjQ1NzExOSAgICAgICAgICAgICBkXzcwMzk1NDM3MS5kXzMzODI4NjA0OSAgICAgICAgICAgICBkXzcwMzk1NDM3MS5kXzg4MzczMjUyMyAgICAgICAgICAgIFxuIFs0Nl0gZF83MDM5NTQzNzEuZF81MzY3MTA1NDcgICAgICAgICAgICAgZF84Mzg1NjcxNzYuZF84MjU1ODI0OTQgICAgICAgICAgICAgZF84Mzg1NjcxNzYuZF82Nzg4NTcyMTUgICAgICAgICAgICBcbiBbNDldIGRfODM4NTY3MTc2LmRfNzYyMTI0MDI3ICAgICAgICAgICAgIGRfODM4NTY3MTc2LmRfNTkzODQzNTYxICAgICAgICAgICAgIGRfODM4NTY3MTc2LmRfOTI2NDU3MTE5ICAgICAgICAgICAgXG4gWzUyXSBkXzgzODU2NzE3Ni5kXzMzODI4NjA0OSAgICAgICAgICAgICBkXzgzODU2NzE3Ni5kXzg4MzczMjUyMyAgICAgICAgICAgICBkXzgzODU2NzE3Ni5kXzUzNjcxMDU0NyAgICAgICAgICAgIFxuIFs1NV0gZF80NTQ0NTM5MzkuZF84MjU1ODI0OTQgICAgICAgICAgICAgZF80NTQ0NTM5MzkuZF82Nzg4NTcyMTUgICAgICAgICAgICAgZF80NTQ0NTM5MzkuZF83NjIxMjQwMjcgICAgICAgICAgICBcbiBbNThdIGRfNDU0NDUzOTM5LmRfNTkzODQzNTYxICAgICAgICAgICAgIGRfNDU0NDUzOTM5LmRfOTI2NDU3MTE5ICAgICAgICAgICAgIGRfNDU0NDUzOTM5LmRfMzM4Mjg2MDQ5ICAgICAgICAgICAgXG4gWzYxXSBkXzQ1NDQ1MzkzOS5kXzg4MzczMjUyMyAgICAgICAgICAgICBkXzQ1NDQ1MzkzOS5kXzUzNjcxMDU0NyAgICAgICAgICAgICBkXzY1MjM1NzM3Ni5kXzgyNTU4MjQ5NCAgICAgICAgICAgIFxuIFs2NF0gZF82NTIzNTczNzYuZF82Nzg4NTcyMTUgICAgICAgICAgICAgZF82NTIzNTczNzYuZF83NjIxMjQwMjcgICAgICAgICAgICAgZF82NTIzNTczNzYuZF81OTM4NDM1NjEgICAgICAgICAgICBcbiBbNjddIGRfNjUyMzU3Mzc2LmRfOTI2NDU3MTE5ICAgICAgICAgICAgIGRfNjUyMzU3Mzc2LmRfNTM2NzEwNTQ3ICAgICAgICAgICAgIGRfNjUyMzU3Mzc2LmRfMzM4Mjg2MDQ5ICAgICAgICAgICAgXG4gWzcwXSBkXzY1MjM1NzM3Ni5kXzg4MzczMjUyMyAgICAgICAgICAgICBkXzk3MzY3MDE3Mi5kXzgyNTU4MjQ5NCAgICAgICAgICAgICBkXzk3MzY3MDE3Mi5kXzY3ODg1NzIxNSAgICAgICAgICAgIFxuIFs3M10gZF85NzM2NzAxNzIuZF83NjIxMjQwMjcgICAgICAgICAgICAgZF85NzM2NzAxNzIuZF81OTM4NDM1NjEgICAgICAgICAgICAgZF85NzM2NzAxNzIuZF85MjY0NTcxMTkgICAgICAgICAgICBcbiBbNzZdIGRfOTczNjcwMTcyLmRfMzM4Mjg2MDQ5ICAgICAgICAgICAgIGRfOTczNjcwMTcyLmRfODgzNzMyNTIzICAgICAgICAgICAgIGRfOTczNjcwMTcyLmRfNTM2NzEwNTQ3ICAgICAgICAgICAgXG4gWzc5XSBkXzY4MzYxMzg4NC5kXzY3ODg1NzIxNSAgICAgICAgICAgICBkXzY4MzYxMzg4NC5kXzc2MjEyNDAyNyAgICAgICAgICAgICBkXzY4MzYxMzg4NC5kXzU5Mzg0MzU2MSAgICAgICAgICAgIFxuIFs4Ml0gZF82ODM2MTM4ODQuZF81MzY3MTA1NDcgICAgICAgICAgICAgZF82ODM2MTM4ODQuZF84MjU1ODI0OTQgICAgICAgICAgICAgZF82ODM2MTM4ODQuZF85MjY0NTcxMTkgICAgICAgICAgICBcbiBbODVdIGRfMzc2OTYwODA2LmRfODI1NTgyNDk0ICAgICAgICAgICAgIGRfMzc2OTYwODA2LmRfNjc4ODU3MjE1ICAgICAgICAgICAgIGRfMzc2OTYwODA2LmRfNzYyMTI0MDI3ICAgICAgICAgICAgXG4gWzg4XSBkXzM3Njk2MDgwNi5kXzU5Mzg0MzU2MSAgICAgICAgICAgICBkXzM3Njk2MDgwNi5kXzkyNjQ1NzExOSAgICAgICAgICAgICBkXzIzMjM0MzYxNS5kXzgyNTU4MjQ5NCAgICAgICAgICAgIFxuIFs5MV0gZF8yMzIzNDM2MTUuZF82Nzg4NTcyMTUgICAgICAgICAgICAgZF8yMzIzNDM2MTUuZF83NjIxMjQwMjcgICAgICAgICAgICAgZF8yMzIzNDM2MTUuZF81OTM4NDM1NjEgICAgICAgICAgICBcbiBbOTRdIGRfMjMyMzQzNjE1LmRfOTI2NDU3MTE5ICAgICAgICAgICAgIGRfNTg5NTg4NDQwLmRfODI1NTgyNDk0ICAgICAgICAgICAgIGRfNTg5NTg4NDQwLmRfNjc4ODU3MjE1ICAgICAgICAgICAgXG4gWzk3XSBkXzU4OTU4ODQ0MC5kXzc2MjEyNDAyNyAgICAgICAgICAgICBkXzU4OTU4ODQ0MC5kXzU5Mzg0MzU2MSAgICAgICAgICAgICBkXzU4OTU4ODQ0MC5kXzkyNjQ1NzExOSAgICAgICAgICAgIFxuWzEwMF0gZF85NTg2NDY2NjguZF84MjU1ODI0OTQgICAgICAgICAgICAgZF85NTg2NDY2NjguZF82Nzg4NTcyMTUgICAgICAgICAgICAgZF85NTg2NDY2NjguZF83NjIxMjQwMjcgICAgICAgICAgICBcblsxMDNdIGRfOTU4NjQ2NjY4LmRfNTkzODQzNTYxICAgICAgICAgICAgIGRfOTU4NjQ2NjY4LmRfOTI2NDU3MTE5ICAgICAgICAgICAgIGRfNjc3NDY5MDUxLmRfODI1NTgyNDk0ICAgICAgICAgICAgXG5bMTA2XSBkXzY3NzQ2OTA1MS5kXzY3ODg1NzIxNSAgICAgICAgICAgICBkXzY3NzQ2OTA1MS5kXzc2MjEyNDAyNyAgICAgICAgICAgICBkXzY3NzQ2OTA1MS5kXzU5Mzg0MzU2MSAgICAgICAgICAgIFxuWzEwOV0gZF82Nzc0NjkwNTEuZF85MjY0NTcxMTkgICAgICAgICAgICAgZF82Nzc0NjkwNTEuZF81MzY3MTA1NDcgICAgICAgICAgICAgZF8xNDM2MTU2NDYuZF8yNDg4Njg2NTkuZF80NzI4NjQwMTZcblsxMTJdIGRfMTQzNjE1NjQ2LmRfMjQ4ODY4NjU5LmRfNzU3MjQ2NzA3IGRfMTQzNjE1NjQ2LmRfMjQ4ODY4NjU5LmRfOTgyODg1NDMxIGRfMTQzNjE1NjQ2LmRfMjQ4ODY4NjU5LmRfNjg0NjE3ODE1XG5bMTE1XSBkXzE0MzYxNTY0Ni5kXzI0ODg2ODY1OS5kXzI4MzkwMDYxMSBkXzE0MzYxNTY0Ni5kXzI0ODg2ODY1OS5kXzc0MjgwNjAzNSBkXzE0MzYxNTY0Ni5kXzI0ODg2ODY1OS5kXzcyODM2NjYxOVxuWzExOF0gZF8xNDM2MTU2NDYuZF8yNDg4Njg2NTkuZF8zMTMwOTc1MzkgZF8xNDM2MTU2NDYuZF8yNDg4Njg2NTkuZF80NTMzNDMwMjIgZF8yOTk1NTM5MjEuZF8yNDg4Njg2NTkuZF85ODI4ODU0MzFcblsxMjFdIGRfMjk5NTUzOTIxLmRfMjQ4ODY4NjU5LmRfOTM3MzYyNzg1IGRfMjk5NTUzOTIxLmRfMjQ4ODY4NjU5LmRfNjU0MDAyMTg0IGRfMjk5NTUzOTIxLmRfMjQ4ODY4NjU5LmRfOTEyMDg4NjAyXG5bMTI0XSBkXzI5OTU1MzkyMS5kXzI0ODg2ODY1OS5kXzc3NzQ4NjIxNiBkXzI5OTU1MzkyMS5kXzI0ODg2ODY1OS5kXzg2MTE2Mjg5NSBkXzI5OTU1MzkyMS5kXzI0ODg2ODY1OS5kXzcyODM2NjYxOVxuWzEyN10gZF8yOTk1NTM5MjEuZF8yNDg4Njg2NTkuZF84MTA5NjA4MjMgZF8yOTk1NTM5MjEuZF8yNDg4Njg2NTkuZF80NTMzNDMwMjIgZF8yOTk1NTM5MjEuZF8yNDg4Njg2NTkuZF82OTA1NDA1NjZcblsxMzBdIGRfMjk5NTUzOTIxLmRfMjQ4ODY4NjU5LmRfMjQyMzA3NDc0IGRfMjk5NTUzOTIxLmRfMjQ4ODY4NjU5LmRfNDcyODY0MDE2IGRfMjk5NTUzOTIxLmRfMjQ4ODY4NjU5LmRfNzU3MjQ2NzA3XG5bMTMzXSBkXzI5OTU1MzkyMS5kXzI0ODg2ODY1OS5kXzY4NDYxNzgxNSBkXzI5OTU1MzkyMS5kXzI0ODg2ODY1OS5kXzI4MzkwMDYxMSBkXzI5OTU1MzkyMS5kXzI0ODg2ODY1OS5kXzYzNTg3NTI1M1xuWzEzNl0gZF8yOTk1NTM5MjEuZF8yNDg4Njg2NTkuZF81NjEwMDU5MjcgZF8yOTk1NTM5MjEuZF8yNDg4Njg2NTkuZF8xMDI2OTU0ODQgZF8yOTk1NTM5MjEuZF8yNDg4Njg2NTkuZF81NTAwODg2ODJcblsxMzldIGRfMjk5NTUzOTIxLmRfMjQ4ODY4NjU5LmRfMzEzMDk3NTM5IGRfNzAzOTU0MzcxLmRfMjQ4ODY4NjU5LmRfOTgyODg1NDMxIGRfNzAzOTU0MzcxLmRfMjQ4ODY4NjU5LmRfOTM3MzYyNzg1XG5bMTQyXSBkXzcwMzk1NDM3MS5kXzI0ODg2ODY1OS5kXzY1NDAwMjE4NCBkXzcwMzk1NDM3MS5kXzI0ODg2ODY1OS5kXzkxMjA4ODYwMiBkXzcwMzk1NDM3MS5kXzI0ODg2ODY1OS5kXzc3NzQ4NjIxNlxuWzE0NV0gZF83MDM5NTQzNzEuZF8yNDg4Njg2NTkuZF83MjgzNjY2MTkgZF83MDM5NTQzNzEuZF8yNDg4Njg2NTkuZF84NjExNjI4OTUgZF83MDM5NTQzNzEuZF8yNDg4Njg2NTkuZF84MTA5NjA4MjNcblsxNDhdIGRfNzAzOTU0MzcxLmRfMjQ4ODY4NjU5LmRfNDUzMzQzMDIyIGRfNzAzOTU0MzcxLmRfMjQ4ODY4NjU5LmRfMjQyMzA3NDc0IGRfNzAzOTU0MzcxLmRfMjQ4ODY4NjU5LmRfNjkwNTQwNTY2XG5bMTUxXSBkXzcwMzk1NDM3MS5kXzI0ODg2ODY1OS5kXzQ3Mjg2NDAxNiBkXzcwMzk1NDM3MS5kXzI0ODg2ODY1OS5kXzc1NzI0NjcwNyBkXzcwMzk1NDM3MS5kXzI0ODg2ODY1OS5kXzY4NDYxNzgxNVxuWzE1NF0gZF83MDM5NTQzNzEuZF8yNDg4Njg2NTkuZF8yODM5MDA2MTEgZF83MDM5NTQzNzEuZF8yNDg4Njg2NTkuZF82MzU4NzUyNTMgZF83MDM5NTQzNzEuZF8yNDg4Njg2NTkuZF81NjEwMDU5MjdcblsxNTddIGRfNzAzOTU0MzcxLmRfMjQ4ODY4NjU5LmRfMTAyNjk1NDg0IGRfNzAzOTU0MzcxLmRfMjQ4ODY4NjU5LmRfNTUwMDg4NjgyIGRfNzAzOTU0MzcxLmRfMjQ4ODY4NjU5LmRfMzEzMDk3NTM5XG5bMTYwXSBkXzgzODU2NzE3Ni5kXzI0ODg2ODY1OS5kXzk4Mjg4NTQzMSBkXzgzODU2NzE3Ni5kXzI0ODg2ODY1OS5kXzc3NzQ4NjIxNiBkXzgzODU2NzE3Ni5kXzI0ODg2ODY1OS5kXzcyODM2NjYxOVxuWzE2M10gZF84Mzg1NjcxNzYuZF8yNDg4Njg2NTkuZF84MTA5NjA4MjMgZF84Mzg1NjcxNzYuZF8yNDg4Njg2NTkuZF80NTMzNDMwMjIgZF84Mzg1NjcxNzYuZF8yNDg4Njg2NTkuZF82OTA1NDA1NjZcblsxNjZdIGRfODM4NTY3MTc2LmRfMjQ4ODY4NjU5LmRfMjQyMzA3NDc0IGRfODM4NTY3MTc2LmRfMjQ4ODY4NjU5LmRfNDcyODY0MDE2IGRfODM4NTY3MTc2LmRfMjQ4ODY4NjU5LmRfNzU3MjQ2NzA3XG5bMTY5XSBkXzgzODU2NzE3Ni5kXzI0ODg2ODY1OS5kXzY4NDYxNzgxNSBkXzgzODU2NzE3Ni5kXzI0ODg2ODY1OS5kXzI4MzkwMDYxMSBkXzgzODU2NzE3Ni5kXzI0ODg2ODY1OS5kXzU1MDA4ODY4MlxuWzE3Ml0gZF84Mzg1NjcxNzYuZF8yNDg4Njg2NTkuZF8zMTMwOTc1MzkgZF80NTQ0NTM5MzkuZF8yNDg4Njg2NTkuZF85ODI4ODU0MzEgZF80NTQ0NTM5MzkuZF8yNDg4Njg2NTkuZF83Nzc0ODYyMTZcblsxNzVdIGRfNDU0NDUzOTM5LmRfMjQ4ODY4NjU5LmRfNzI4MzY2NjE5IGRfNDU0NDUzOTM5LmRfMjQ4ODY4NjU5LmRfODEwOTYwODIzIGRfNDU0NDUzOTM5LmRfMjQ4ODY4NjU5LmRfNDUzMzQzMDIyXG5bMTc4XSBkXzQ1NDQ1MzkzOS5kXzI0ODg2ODY1OS5kXzI0MjMwNzQ3NCBkXzQ1NDQ1MzkzOS5kXzI0ODg2ODY1OS5kXzY5MDU0MDU2NiBkXzQ1NDQ1MzkzOS5kXzI0ODg2ODY1OS5kXzQ3Mjg2NDAxNlxuWzE4MV0gZF80NTQ0NTM5MzkuZF8yNDg4Njg2NTkuZF83NTcyNDY3MDcgZF80NTQ0NTM5MzkuZF8yNDg4Njg2NTkuZF82ODQ2MTc4MTUgZF80NTQ0NTM5MzkuZF8yNDg4Njg2NTkuZF8yODM5MDA2MTFcblsxODRdIGRfNDU0NDUzOTM5LmRfMjQ4ODY4NjU5LmRfNTUwMDg4NjgyIGRfNDU0NDUzOTM5LmRfMjQ4ODY4NjU5LmRfMzEzMDk3NTM5IGRfNjUyMzU3Mzc2LmRfMjQ4ODY4NjU5LmRfOTgyODg1NDMxXG5bMTg3XSBkXzY1MjM1NzM3Ni5kXzI0ODg2ODY1OS5kXzc3NzQ4NjIxNiBkXzY1MjM1NzM3Ni5kXzI0ODg2ODY1OS5kXzcyODM2NjYxOSBkXzY1MjM1NzM3Ni5kXzI0ODg2ODY1OS5kXzgxMDk2MDgyM1xuWzE5MF0gZF82NTIzNTczNzYuZF8yNDg4Njg2NTkuZF80NTMzNDMwMjIgZF82NTIzNTczNzYuZF8yNDg4Njg2NTkuZF8yNDIzMDc0NzQgZF82NTIzNTczNzYuZF8yNDg4Njg2NTkuZF82OTA1NDA1NjZcblsxOTNdIGRfNjUyMzU3Mzc2LmRfMjQ4ODY4NjU5LmRfNDcyODY0MDE2IGRfNjUyMzU3Mzc2LmRfMjQ4ODY4NjU5LmRfNzU3MjQ2NzA3IGRfNjUyMzU3Mzc2LmRfMjQ4ODY4NjU5LmRfNjg0NjE3ODE1XG5bMTk2XSBkXzY1MjM1NzM3Ni5kXzI0ODg2ODY1OS5kXzI4MzkwMDYxMSBkXzY1MjM1NzM3Ni5kXzI0ODg2ODY1OS5kXzU1MDA4ODY4MiBkXzY1MjM1NzM3Ni5kXzI0ODg2ODY1OS5kXzMxMzA5NzUzOVxuWzE5OV0gZF85NzM2NzAxNzIuZF8yNDg4Njg2NTkuZF82OTA1NDA1NjYgZF85NzM2NzAxNzIuZF8yNDg4Njg2NTkuZF85NTYzNDUzNjYgZF85NzM2NzAxNzIuZF8yNDg4Njg2NTkuZF80NzI4NjQwMTZcblsyMDJdIGRfOTczNjcwMTcyLmRfMjQ4ODY4NjU5LmRfNzU3MjQ2NzA3IGRfOTczNjcwMTcyLmRfMjQ4ODY4NjU5LmRfOTgyODg1NDMxIGRfOTczNjcwMTcyLmRfMjQ4ODY4NjU5LmRfNjg0NjE3ODE1XG5bMjA1XSBkXzk3MzY3MDE3Mi5kXzI0ODg2ODY1OS5kXzI4MzkwMDYxMSBkXzk3MzY3MDE3Mi5kXzI0ODg2ODY1OS5kXzU1MDA4ODY4MiBkXzk3MzY3MDE3Mi5kXzI0ODg2ODY1OS5kXzcyODM2NjYxOVxuWzIwOF0gZF85NzM2NzAxNzIuZF8yNDg4Njg2NTkuZF8zMTMwOTc1MzkgZF85NzM2NzAxNzIuZF8yNDg4Njg2NTkuZF80NTMzNDMwMjIgZF82ODM2MTM4ODQuZF8yNDg4Njg2NTkuZF85ODI4ODU0MzFcblsyMTFdIGRfNjgzNjEzODg0LmRfMjQ4ODY4NjU5LmRfNzc3NDg2MjE2IGRfNjgzNjEzODg0LmRfMjQ4ODY4NjU5LmRfODEwOTYwODIzIGRfNjgzNjEzODg0LmRfMjQ4ODY4NjU5LmRfNzI4MzY2NjE5XG5bMjE0XSBkXzY4MzYxMzg4NC5kXzI0ODg2ODY1OS5kXzQ1MzM0MzAyMiBkXzY4MzYxMzg4NC5kXzI0ODg2ODY1OS5kXzI0MjMwNzQ3NCBkXzY4MzYxMzg4NC5kXzI0ODg2ODY1OS5kXzY5MDU0MDU2NlxuWzIxN10gZF82ODM2MTM4ODQuZF8yNDg4Njg2NTkuZF80NzI4NjQwMTYgZF82ODM2MTM4ODQuZF8yNDg4Njg2NTkuZF83NTcyNDY3MDcgZF82ODM2MTM4ODQuZF8yNDg4Njg2NTkuZF82ODQ2MTc4MTVcblsyMjBdIGRfNjgzNjEzODg0LmRfMjQ4ODY4NjU5LmRfMjgzOTAwNjExIGRfNjgzNjEzODg0LmRfMjQ4ODY4NjU5LmRfNTUwMDg4NjgyIGRfNjgzNjEzODg0LmRfMjQ4ODY4NjU5LmRfMzEzMDk3NTM5XG5bMjIzXSBkXzM3Njk2MDgwNi5kXzI0ODg2ODY1OS5kXzk4Mjg4NTQzMSBkXzM3Njk2MDgwNi5kXzI0ODg2ODY1OS5kXzkzNzM2Mjc4NSBkXzM3Njk2MDgwNi5kXzI0ODg2ODY1OS5kXzY1NDAwMjE4NFxuWzIyNl0gZF8zNzY5NjA4MDYuZF8yNDg4Njg2NTkuZF85MTIwODg2MDIgZF8zNzY5NjA4MDYuZF8yNDg4Njg2NTkuZF83Nzc0ODYyMTYgZF8zNzY5NjA4MDYuZF8yNDg4Njg2NTkuZF83MjgzNjY2MTlcblsyMjldIGRfMzc2OTYwODA2LmRfMjQ4ODY4NjU5LmRfODYxMTYyODk1IGRfMzc2OTYwODA2LmRfMjQ4ODY4NjU5LmRfODEwOTYwODIzIGRfMzc2OTYwODA2LmRfMjQ4ODY4NjU5LmRfNDUzMzQzMDIyXG5bMjMyXSBkXzM3Njk2MDgwNi5kXzI0ODg2ODY1OS5kXzY5MDU0MDU2NiBkXzM3Njk2MDgwNi5kXzI0ODg2ODY1OS5kXzI0MjMwNzQ3NCBkXzM3Njk2MDgwNi5kXzI0ODg2ODY1OS5kXzQ3Mjg2NDAxNlxuWzIzNV0gZF8zNzY5NjA4MDYuZF8yNDg4Njg2NTkuZF83NTcyNDY3MDcgZF8zNzY5NjA4MDYuZF8yNDg4Njg2NTkuZF82ODQ2MTc4MTUgZF8zNzY5NjA4MDYuZF8yNDg4Njg2NTkuZF8yODM5MDA2MTFcblsyMzhdIGRfMzc2OTYwODA2LmRfMjQ4ODY4NjU5LmRfNjM1ODc1MjUzIGRfMzc2OTYwODA2LmRfMjQ4ODY4NjU5LmRfNTYxMDA1OTI3IGRfMzc2OTYwODA2LmRfMjQ4ODY4NjU5LmRfMTAyNjk1NDg0XG5bMjQxXSBkXzM3Njk2MDgwNi5kXzI0ODg2ODY1OS5kXzU1MDA4ODY4MiBkXzM3Njk2MDgwNi5kXzI0ODg2ODY1OS5kXzMxMzA5NzUzOSBkXzIzMjM0MzYxNS5kXzI0ODg2ODY1OS5kXzk4Mjg4NTQzMVxuWzI0NF0gZF8yMzIzNDM2MTUuZF8yNDg4Njg2NTkuZF85MzczNjI3ODUgZF8yMzIzNDM2MTUuZF8yNDg4Njg2NTkuZF82NTQwMDIxODQgZF8yMzIzNDM2MTUuZF8yNDg4Njg2NTkuZF85MTIwODg2MDJcblsyNDddIGRfMjMyMzQzNjE1LmRfMjQ4ODY4NjU5LmRfNzc3NDg2MjE2IGRfMjMyMzQzNjE1LmRfMjQ4ODY4NjU5LmRfODEwOTYwODIzIGRfMjMyMzQzNjE1LmRfMjQ4ODY4NjU5LmRfNzI4MzY2NjE5XG5bMjUwXSBkXzIzMjM0MzYxNS5kXzI0ODg2ODY1OS5kXzg2MTE2Mjg5NSBkXzIzMjM0MzYxNS5kXzI0ODg2ODY1OS5kXzQ1MzM0MzAyMiBkXzIzMjM0MzYxNS5kXzI0ODg2ODY1OS5kXzI0MjMwNzQ3NFxuWzI1M10gZF8yMzIzNDM2MTUuZF8yNDg4Njg2NTkuZF82OTA1NDA1NjYgZF8yMzIzNDM2MTUuZF8yNDg4Njg2NTkuZF80NzI4NjQwMTYgZF8yMzIzNDM2MTUuZF8yNDg4Njg2NTkuZF83NTcyNDY3MDdcblsyNTZdIGRfMjMyMzQzNjE1LmRfMjQ4ODY4NjU5LmRfNjg0NjE3ODE1IGRfMjMyMzQzNjE1LmRfMjQ4ODY4NjU5LmRfMjgzOTAwNjExIGRfMjMyMzQzNjE1LmRfMjQ4ODY4NjU5LmRfNjM1ODc1MjUzXG5bMjU5XSBkXzIzMjM0MzYxNS5kXzI0ODg2ODY1OS5kXzU2MTAwNTkyNyBkXzIzMjM0MzYxNS5kXzI0ODg2ODY1OS5kXzEwMjY5NTQ4NCBkXzIzMjM0MzYxNS5kXzI0ODg2ODY1OS5kXzU1MDA4ODY4MlxuWzI2Ml0gZF8yMzIzNDM2MTUuZF8yNDg4Njg2NTkuZF8zMTMwOTc1MzkgZF81ODk1ODg0NDAuZF8yNDg4Njg2NTkuZF85ODI4ODU0MzEgZF81ODk1ODg0NDAuZF8yNDg4Njg2NTkuZF85MzczNjI3ODVcblsyNjVdIGRfNTg5NTg4NDQwLmRfMjQ4ODY4NjU5LmRfNjU0MDAyMTg0IGRfNTg5NTg4NDQwLmRfMjQ4ODY4NjU5LmRfOTEyMDg4NjAyIGRfNTg5NTg4NDQwLmRfMjQ4ODY4NjU5LmRfNzc3NDg2MjE2XG5bMjY4XSBkXzU4OTU4ODQ0MC5kXzI0ODg2ODY1OS5kXzg2MTE2Mjg5NSBkXzU4OTU4ODQ0MC5kXzI0ODg2ODY1OS5kXzcyODM2NjYxOSBkXzU4OTU4ODQ0MC5kXzI0ODg2ODY1OS5kXzgxMDk2MDgyM1xuWzI3MV0gZF81ODk1ODg0NDAuZF8yNDg4Njg2NTkuZF80NTMzNDMwMjIgZF81ODk1ODg0NDAuZF8yNDg4Njg2NTkuZF8yNDIzMDc0NzQgZF81ODk1ODg0NDAuZF8yNDg4Njg2NTkuZF82OTA1NDA1NjZcblsyNzRdIGRfNTg5NTg4NDQwLmRfMjQ4ODY4NjU5LmRfNDcyODY0MDE2IGRfNTg5NTg4NDQwLmRfMjQ4ODY4NjU5LmRfNzU3MjQ2NzA3IGRfNTg5NTg4NDQwLmRfMjQ4ODY4NjU5LmRfNjg0NjE3ODE1XG5bMjc3XSBkXzU4OTU4ODQ0MC5kXzI0ODg2ODY1OS5kXzYzNTg3NTI1MyBkXzU4OTU4ODQ0MC5kXzI0ODg2ODY1OS5kXzI4MzkwMDYxMSBkXzU4OTU4ODQ0MC5kXzI0ODg2ODY1OS5kXzU2MTAwNTkyN1xuWzI4MF0gZF81ODk1ODg0NDAuZF8yNDg4Njg2NTkuZF8xMDI2OTU0ODQgZF81ODk1ODg0NDAuZF8yNDg4Njg2NTkuZF81NTAwODg2ODIgZF81ODk1ODg0NDAuZF8yNDg4Njg2NTkuZF8zMTMwOTc1MzlcblsyODNdIGRfOTU4NjQ2NjY4LmRfMjQ4ODY4NjU5LmRfOTgyODg1NDMxIGRfOTU4NjQ2NjY4LmRfMjQ4ODY4NjU5LmRfNzc3NDg2MjE2IGRfOTU4NjQ2NjY4LmRfMjQ4ODY4NjU5LmRfODEwOTYwODIzXG5bMjg2XSBkXzk1ODY0NjY2OC5kXzI0ODg2ODY1OS5kXzcyODM2NjYxOSBkXzk1ODY0NjY2OC5kXzI0ODg2ODY1OS5kXzQ1MzM0MzAyMiBkXzk1ODY0NjY2OC5kXzI0ODg2ODY1OS5kXzI0MjMwNzQ3NFxuWzI4OV0gZF85NTg2NDY2NjguZF8yNDg4Njg2NTkuZF82OTA1NDA1NjYgZF85NTg2NDY2NjguZF8yNDg4Njg2NTkuZF80NzI4NjQwMTYgZF85NTg2NDY2NjguZF8yNDg4Njg2NTkuZF83NTcyNDY3MDdcblsyOTJdIGRfOTU4NjQ2NjY4LmRfMjQ4ODY4NjU5LmRfNjg0NjE3ODE1IGRfOTU4NjQ2NjY4LmRfMjQ4ODY4NjU5LmRfMjgzOTAwNjExIGRfOTU4NjQ2NjY4LmRfMjQ4ODY4NjU5LmRfNTUwMDg4NjgyXG5bMjk1XSBkXzk1ODY0NjY2OC5kXzI0ODg2ODY1OS5kXzMxMzA5NzUzOSBkXzY3NzQ2OTA1MS5kXzI0ODg2ODY1OS5kXzk4Mjg4NTQzMSBkXzY3NzQ2OTA1MS5kXzI0ODg2ODY1OS5kXzc3NzQ4NjIxNlxuWzI5OF0gZF82Nzc0NjkwNTEuZF8yNDg4Njg2NTkuZF83MjgzNjY2MTkgZF82Nzc0NjkwNTEuZF8yNDg4Njg2NTkuZF84MTA5NjA4MjMgZF82Nzc0NjkwNTEuZF8yNDg4Njg2NTkuZF80NTMzNDMwMjJcblszMDFdIGRfNjc3NDY5MDUxLmRfMjQ4ODY4NjU5LmRfNjkwNTQwNTY2IGRfNjc3NDY5MDUxLmRfMjQ4ODY4NjU5LmRfMjQyMzA3NDc0IGRfNjc3NDY5MDUxLmRfMjQ4ODY4NjU5LmRfNDcyODY0MDE2XG5bMzA0XSBkXzY3NzQ2OTA1MS5kXzI0ODg2ODY1OS5kXzc1NzI0NjcwNyBkXzY3NzQ2OTA1MS5kXzI0ODg2ODY1OS5kXzY4NDYxNzgxNSBkXzY3NzQ2OTA1MS5kXzI0ODg2ODY1OS5kXzI4MzkwMDYxMVxuWzMwN10gZF82Nzc0NjkwNTEuZF8yNDg4Njg2NTkuZF81NTAwODg2ODIgZF82Nzc0NjkwNTEuZF8yNDg4Njg2NTkuZF8zMTMwOTc1MzlcbjMwOCBMZXZlbHM6IENvbm5lY3RfSUQgZF8xNDM2MTU2NDYuZF8yNDg4Njg2NTkuZF8yODM5MDA2MTEgZF8xNDM2MTU2NDYuZF8yNDg4Njg2NTkuZF8zMTMwOTc1MzkgLi4uIHRva2VuXG5cbiRhcnJheV9qc29uXG5bXSBcbiJ9 -->
+<pre><code>$variables
+  [1] d_331584571                         d_951355211                         Connect_ID                         
+  [4] d_827220437                         siteAcronym                         d_820476880                        
+  [7] id                                  d_387108065                         token                              
+ [10] d_650516960                         d_678166505                         d_338570265                        
+ [13] d_556788178                         d_410912345                         d_926457119                        
+ [16] d_928693120                         d_646899796                         d_915838974                        
+ [19] d_787237543.d_825582494             d_787237543.d_593843561             d_223999569.d_825582494            
+ [22] d_223999569.d_593843561             d_143615646.d_825582494             d_143615646.d_678857215            
+ [25] d_143615646.d_762124027             d_143615646.d_593843561             d_143615646.d_926457119            
+ [28] d_143615646.d_536710547             d_143615646.d_338286049             d_143615646.d_883732523            
+ [31] d_299553921.d_825582494             d_299553921.d_678857215             d_299553921.d_762124027            
+ [34] d_299553921.d_593843561             d_299553921.d_926457119             d_299553921.d_338286049            
+ [37] d_299553921.d_883732523             d_299553921.d_536710547             d_703954371.d_825582494            
+ [40] d_703954371.d_678857215             d_703954371.d_762124027             d_703954371.d_593843561            
+ [43] d_703954371.d_926457119             d_703954371.d_338286049             d_703954371.d_883732523            
+ [46] d_703954371.d_536710547             d_838567176.d_825582494             d_838567176.d_678857215            
+ [49] d_838567176.d_762124027             d_838567176.d_593843561             d_838567176.d_926457119            
+ [52] d_838567176.d_338286049             d_838567176.d_883732523             d_838567176.d_536710547            
+ [55] d_454453939.d_825582494             d_454453939.d_678857215             d_454453939.d_762124027            
+ [58] d_454453939.d_593843561             d_454453939.d_926457119             d_454453939.d_338286049            
+ [61] d_454453939.d_883732523             d_454453939.d_536710547             d_652357376.d_825582494            
+ [64] d_652357376.d_678857215             d_652357376.d_762124027             d_652357376.d_593843561            
+ [67] d_652357376.d_926457119             d_652357376.d_536710547             d_652357376.d_338286049            
+ [70] d_652357376.d_883732523             d_973670172.d_825582494             d_973670172.d_678857215            
+ [73] d_973670172.d_762124027             d_973670172.d_593843561             d_973670172.d_926457119            
+ [76] d_973670172.d_338286049             d_973670172.d_883732523             d_973670172.d_536710547            
+ [79] d_683613884.d_678857215             d_683613884.d_762124027             d_683613884.d_593843561            
+ [82] d_683613884.d_536710547             d_683613884.d_825582494             d_683613884.d_926457119            
+ [85] d_376960806.d_825582494             d_376960806.d_678857215             d_376960806.d_762124027            
+ [88] d_376960806.d_593843561             d_376960806.d_926457119             d_232343615.d_825582494            
+ [91] d_232343615.d_678857215             d_232343615.d_762124027             d_232343615.d_593843561            
+ [94] d_232343615.d_926457119             d_589588440.d_825582494             d_589588440.d_678857215            
+ [97] d_589588440.d_762124027             d_589588440.d_593843561             d_589588440.d_926457119            
+[100] d_958646668.d_825582494             d_958646668.d_678857215             d_958646668.d_762124027            
+[103] d_958646668.d_593843561             d_958646668.d_926457119             d_677469051.d_825582494            
+[106] d_677469051.d_678857215             d_677469051.d_762124027             d_677469051.d_593843561            
+[109] d_677469051.d_926457119             d_677469051.d_536710547             d_143615646.d_248868659.d_472864016
+[112] d_143615646.d_248868659.d_757246707 d_143615646.d_248868659.d_982885431 d_143615646.d_248868659.d_684617815
+[115] d_143615646.d_248868659.d_283900611 d_143615646.d_248868659.d_742806035 d_143615646.d_248868659.d_728366619
+[118] d_143615646.d_248868659.d_313097539 d_143615646.d_248868659.d_453343022 d_299553921.d_248868659.d_982885431
+[121] d_299553921.d_248868659.d_937362785 d_299553921.d_248868659.d_654002184 d_299553921.d_248868659.d_912088602
+[124] d_299553921.d_248868659.d_777486216 d_299553921.d_248868659.d_861162895 d_299553921.d_248868659.d_728366619
+[127] d_299553921.d_248868659.d_810960823 d_299553921.d_248868659.d_453343022 d_299553921.d_248868659.d_690540566
+[130] d_299553921.d_248868659.d_242307474 d_299553921.d_248868659.d_472864016 d_299553921.d_248868659.d_757246707
+[133] d_299553921.d_248868659.d_684617815 d_299553921.d_248868659.d_283900611 d_299553921.d_248868659.d_635875253
+[136] d_299553921.d_248868659.d_561005927 d_299553921.d_248868659.d_102695484 d_299553921.d_248868659.d_550088682
+[139] d_299553921.d_248868659.d_313097539 d_703954371.d_248868659.d_982885431 d_703954371.d_248868659.d_937362785
+[142] d_703954371.d_248868659.d_654002184 d_703954371.d_248868659.d_912088602 d_703954371.d_248868659.d_777486216
+[145] d_703954371.d_248868659.d_728366619 d_703954371.d_248868659.d_861162895 d_703954371.d_248868659.d_810960823
+[148] d_703954371.d_248868659.d_453343022 d_703954371.d_248868659.d_242307474 d_703954371.d_248868659.d_690540566
+[151] d_703954371.d_248868659.d_472864016 d_703954371.d_248868659.d_757246707 d_703954371.d_248868659.d_684617815
+[154] d_703954371.d_248868659.d_283900611 d_703954371.d_248868659.d_635875253 d_703954371.d_248868659.d_561005927
+[157] d_703954371.d_248868659.d_102695484 d_703954371.d_248868659.d_550088682 d_703954371.d_248868659.d_313097539
+[160] d_838567176.d_248868659.d_982885431 d_838567176.d_248868659.d_777486216 d_838567176.d_248868659.d_728366619
+[163] d_838567176.d_248868659.d_810960823 d_838567176.d_248868659.d_453343022 d_838567176.d_248868659.d_690540566
+[166] d_838567176.d_248868659.d_242307474 d_838567176.d_248868659.d_472864016 d_838567176.d_248868659.d_757246707
+[169] d_838567176.d_248868659.d_684617815 d_838567176.d_248868659.d_283900611 d_838567176.d_248868659.d_550088682
+[172] d_838567176.d_248868659.d_313097539 d_454453939.d_248868659.d_982885431 d_454453939.d_248868659.d_777486216
+[175] d_454453939.d_248868659.d_728366619 d_454453939.d_248868659.d_810960823 d_454453939.d_248868659.d_453343022
+[178] d_454453939.d_248868659.d_242307474 d_454453939.d_248868659.d_690540566 d_454453939.d_248868659.d_472864016
+[181] d_454453939.d_248868659.d_757246707 d_454453939.d_248868659.d_684617815 d_454453939.d_248868659.d_283900611
+[184] d_454453939.d_248868659.d_550088682 d_454453939.d_248868659.d_313097539 d_652357376.d_248868659.d_982885431
+[187] d_652357376.d_248868659.d_777486216 d_652357376.d_248868659.d_728366619 d_652357376.d_248868659.d_810960823
+[190] d_652357376.d_248868659.d_453343022 d_652357376.d_248868659.d_242307474 d_652357376.d_248868659.d_690540566
+[193] d_652357376.d_248868659.d_472864016 d_652357376.d_248868659.d_757246707 d_652357376.d_248868659.d_684617815
+[196] d_652357376.d_248868659.d_283900611 d_652357376.d_248868659.d_550088682 d_652357376.d_248868659.d_313097539
+[199] d_973670172.d_248868659.d_690540566 d_973670172.d_248868659.d_956345366 d_973670172.d_248868659.d_472864016
+[202] d_973670172.d_248868659.d_757246707 d_973670172.d_248868659.d_982885431 d_973670172.d_248868659.d_684617815
+[205] d_973670172.d_248868659.d_283900611 d_973670172.d_248868659.d_550088682 d_973670172.d_248868659.d_728366619
+[208] d_973670172.d_248868659.d_313097539 d_973670172.d_248868659.d_453343022 d_683613884.d_248868659.d_982885431
+[211] d_683613884.d_248868659.d_777486216 d_683613884.d_248868659.d_810960823 d_683613884.d_248868659.d_728366619
+[214] d_683613884.d_248868659.d_453343022 d_683613884.d_248868659.d_242307474 d_683613884.d_248868659.d_690540566
+[217] d_683613884.d_248868659.d_472864016 d_683613884.d_248868659.d_757246707 d_683613884.d_248868659.d_684617815
+[220] d_683613884.d_248868659.d_283900611 d_683613884.d_248868659.d_550088682 d_683613884.d_248868659.d_313097539
+[223] d_376960806.d_248868659.d_982885431 d_376960806.d_248868659.d_937362785 d_376960806.d_248868659.d_654002184
+[226] d_376960806.d_248868659.d_912088602 d_376960806.d_248868659.d_777486216 d_376960806.d_248868659.d_728366619
+[229] d_376960806.d_248868659.d_861162895 d_376960806.d_248868659.d_810960823 d_376960806.d_248868659.d_453343022
+[232] d_376960806.d_248868659.d_690540566 d_376960806.d_248868659.d_242307474 d_376960806.d_248868659.d_472864016
+[235] d_376960806.d_248868659.d_757246707 d_376960806.d_248868659.d_684617815 d_376960806.d_248868659.d_283900611
+[238] d_376960806.d_248868659.d_635875253 d_376960806.d_248868659.d_561005927 d_376960806.d_248868659.d_102695484
+[241] d_376960806.d_248868659.d_550088682 d_376960806.d_248868659.d_313097539 d_232343615.d_248868659.d_982885431
+[244] d_232343615.d_248868659.d_937362785 d_232343615.d_248868659.d_654002184 d_232343615.d_248868659.d_912088602
+[247] d_232343615.d_248868659.d_777486216 d_232343615.d_248868659.d_810960823 d_232343615.d_248868659.d_728366619
+[250] d_232343615.d_248868659.d_861162895 d_232343615.d_248868659.d_453343022 d_232343615.d_248868659.d_242307474
+[253] d_232343615.d_248868659.d_690540566 d_232343615.d_248868659.d_472864016 d_232343615.d_248868659.d_757246707
+[256] d_232343615.d_248868659.d_684617815 d_232343615.d_248868659.d_283900611 d_232343615.d_248868659.d_635875253
+[259] d_232343615.d_248868659.d_561005927 d_232343615.d_248868659.d_102695484 d_232343615.d_248868659.d_550088682
+[262] d_232343615.d_248868659.d_313097539 d_589588440.d_248868659.d_982885431 d_589588440.d_248868659.d_937362785
+[265] d_589588440.d_248868659.d_654002184 d_589588440.d_248868659.d_912088602 d_589588440.d_248868659.d_777486216
+[268] d_589588440.d_248868659.d_861162895 d_589588440.d_248868659.d_728366619 d_589588440.d_248868659.d_810960823
+[271] d_589588440.d_248868659.d_453343022 d_589588440.d_248868659.d_242307474 d_589588440.d_248868659.d_690540566
+[274] d_589588440.d_248868659.d_472864016 d_589588440.d_248868659.d_757246707 d_589588440.d_248868659.d_684617815
+[277] d_589588440.d_248868659.d_635875253 d_589588440.d_248868659.d_283900611 d_589588440.d_248868659.d_561005927
+[280] d_589588440.d_248868659.d_102695484 d_589588440.d_248868659.d_550088682 d_589588440.d_248868659.d_313097539
+[283] d_958646668.d_248868659.d_982885431 d_958646668.d_248868659.d_777486216 d_958646668.d_248868659.d_810960823
+[286] d_958646668.d_248868659.d_728366619 d_958646668.d_248868659.d_453343022 d_958646668.d_248868659.d_242307474
+[289] d_958646668.d_248868659.d_690540566 d_958646668.d_248868659.d_472864016 d_958646668.d_248868659.d_757246707
+[292] d_958646668.d_248868659.d_684617815 d_958646668.d_248868659.d_283900611 d_958646668.d_248868659.d_550088682
+[295] d_958646668.d_248868659.d_313097539 d_677469051.d_248868659.d_982885431 d_677469051.d_248868659.d_777486216
+[298] d_677469051.d_248868659.d_728366619 d_677469051.d_248868659.d_810960823 d_677469051.d_248868659.d_453343022
+[301] d_677469051.d_248868659.d_690540566 d_677469051.d_248868659.d_242307474 d_677469051.d_248868659.d_472864016
+[304] d_677469051.d_248868659.d_757246707 d_677469051.d_248868659.d_684617815 d_677469051.d_248868659.d_283900611
+[307] d_677469051.d_248868659.d_550088682 d_677469051.d_248868659.d_313097539
+308 Levels: Connect_ID d_143615646.d_248868659.d_283900611 d_143615646.d_248868659.d_313097539 ... token
+
+$array_json
+[] </code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>We also need to combine the variables.csv file that was generated
@@ -1894,198 +2017,165 @@ from the schema with the old, manually generated variables.csv file.
 This code will exclude any duplicates.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHZXQgdW5pb24gb2YgdmFyaWFibGUgbGlzdHNcbkFfY3N2IDwtIFwiY2xpbmljYWxCaW9TdXJ2ZXlfdjEtdmFyaWFibGVzLmNzdlwiXG5CX2NzdiA8LSBcImNsaW5pY2FsQmlvU3VydmV5X3YxLXZhcmlhYmxlcy1mcm9tLXNjaGVtYS5jc3ZcIlxuQ19jc3YgPC0gXCJjbGluaWNhbEJpb1N1cnZleV92MS12YXJpYWJsZXMtdW5pb24uY3N2XCJcblxuU3lzLnNldGVudihVTklPTl9DU1YgPSBDX2NzdikgIyBGb3IgZWFzeSBjbGVhbnVwIGxhdGVyXG5cbnVuaW9uX3Zhcl9jaHJfYXJyYXkgPC0gZ2V0X3VuaW9uX29mX3ZhcmlhYmxlX2NzdihBX2NzdiwgQl9jc3YsIENfY3N2KVxudW5pb25fdmFyX2Nocl9hcnJheVxuYGBgIn0= -->
-<pre class="r"><code># Get union of variable lists
-A_csv &lt;- &quot;clinicalBioSurvey_v1-variables.csv&quot;
-B_csv &lt;- &quot;clinicalBioSurvey_v1-variables-from-schema.csv&quot;
-C_csv &lt;- &quot;clinicalBioSurvey_v1-variables-union.csv&quot;
-
-Sys.setenv(UNION_CSV = C_csv) # For easy cleanup later
-
-union_var_chr_array &lt;- get_union_of_variable_csv(A_csv, B_csv, C_csv)
-union_var_chr_array</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyAtbGlzdHMuanNvbiBmaWxlIGZyb20gcGFyZW50IGZvbGRlclxub2xkX2xpc3RzX2pzb24gPC0gcGFzdGUwKG1vZHVsZV9mb2xkZXIsIG1vZHVsZSwgXCItbGlzdHMuanNvblwiKVxub2xkX2xpc3RzX2pzb25cbmBgYCJ9 -->
+<pre class="r"><code># -lists.json file from parent folder
+old_lists_json &lt;- paste0(module_folder, module, &quot;-lists.json&quot;)
+old_lists_json</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwicXVlcnlHZW5lcmF0b3JzL0ZsYXRDb25uZWN0X3F1ZXJpZXMvYmlvc3BlY2ltZW4vYmlvc3BlY2ltZW4tbGlzdHMuanNvblwiXG4ifQ== -->
+<pre><code>[1] &quot;queryGenerators/FlatConnect_queries/biospecimen/biospecimen-lists.json&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBuYW1lIGNvbWJpbmVkIGpzb24gZmlsZVxudW5pb25fbGlzdHNfanNvbiA8LSBwYXN0ZTAodG1wX2ZvbGRlciwgbW9kdWxlLCBcIi1saXN0cy11bmlvbi5qc29uXCIpXG51bmlvbl9saXN0c19qc29uXG5gYGAifQ== -->
+<pre class="r"><code># name combined json file
+union_lists_json &lt;- paste0(tmp_folder, module, &quot;-lists-union.json&quot;)
+union_lists_json</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwicXVlcnlHZW5lcmF0b3JzL0ZsYXRDb25uZWN0X3F1ZXJpZXMvYmlvc3BlY2ltZW4vdG1wL2Jpb3NwZWNpbWVuLWxpc3RzLXVuaW9uLmpzb25cIlxuIn0= -->
+<pre><code>[1] &quot;queryGenerators/FlatConnect_queries/biospecimen/tmp/biospecimen-lists-union.json&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHZXQgdW5pb24gb2Ygb2xkX2xpc3RzX2pzb24gYW5kIG91dF9qc29uXG51bmlvbl9qc29uX3N0ciA8LSBnZXRfdW5pb25fb2ZfanNvbl9hcnJheXMob2xkX2xpc3RzX2pzb24sIG91dF9qc29uLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB1bmlvbl9saXN0c19qc29uKVxuXG5wcmludCh1bmlvbl9qc29uX3N0cilcbmBgYCJ9 -->
+<pre class="r"><code># Get union of old_lists_json and out_json
+union_json_str &lt;- get_union_of_json_arrays(old_lists_json, out_json, 
+                                           union_lists_json)
+
+print(union_json_str)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTlVMTFxuIn0= -->
+<pre><code>NULL</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
 <div id="deal-with-exceptions" class="section level4">
-<h4>3. Deal with exceptions</h4>
+<h4>5. Deal with exceptions</h4>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuanNvbl9maWxlICAgICAgICAgPC0gQ1xudmFyaWFibGVzX2ZpbGUgICAgPC0gQ19jc3ZcbiMgR2V0IGEgbGlzdCBvZiB2YXJpYWJsZXMgd2l0aCBhcnJheXMgY29udGFpbmluZyBcImV4Y2VwdGlvbiBDSURcIlxuZXhjZXB0aW9ucyAgICAgICAgPC0gYygxNzg0MjAzMDIsIDk1ODIzOTYxNiwgMzUzMzU4OTA5LCAxMDQ0MzA2MzEpXG52YXJzX3dfZXhjZXB0aW9ucyA8LSBnZXRfdmFyc193aXRoX3NwZWNpZmllZF92YWxzKGpzb25fZmlsZSwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGV4Y2VwdGlvbnMsIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtYXhfYXJyYXlfbGVuID0gMikgXG52YXJzX3dfZXhjZXB0aW9uc1xuYGBgIn0= -->
-<pre class="r"><code>json_file         &lt;- C
-variables_file    &lt;- C_csv
-# Get a list of variables with arrays containing &quot;exception CID&quot;
-exceptions        &lt;- c(178420302, 958239616, 353358909, 104430631)
-vars_w_exceptions &lt;- get_vars_with_specified_vals(json_file, 
-                                                  exceptions, 
-                                                  max_array_len = 2) 
-vars_w_exceptions</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHZXQgdW5pb24gb2YgdmFyaWFibGUgZmlsZXNcbiMgLWxpc3RzLmpzb24gZmlsZSBmcm9tIHBhcmVudCBmb2xkZXJcbm9sZF92YXJzX2NzdiAgIDwtIHBhc3RlMChtb2R1bGVfZm9sZGVyLCBtb2R1bGUsIFwiLXZhcmlhYmxlcy5jc3ZcIilcblxuIyBuYW1lIGNvbWJpbmVkIGNzdiBmaWxlXG51bmlvbl92YXJzX2NzdiA8LSBwYXN0ZTAodG1wX2ZvbGRlciwgbW9kdWxlLCBcIi12YXJzLXVuaW9uLmNzdlwiKVxudW5pb25fdmFyc19jc3ZcbmBgYCJ9 -->
+<pre class="r"><code># Get union of variable files
+# -lists.json file from parent folder
+old_vars_csv   &lt;- paste0(module_folder, module, &quot;-variables.csv&quot;)
+
+# name combined csv file
+union_vars_csv &lt;- paste0(tmp_folder, module, &quot;-vars-union.csv&quot;)
+union_vars_csv</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>Remove list of variables with exceptions from the data set</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxub3V0cHV0X2ZpbGVuYW1lICA8LSBcImNsaW5pY2FsQmlvU3VydmV5X3YxLWxpc3RzLXVuaW9uLW1vZC5qc29uXCJcblN5cy5zZXRlbnYoTkVXX0pTT04gPSBvdXRwdXRfZmlsZW5hbWUpICMgRm9yIGVhc3kgY2xlYW51cCBsYXRlclxudXBkYXRlZF92YXJpYWJsZXMgPC0gcmVtb3ZlX3ZhcnNfZnJvbV9qc29uKGpzb25fZmlsZSwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdmFyc193X2V4Y2VwdGlvbnMsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb3V0cHV0X2ZpbGVuYW1lID0gb3V0cHV0X2ZpbGVuYW1lKSBcbnVwZGF0ZWRfdmFyaWFibGVzXG5gYGAifQ== -->
-<pre class="r"><code>output_filename  &lt;- &quot;clinicalBioSurvey_v1-lists-union-mod.json&quot;
-Sys.setenv(NEW_JSON = output_filename) # For easy cleanup later
-updated_variables &lt;- remove_vars_from_json(json_file, 
-                                           vars_w_exceptions,
-                                           output_filename = output_filename) 
-updated_variables</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>Add list of variables with exceptions to *-variables*.csv</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxub3V0X2ZpbGUgIDwtIFwiY2xpbmljYWxCaW9TdXJ2ZXlfdjEtdmFyaWFibGVzLXVuaW9uLW5ldy5jc3ZcIlxuU3lzLnNldGVudihORVdfQ1NWID0gb3V0X2ZpbGUpICMgRm9yIGVhc3kgY2xlYW51cCBcbmFkZF9ub3ZlbF92YXJzX3RvX2Nzdih2YXJzX3dfZXhjZXB0aW9ucywgdmFyaWFibGVzX2ZpbGUsIG91dF9maWxlID0gb3V0X2ZpbGUpXG5gYGAifQ== -->
-<pre class="r"><code>out_file  &lt;- &quot;clinicalBioSurvey_v1-variables-union-new.csv&quot;
-Sys.setenv(NEW_CSV = out_file) # For easy cleanup 
-add_novel_vars_to_csv(vars_w_exceptions, variables_file, out_file = out_file)</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwicXVlcnlHZW5lcmF0b3JzL0ZsYXRDb25uZWN0X3F1ZXJpZXMvYmlvc3BlY2ltZW4vdG1wL2Jpb3NwZWNpbWVuLXZhcnMtdW5pb24uY3N2XCJcbiJ9 -->
+<pre><code>[1] &quot;queryGenerators/FlatConnect_queries/biospecimen/tmp/biospecimen-vars-union.csv&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudW5pb25fdmFyX2Nocl9hcnJheSA8LSBnZXRfdW5pb25fb2ZfdmFyaWFibGVfY3N2KG9sZF92YXJzX2Nzdiwgb3V0X2NzdiwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdW5pb25fdmFyc19jc3YpXG5gYGAifQ== -->
+<pre class="r"><code>union_var_chr_array &lt;- get_union_of_variable_csv(old_vars_csv, out_csv, 
+                                                 union_vars_csv)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Get list of variables from csv file that are of type RECORD or mode
-REPEATED in the schema</p>
+REPEATED in the schema. There shouldn’t be any left at this point, but
+just in case…</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI1RPRE8gVGhpcyBjaHVuayBuZWVkcyB0byBiZSB0ZXN0ZWQuXG5jc3ZfZmlsZSAgICAgIDwtIG91dF9maWxlXG5yZWNzX2FuZF9yZXBzIDwtIGdldF9yZWNvcmRfYW5kX3JlcGVhdGVkX3ZhcnMocHJvamVjdCwgdGFibGUsIHNjaGVtYSwgY3N2X2ZpbGUpXG5yZWNzX2FuZF9yZXBzXG5gYGAifQ== -->
-<pre class="r"><code>#TODO This chunk needs to be tested.
-csv_file      &lt;- out_file
-recs_and_reps &lt;- get_record_and_repeated_vars(project, table, schema, csv_file)
-recs_and_reps</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBEZWZpbmUgZXhjZXB0aW9uc1xuZXhjZXB0aW9ucyA8LSBjKDE3ODQyMDMwMiwgOTU4MjM5NjE2LCAzNTMzNTg5MDksIDEwNDQzMDYzMSlcblxuIyBHZXQgYSBsaXN0IG9mIHZhcmlhYmxlcyB3aXRoIGFycmF5cyBjb250YWluaW5nIFwiZXhjZXB0aW9uIENJRFwiXG52YXJzX3dfZXhjZXB0aW9ucyA8LSBnZXRfdmFyc193aXRoX3NwZWNpZmllZF92YWxzKHVuaW9uX2xpc3RzX2pzb24sIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBleGNlcHRpb25zLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbWF4X2FycmF5X2xlbiA9IDIpIFxudmFyc193X2V4Y2VwdGlvbnNcbmBgYCJ9 -->
+<pre class="r"><code># Define exceptions
+exceptions &lt;- c(178420302, 958239616, 353358909, 104430631)
+
+# Get a list of variables with arrays containing &quot;exception CID&quot;
+vars_w_exceptions &lt;- get_vars_with_specified_vals(union_lists_json, 
+                                                  exceptions, 
+                                                  max_array_len = 2) 
+vars_w_exceptions</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>Remove these variables from the csv file</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI1RPRE8gVGhpcyBjaHVuayBuZWVkcyB0byBiZSB0ZXN0ZWQuXG5pbl9maWxlICAgICAgICA8LSBDX2NzdlxudmFyc190b19yZW1vdmUgPC0gcmVjc19hbmRfcmVwc1xucmVtb3ZlX3ZhcnNfZnJvbV9jc3YoaW5fZmlsZSwgdmFyc190b19yZW1vdmUsIG91dF9maWxlID0gTlVMTClcbmBgYCJ9 -->
-<pre class="r"><code>#TODO This chunk needs to be tested.
-in_file        &lt;- C_csv
-vars_to_remove &lt;- recs_and_reps
-remove_vars_from_csv(in_file, vars_to_remove, out_file = NULL)</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiTlVMTFxuIn0= -->
+<pre><code>NULL</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBSZW1vdmUgbGlzdCBvZiB2YXJpYWJsZXMgd2l0aCBleGNlcHRpb25zIGZyb20gdGhlIGRhdGEgc2V0XG5uZXdfbGlzdHNfanNvbiAgICA8LSBwYXN0ZTAodG1wX2ZvbGRlciwgbW9kdWxlLCBcIi1saXN0cy11bmlvbi1tb2QuanNvblwiKVxudXBkYXRlZF92YXJpYWJsZXMgPC0gcmVtb3ZlX3ZhcnNfZnJvbV9qc29uKHVuaW9uX2xpc3RzX2pzb24sIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZhcnNfd19leGNlcHRpb25zLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG91dHB1dF9maWxlbmFtZSA9IG5ld19saXN0c19qc29uKSBcblxuIyBBZGQgbGlzdCBvZiB2YXJpYWJsZXMgd2l0aCBleGNlcHRpb25zIHRvIFxcKi12YXJpYWJsZXNcXCouY3N2XG5uZXdfdmFyc19jc3YgIDwtIHBhc3RlMCh0bXBfZm9sZGVyLCBtb2R1bGUsIFwiLXZhcmlhYmxlcy11bmlvbi1tb2QuY3N2XCIpXG5cbmFkZF9ub3ZlbF92YXJzX3RvX2Nzdih2YXJzX3dfZXhjZXB0aW9ucywgdW5pb25fdmFyc19jc3YsIFxuICAgICAgICAgICAgICAgICAgICAgIG91dF9maWxlID0gbmV3X3ZhcnNfY3N2KVxuYGBgIn0= -->
+<pre class="r"><code># Remove list of variables with exceptions from the data set
+new_lists_json    &lt;- paste0(tmp_folder, module, &quot;-lists-union-mod.json&quot;)
+updated_variables &lt;- remove_vars_from_json(union_lists_json, 
+                                           vars_w_exceptions,
+                                           output_filename = new_lists_json) 
+
+# Add list of variables with exceptions to \*-variables\*.csv
+new_vars_csv  &lt;- paste0(tmp_folder, module, &quot;-variables-union-mod.csv&quot;)
+
+add_novel_vars_to_csv(vars_w_exceptions, union_vars_csv, 
+                      out_file = new_vars_csv)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
 <div id="move-modified-lists.json-and-variables.csv-files-to-parent-directory" class="section level4">
-<h4>4. Move modified lists.json and variables.csv files to parent
+<h4>6. Move modified lists.json and variables.csv files to parent
 directory</h4>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxuIyBNb3ZlIHVwLXRvLWRhdGUgZmlsZXMgdG8gcGFyZW50IGRpcmVjdG9yeVxuZWNobyAkTkVXX0NTViAgXG5lY2hvICRORVdfSlNPTlxuUEFSX0RJUl9DU1ZfTkFNRT1cImNsaW5pY2FsQmlvU3VydmV5X3YxLXZhcmlhYmxlcy5jc3ZcIlxuUEFSX0RJUl9KU09OX05BTUU9XCJjbGluaWNhbEJpb1N1cnZleV92MS1saXN0cy5qc29uXCJcblxuY3AgJE5FV19DU1YgLi4vJFBBUl9ESVJfQ1NWX05BTUVcbmNwICRORVdfSlNPTiAuLi8kUEFSX0RJUl9KU09OX05BTUVcbmBgYCJ9 -->
-<pre class="bash"><code># Move up-to-date files to parent directory
-echo $NEW_CSV  
-echo $NEW_JSON
-PAR_DIR_CSV_NAME=&quot;clinicalBioSurvey_v1-variables.csv&quot;
-PAR_DIR_JSON_NAME=&quot;clinicalBioSurvey_v1-lists.json&quot;
-
-cp $NEW_CSV ../$PAR_DIR_CSV_NAME
-cp $NEW_JSON ../$PAR_DIR_JSON_NAME</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI1RPRE8gVGhpcyBjaHVuayBuZWVkcyB0byBiZSB0ZXN0ZWQuXG52YXJzX3RvX3JlbW92ZSA8LSBnZXRfcmVjb3JkX2FuZF9yZXBlYXRlZF92YXJzKHByb2plY3QsIHRhYmxlLCBzY2hlbWFfY3N2LCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBuZXdfdmFyc19jc3YpXG52YXJzX3RvX3JlbW92ZVxuYGBgIn0= -->
+<pre class="r"><code>#TODO This chunk needs to be tested.
+vars_to_remove &lt;- get_record_and_repeated_vars(project, table, schema_csv, 
+                                              new_vars_csv)
+vars_to_remove</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoibGlzdCgpXG4ifQ== -->
+<pre><code>list()</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBSZW1vdmUgdGhlc2UgdmFyaWFibGVzIGZyb20gdGhlIG5ldyBjc3YgZmlsZVxuaWYgKCBsZW5ndGgodmFyc190b19yZW1vdmUgKSAhPSAwKSB7XG4gIHJlbW92ZV92YXJzX2Zyb21fY3N2KG5ld192YXJzX2NzdiwgdmFyc190b19yZW1vdmUpXG59XG5gYGAifQ== -->
+<pre class="r"><code># Remove these variables from the new csv file
+if ( length(vars_to_remove ) != 0) {
+  remove_vars_from_csv(new_vars_csv, vars_to_remove)
+}</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
 <div id="clean-up-intermediate-files-from-working-directory" class="section level4">
-<h4>5. Clean up intermediate files from working directory</h4>
+<h4>7. Clean up intermediate files from working directory</h4>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxuIyBEZWxldGUgaW50ZXJtZWRpYXRlIGZpbGVzIGZyb20gZGlyZWN0b3J5XG5lY2hvIFwiVGhlIGZpbGVzIHRoYXQgd2lsbCBiZSByZW1vdmVkIGFyZTpcIlxuZWNobyAkT1VUX0pTT05cbmVjaG8gJE9VVF9DU1ZcbmVjaG8gJFVOSU9OX0pTT05cbmVjaG8gJFVOSU9OX0NTVlxuZWNobyAkTkVXX0NTViAgXG5lY2hvICRORVdfSlNPTlxuXG5ybSAkT1VUX0pTT05cbnJtICRPVVRfQ1NWXG5ybSAkVU5JT05fSlNPTlxucm0gJFVOSU9OX0NTVlxucm0gJE5FV19DU1YgIFxucm0gJE5FV19KU09OXG5gYGAifQ== -->
-<pre class="bash"><code># Delete intermediate files from directory
-echo &quot;The files that will be removed are:&quot;
-echo $OUT_JSON
-echo $OUT_CSV
-echo $UNION_JSON
-echo $UNION_CSV
-echo $NEW_CSV  
-echo $NEW_JSON
-
-rm $OUT_JSON
-rm $OUT_CSV
-rm $UNION_JSON
-rm $UNION_CSV
-rm $NEW_CSV  
-rm $NEW_JSON</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBNb3ZlIHVwLXRvLWRhdGUgZmlsZXMgdG8gcGFyZW50IGRpcmVjdG9yeVxuZmlsZS5yZW5hbWUobmV3X3ZhcnNfY3N2LCBvbGRfdmFyc19jc3YpXG5gYGAifQ== -->
+<pre class="r"><code># Move up-to-date files to parent directory
+file.rename(new_vars_csv, old_vars_csv)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFRSVUVcbiJ9 -->
+<pre><code>[1] TRUE</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZmlsZS5yZW5hbWUobmV3X2xpc3RzX2pzb24sIG9sZF9saXN0c19qc29uKVxuYGBgIn0= -->
+<pre class="r"><code>file.rename(new_lists_json, old_lists_json)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFRSVUVcbiJ9 -->
+<pre><code>[1] TRUE</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="generate-query-using-warren-lu-style-query-generator" class="section level4">
+<h4>8. Generate query using Warren Lu-style Query Generator</h4>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBEZWxldGUgaW50ZXJtZWRpYXRlIGZpbGVzIGZyb20gZGlyZWN0b3J5XG51bmxpbmsodG1wX2ZvbGRlciwgcmVjdXJzaXZlPVRSVUUpXG5gYGAifQ== -->
+<pre class="r"><code># Delete intermediate files from directory
+unlink(tmp_folder, recursive=TRUE)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
-<div id="generate-query-using-warren-style-query-generator" class="section level4">
-<h4>6. Generate query using Warren-style Query Generator</h4>
+<div id="update-scheduled-queries-in-gcp-programatically" class="section level4">
+<h4>9. Update scheduled queries in GCP programatically</h4>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxuIyBSZXBsYWNlIG5hbWUgb2YgcXVlcnkgZ2VuZXJhdG9yIGFzIG5lZWRlZFxubm9kZSAuLi9jbGluaWNhbEJpb1N1cnZleV92MS1xdWVyeV9nZW5lcmF0b3IuanNcbmBgYCJ9 -->
-<pre class="bash"><code># Replace name of query generator as needed
-node ../clinicalBioSurvey_v1-query_generator.js</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p><strong>The code below is in development.</strong></p>
-<p>#### 7. Update scheduled query using bq CLI</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBEZWZpbmUgcGFyYW1ldGVyc1xucHJvamVjdCAgICAgICAgICA8LSBcIm5paC1uY2ktZGNlZy1jb25uZWN0LWRldlwiXG5zZXJ2aWNlX2FjY291bnQgIDwtIFwicWEtcWMtZGV2QG5paC1uY2ktZGNlZy1jb25uZWN0LWRldi5pYW0uZ3NlcnZpY2VhY2NvdW50LmNvbVwiXG5xdWVyeV9maWxlICAgICAgIDwtIFwiLi4vRmxhdENvbm5lY3QucGFydGljaXBhbnRzX0pQLWRldi5zcWxcIlxuc2NoZWRfcXVlcnlfbmFtZSA8LSBcIkZsYXRDb25uZWN0LnBhcnRpY2lwYW50c19KUFwiXG5cbnF1ZXJ5X3N0ciA8LSByZWFkcjo6cmVhZF9maWxlKHF1ZXJ5X2ZpbGUpICMgcmVhZCBhcyBzaW5nbGUgc3RyaW5nXG5cbnF1ZXJ5X3N0clxuXG4jIFNldCBlbnZpcm9ubWVudCB2YXJpYWJsZXNcblN5cy5zZXRlbnYoUFJPSkVDVF9JRCA9IHByb2plY3QpXG5TeXMuc2V0ZW52KEdDUF9TRVJWSUNFX0FDQ09VTlQgPSBzZXJ2aWNlX2FjY291bnQpXG5TeXMuc2V0ZW52KEdDUF9RVUVSWSA9IHF1ZXJ5X3N0cilcblN5cy5zZXRlbnYoRElTUExBWV9OQU1FID0gc2NoZWRfcXVlcnlfbmFtZSlcbmBgYCJ9 -->
-<pre class="r"><code># Define parameters
-project          &lt;- &quot;nih-nci-dceg-connect-dev&quot;
-service_account  &lt;- &quot;qa-qc-dev@nih-nci-dceg-connect-dev.iam.gserviceaccount.com&quot;
-query_file       &lt;- &quot;../FlatConnect.participants_JP-dev.sql&quot;
-sched_query_name &lt;- &quot;FlatConnect.participants_JP&quot;
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxud29ya2luZ19kaXIgICAgIDwtIGdldHdkKClcbnF1ZXJ5X2dlbmVyYXRvciA8LSBwYXN0ZTAobW9kdWxlLCBcIi1xdWVyeV9nZW5lcmF0b3IuanNcIilcblN5cy5zZXRlbnYoTU9EVUxFX0ZPTERFUiA9IG1vZHVsZV9mb2xkZXIsXG4gICAgICAgICAgIFFVRVJZX0dFTkVSQVRPUiA9IHF1ZXJ5X2dlbmVyYXRvcixcbiAgICAgICAgICAgV09SS05HX0RJUiA9IHdvcmtpbmdfZGlyKVxuXG4jIFVzaW5nIHNoZWxsIGNvbW1hbmRzLCBnbyB0byB0aGUgbW9kdWxlIGZvbGRlciwgcnVuIHRoZSBxdWVyeSBnZW5lcmF0b3IgKG5vZGUuanMpLFxuIyBhbmQgcmV0dXJuIHRvIHRoZSB3b3JraW5nIGRpcmVjdG9yeS5cbnN5c3RlbShcImNkICR7TU9EVUxFX0ZPTERFUn0gJiYgbm9kZSAke1FVRVJZX0dFTkVSQVRPUn07IGNkICR7V09SS0lOR19ESVJ9XCIpXG5gYGAifQ== -->
+<pre class="r"><code>working_dir     &lt;- getwd()
+query_generator &lt;- paste0(module, &quot;-query_generator.js&quot;)
+Sys.setenv(MODULE_FOLDER = module_folder,
+           QUERY_GENERATOR = query_generator,
+           WORKNG_DIR = working_dir)
 
-query_str &lt;- readr::read_file(query_file) # read as single string
-
-query_str
-
-# Set environment variables
-Sys.setenv(PROJECT_ID = project)
-Sys.setenv(GCP_SERVICE_ACCOUNT = service_account)
-Sys.setenv(GCP_QUERY = query_str)
-Sys.setenv(DISPLAY_NAME = sched_query_name)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RyMSAgICAgICAgPC0gJ3tcInF1ZXJ5XCI6J1xuc3RyMiAgICAgICAgPC0gJ1wid3JpdGVfZGlzcG9zaXRpb25cIjpcIldSSVRFX1RSVU5DQVRFXCJ9J1xucGFyYW1zX3N0ciAgPC0gcGFzdGUwKHN0cjEsIHF1ZXJ5X3N0ciwgc3RyMilcbmNhdChwYXJhbXNfc3RyKVxuXG5gYGAifQ== -->
-<pre class="r"><code>str1        &lt;- &#39;{&quot;query&quot;:&#39;
-str2        &lt;- &#39;&quot;write_disposition&quot;:&quot;WRITE_TRUNCATE&quot;}&#39;
-params_str  &lt;- paste0(str1, query_str, str2)
-cat(params_str)
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxuIyBSZXNvdXJjZSBuYW1lOiBwcm9qZWN0cy8xMDYxNDMwNDYzNDU1L2xvY2F0aW9ucy91cy90cmFuc2ZlckNvbmZpZ3MvNjM3N2U4ODItMDAwMC0yNzM2LWI2MTgtMjQwNTg4NzIzZjE4XG5zdHIwPVwiJ1wiXG5zdHIxPSd7XCJxdWVyeVwiOidcbnN0cjI9J30nXG5zdHIzPVwiJ1wiXG5QQVJBTVNfU1RSPSRzdHIwJHN0cjEkR0NQX1FVRVJZJHN0cjIkc3RyM1xuIyBlY2hvICRQQVJBTVNfU1RSXG5cbmJxIGxzIC1qIC0tcHJvamVjdF9pZCAkUFJPSkVDVF9JRCA+IC9kZXYvbnVsbFxuXG5icSB1cGRhdGUgXFxcbi0tdHJhbnNmZXJfY29uZmlnIFxcXG4tLWRpc3BsYXlfbmFtZT0nRmxhdENvbm5lY3QucGFydGljaXBhbnRzX0pQJyBcXFxuLS1wYXJhbXM9JFBBUkFNU19TVFIgXFxcblxuI2JxIHVwZGF0ZSBcXFxuIy0tdHJhbnNmZXJfY29uZmlnIFxcXG4jLS1wYXJhbXM9JFBBUkFNU19TVFJcbiMtLWRpc3BsYXlfbmFtZT0nRmxhdENvbm5lY3QucGFydGljaXBhbnRzX0pQJ1xuIy0tc2VydmljZV9hY2NvdW50X25hbWU9JEdDUF9TRVJWSUNFX0FDQ09VTlRcbiMtLXByb2plY3RfaWQ9JFBST0pFQ1RfSURcbmBgYCJ9 -->
-<pre class="bash"><code># Resource name: projects/1061430463455/locations/us/transferConfigs/6377e882-0000-2736-b618-240588723f18
-str0=&quot;&#39;&quot;
-str1=&#39;{&quot;query&quot;:&#39;
-str2=&#39;}&#39;
-str3=&quot;&#39;&quot;
-PARAMS_STR=$str0$str1$GCP_QUERY$str2$str3
-# echo $PARAMS_STR
-
-bq ls -j --project_id $PROJECT_ID &gt; /dev/null
-
-bq update \
---transfer_config \
---display_name=&#39;FlatConnect.participants_JP&#39; \
---params=$PARAMS_STR \
-
-#bq update \
-#--transfer_config \
-#--params=$PARAMS_STR
-#--display_name=&#39;FlatConnect.participants_JP&#39;
-#--service_account_name=$GCP_SERVICE_ACCOUNT
-#--project_id=$PROJECT_ID</code></pre>
+# Using shell commands, go to the module folder, run the query generator (node.js),
+# and return to the working directory.
+system(&quot;cd ${MODULE_FOLDER} &amp;&amp; node ${QUERY_GENERATOR}; cd ${WORKING_DIR}&quot;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 </div>
+</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiR2VuZXJhdGUgUXVlcnkgZnJvbSBTb3VyY2UgVGFibGUgU2NoZW1hICYgTWVyZ2Ugdy8gTWFuYXVsIFF1ZXJ5IgpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sKZWRpdG9yX29wdGlvbnM6IAogIG1hcmtkb3duOiAKICAgIHdyYXA6IDcyCi0tLQoKIyMjIyAwLiBMb2FkIGRlcGVuZGVuY2llcwoKYGBge3J9CmxpYnJhcnkoanNvbmxpdGUpCmxpYnJhcnkodG9vbHMpCiMgTG9hZCBoZWxwZXIgZnVuY3Rpb25zCnNvdXJjZSgiY29ubmVjdF9hbmFseXRpY3NfaGVscGVyX2Z1bmN0aW9ucy5SIikKYGBgCgojIyMjIDEuIEdlbmVyYXRlIFwqLXZhcmlhYmxlcy5jc3YgYW5kIFwqLWxpc3RzLmpzb24gZmlsZSBmcm9tIHNvdXJjZSB0YWJsZSBzY2hlbWEuCgpIZXJlLCB3ZSdsbCBnZW5lcmF0ZSBhIG5ldyBxdWVyeSBmcm9tIGEgQmlnUXVlcnkgdGFibGUgc2NoZW1hLCBnaXZlbiBhcwphbiBleGNlbCBzaGVldCB3aGljaCBjYW4gYmUgZXhwb3J0ZWQgZnJvbSBCaWdRdWVyeS4gT3VyIHF1ZXJpZXMgcmVxdWlyZQphIHF1ZXJ5IGdlbmVyYXRvciwgYSB2YXJpYWJsZXMuY3N2IGZpbGUgYW5kIGEgbGlzdHMuanNvbiBmaWxlLiBUaGlzCmZ1bmN0aW9uIGdlbmVyYXRlcyBmaWx0ZXJzIHRoZSB2YXJpYWJsZXMgaW4gdGhlIHNjaGVtYSBiYXNlZCBvbiB3aGV0aGVyCnRoZXkgc2hvdWxkIGJlIGluIHRoZSB2YXJpYWJsZXMgZmlsZSBvciB0aGUgbGlzdCBmaWxlLiBBbGwgdmFyaWFibGVzCmRlc3RpbmVkIGZvciB0aGUgbGlzdCBmaWxlIGFyZSBhc3NpZ25lZCBhIGxpc3Qgb2YgQ0lEcyB0aGF0IGFyZSBwcmVzZW50CmluIHRoZSBkYXRhIHNldCBmb3IgdGhhdCB2YXJpYWJsZSwgYWNyb3NzIGFsbCByb3dzLgoKYGBge3J9CnByb2plY3QgIDwtICJuaWgtbmNpLWRjZWctY29ubmVjdC1kZXYiCiMgcHJvamVjdCAgPC0gIm5paC1uY2ktZGNlZy1jb25uZWN0LXN0Zy01NTE5Igp0YWJsZSAgICA8LSAiQ29ubmVjdC5jbGluaWNhbEJpb1N1cnZleV92MSIKc2NoZW1hICAgPC0gImNsaW5pY2FsQmlvU3VydmV5X3YxLXNjaGVtYS54bHN4IgpzaGVldCAgICA8LSBOVUxMCm91dF9qc29uIDwtICJjbGluaWNhbEJpb1N1cnZleV92MS1saXN0cy1mcm9tLXNjaGVtYS5qcyIgIyBkZXN0aW5hdGlvbiBmaWxlCm91dF9jc3YgIDwtICJjbGluaWNhbEJpb1N1cnZleV92MS12YXJpYWJsZXMtZnJvbS1zY2hlbWEuY3N2IgoKIyBTZXQgb3V0cHV0IGZpbGVzIHRvIGVudmlyb25tZW50IHZhcmlhYmxlcyBmb3IgZWFzeSBjbGVhbnVwIGxhdGVyClN5cy5zZXRlbnYoT1VUX0pTT04gPSBvdXRfanNvbikKU3lzLnNldGVudihPVVRfQ1NWID0gb3V0X2NzdikKCiMgR2VuZXJhdGUgdGhlIHF1ZXJ5IGZyb20gdGhlIHNjaGVtYSBpbiB0aGUgZm9ybSBvZiBhIHNldCBvZiAKIyB2YXJpYWJsZXMuY3N2IGFuZCBsaXN0cy5qc29uIGZpbGVzLgpvdXQgPC0gZmlsdGVyX3ZhcnNfZnJvbV9zY2hlbWEocHJvamVjdCwgdGFibGUsIHNjaGVtYSwgb3V0X2Nzdiwgb3V0X2pzb24sIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2hlZXQgPSBzaGVldCwgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBvdXRwdXRfZmlsZV90eXBlID0gImpzIikKb3V0JHZhcmlhYmxlc1swOjEwXQpvdXQkYXJyYXlfanNvblswOjEwXQpgYGAKCiMjIyMgMi4gQ29tYmluZSBqc29uIGFuZCBjc3YgZmlsZXMgZnJvbSBtYW51YWwgcXVlcmllcyB3aXRoIHNjaGVtYS1pbmZvcm1lZCBxdWVyeQoKTm93IHRoYXQgd2UgaGF2ZSBhIG5ldyBxdWVyeSBpbiB0aGUgZm9ybSBvZiB2YXJpYWJsZXMuY3N2IGFuZCBsaXN0cy5qc29uCmZpbGVzLCB3ZSBuZWVkIHRvIGNvbWJpbmUgdGhlIG5ldyBqc29uIGZpbGUgd2l0aCB0aGUgb2xkIGpzb24gZmlsZS4KCmBgYHtyfQpBIDwtICJjbGluaWNhbEJpb1N1cnZleV92MS1saXN0cy5qc29uIgpCIDwtICJjbGluaWNhbEJpb1N1cnZleV92MS5qc29uIgpDIDwtICJjbGluaWNhbEJpb1N1cnZleV92MS1saXN0cy11bmlvbi5qc29uIgoKU3lzLnNldGVudihVTklPTl9KU09OID0gQykgIyBGb3IgZWFzeSBjbGVhbnVwIGxhdGVyCgp1bmlvbl9qc29uX3N0ciA8LSBnZXRfdW5pb25fb2ZfanNvbl9hcnJheXMoQSwgQiwgQykKdW5pb25fanNvbl9zdHIKYGBgCgpXZSBhbHNvIG5lZWQgdG8gY29tYmluZSB0aGUgdmFyaWFibGVzLmNzdiBmaWxlIHRoYXQgd2FzIGdlbmVyYXRlZCBmcm9tCnRoZSBzY2hlbWEgd2l0aCB0aGUgb2xkLCBtYW51YWxseSBnZW5lcmF0ZWQgdmFyaWFibGVzLmNzdiBmaWxlLiBUaGlzCmNvZGUgd2lsbCBleGNsdWRlIGFueSBkdXBsaWNhdGVzLgoKYGBge3J9CiMgR2V0IHVuaW9uIG9mIHZhcmlhYmxlIGxpc3RzCkFfY3N2IDwtICJjbGluaWNhbEJpb1N1cnZleV92MS12YXJpYWJsZXMuY3N2IgpCX2NzdiA8LSAiY2xpbmljYWxCaW9TdXJ2ZXlfdjEtdmFyaWFibGVzLWZyb20tc2NoZW1hLmNzdiIKQ19jc3YgPC0gImNsaW5pY2FsQmlvU3VydmV5X3YxLXZhcmlhYmxlcy11bmlvbi5jc3YiCgpTeXMuc2V0ZW52KFVOSU9OX0NTViA9IENfY3N2KSAjIEZvciBlYXN5IGNsZWFudXAgbGF0ZXIKCnVuaW9uX3Zhcl9jaHJfYXJyYXkgPC0gZ2V0X3VuaW9uX29mX3ZhcmlhYmxlX2NzdihBX2NzdiwgQl9jc3YsIENfY3N2KQp1bmlvbl92YXJfY2hyX2FycmF5CmBgYAoKIyMjIyAzLiBEZWFsIHdpdGggZXhjZXB0aW9ucwoKYGBge3J9Cmpzb25fZmlsZSAgICAgICAgIDwtIEMKdmFyaWFibGVzX2ZpbGUgICAgPC0gQ19jc3YKIyBHZXQgYSBsaXN0IG9mIHZhcmlhYmxlcyB3aXRoIGFycmF5cyBjb250YWluaW5nICJleGNlcHRpb24gQ0lEIgpleGNlcHRpb25zICAgICAgICA8LSBjKDE3ODQyMDMwMiwgOTU4MjM5NjE2LCAzNTMzNTg5MDksIDEwNDQzMDYzMSkKdmFyc193X2V4Y2VwdGlvbnMgPC0gZ2V0X3ZhcnNfd2l0aF9zcGVjaWZpZWRfdmFscyhqc29uX2ZpbGUsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGV4Y2VwdGlvbnMsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG1heF9hcnJheV9sZW4gPSAyKSAKdmFyc193X2V4Y2VwdGlvbnMKYGBgCgpSZW1vdmUgbGlzdCBvZiB2YXJpYWJsZXMgd2l0aCBleGNlcHRpb25zIGZyb20gdGhlIGRhdGEgc2V0CgpgYGB7cn0Kb3V0cHV0X2ZpbGVuYW1lICA8LSAiY2xpbmljYWxCaW9TdXJ2ZXlfdjEtbGlzdHMtdW5pb24tbW9kLmpzb24iClN5cy5zZXRlbnYoTkVXX0pTT04gPSBvdXRwdXRfZmlsZW5hbWUpICMgRm9yIGVhc3kgY2xlYW51cCBsYXRlcgp1cGRhdGVkX3ZhcmlhYmxlcyA8LSByZW1vdmVfdmFyc19mcm9tX2pzb24oanNvbl9maWxlLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZhcnNfd19leGNlcHRpb25zLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb3V0cHV0X2ZpbGVuYW1lID0gb3V0cHV0X2ZpbGVuYW1lKSAKdXBkYXRlZF92YXJpYWJsZXMKYGBgCgpBZGQgbGlzdCBvZiB2YXJpYWJsZXMgd2l0aCBleGNlcHRpb25zIHRvIFwqLXZhcmlhYmxlc1wqLmNzdgoKYGBge3J9Cm91dF9maWxlICA8LSAiY2xpbmljYWxCaW9TdXJ2ZXlfdjEtdmFyaWFibGVzLXVuaW9uLW5ldy5jc3YiClN5cy5zZXRlbnYoTkVXX0NTViA9IG91dF9maWxlKSAjIEZvciBlYXN5IGNsZWFudXAgCmFkZF9ub3ZlbF92YXJzX3RvX2Nzdih2YXJzX3dfZXhjZXB0aW9ucywgdmFyaWFibGVzX2ZpbGUsIG91dF9maWxlID0gb3V0X2ZpbGUpCmBgYAoKR2V0IGxpc3Qgb2YgdmFyaWFibGVzIGZyb20gY3N2IGZpbGUgdGhhdCBhcmUgb2YgdHlwZSBSRUNPUkQgb3IgbW9kZQpSRVBFQVRFRCBpbiB0aGUgc2NoZW1hCgpgYGB7cn0KI1RPRE8gVGhpcyBjaHVuayBuZWVkcyB0byBiZSB0ZXN0ZWQuCmNzdl9maWxlICAgICAgPC0gb3V0X2ZpbGUKcmVjc19hbmRfcmVwcyA8LSBnZXRfcmVjb3JkX2FuZF9yZXBlYXRlZF92YXJzKHByb2plY3QsIHRhYmxlLCBzY2hlbWEsIGNzdl9maWxlKQpyZWNzX2FuZF9yZXBzCmBgYAoKUmVtb3ZlIHRoZXNlIHZhcmlhYmxlcyBmcm9tIHRoZSBjc3YgZmlsZQoKYGBge3J9CiNUT0RPIFRoaXMgY2h1bmsgbmVlZHMgdG8gYmUgdGVzdGVkLgppbl9maWxlICAgICAgICA8LSBDX2Nzdgp2YXJzX3RvX3JlbW92ZSA8LSByZWNzX2FuZF9yZXBzCnJlbW92ZV92YXJzX2Zyb21fY3N2KGluX2ZpbGUsIHZhcnNfdG9fcmVtb3ZlLCBvdXRfZmlsZSA9IE5VTEwpCmBgYAoKIyMjIyA0LiBNb3ZlIG1vZGlmaWVkIGxpc3RzLmpzb24gYW5kIHZhcmlhYmxlcy5jc3YgZmlsZXMgdG8gcGFyZW50IGRpcmVjdG9yeQoKYGBge2Jhc2h9CiMgTW92ZSB1cC10by1kYXRlIGZpbGVzIHRvIHBhcmVudCBkaXJlY3RvcnkKZWNobyAkTkVXX0NTViAgCmVjaG8gJE5FV19KU09OClBBUl9ESVJfQ1NWX05BTUU9ImNsaW5pY2FsQmlvU3VydmV5X3YxLXZhcmlhYmxlcy5jc3YiClBBUl9ESVJfSlNPTl9OQU1FPSJjbGluaWNhbEJpb1N1cnZleV92MS1saXN0cy5qc29uIgoKY3AgJE5FV19DU1YgLi4vJFBBUl9ESVJfQ1NWX05BTUUKY3AgJE5FV19KU09OIC4uLyRQQVJfRElSX0pTT05fTkFNRQpgYGAKCiMjIyMgNS4gQ2xlYW4gdXAgaW50ZXJtZWRpYXRlIGZpbGVzIGZyb20gd29ya2luZyBkaXJlY3RvcnkKCmBgYHtiYXNofQojIERlbGV0ZSBpbnRlcm1lZGlhdGUgZmlsZXMgZnJvbSBkaXJlY3RvcnkKZWNobyAiVGhlIGZpbGVzIHRoYXQgd2lsbCBiZSByZW1vdmVkIGFyZToiCmVjaG8gJE9VVF9KU09OCmVjaG8gJE9VVF9DU1YKZWNobyAkVU5JT05fSlNPTgplY2hvICRVTklPTl9DU1YKZWNobyAkTkVXX0NTViAgCmVjaG8gJE5FV19KU09OCgpybSAkT1VUX0pTT04Kcm0gJE9VVF9DU1YKcm0gJFVOSU9OX0pTT04Kcm0gJFVOSU9OX0NTVgpybSAkTkVXX0NTViAgCnJtICRORVdfSlNPTgpgYGAKCiMjIyMgNi4gR2VuZXJhdGUgcXVlcnkgdXNpbmcgV2FycmVuLXN0eWxlIFF1ZXJ5IEdlbmVyYXRvcgoKYGBge2Jhc2h9CiMgUmVwbGFjZSBuYW1lIG9mIHF1ZXJ5IGdlbmVyYXRvciBhcyBuZWVkZWQKbm9kZSAuLi9jbGluaWNhbEJpb1N1cnZleV92MS1xdWVyeV9nZW5lcmF0b3IuanMKYGBgCgoqKlRoZSBjb2RlIGJlbG93IGlzIGluIGRldmVsb3BtZW50LioqCgpcIyMjIyA3LiBVcGRhdGUgc2NoZWR1bGVkIHF1ZXJ5IHVzaW5nIGJxIENMSQoKYGBge1J9CiMgRGVmaW5lIHBhcmFtZXRlcnMKcHJvamVjdCAgICAgICAgICA8LSAibmloLW5jaS1kY2VnLWNvbm5lY3QtZGV2IgpzZXJ2aWNlX2FjY291bnQgIDwtICJxYS1xYy1kZXZAbmloLW5jaS1kY2VnLWNvbm5lY3QtZGV2LmlhbS5nc2VydmljZWFjY291bnQuY29tIgpxdWVyeV9maWxlICAgICAgIDwtICIuLi9GbGF0Q29ubmVjdC5wYXJ0aWNpcGFudHNfSlAtZGV2LnNxbCIKc2NoZWRfcXVlcnlfbmFtZSA8LSAiRmxhdENvbm5lY3QucGFydGljaXBhbnRzX0pQIgoKcXVlcnlfc3RyIDwtIHJlYWRyOjpyZWFkX2ZpbGUocXVlcnlfZmlsZSkgIyByZWFkIGFzIHNpbmdsZSBzdHJpbmcKCnF1ZXJ5X3N0cgoKIyBTZXQgZW52aXJvbm1lbnQgdmFyaWFibGVzClN5cy5zZXRlbnYoUFJPSkVDVF9JRCA9IHByb2plY3QpClN5cy5zZXRlbnYoR0NQX1NFUlZJQ0VfQUNDT1VOVCA9IHNlcnZpY2VfYWNjb3VudCkKU3lzLnNldGVudihHQ1BfUVVFUlkgPSBxdWVyeV9zdHIpClN5cy5zZXRlbnYoRElTUExBWV9OQU1FID0gc2NoZWRfcXVlcnlfbmFtZSkKYGBgCgpgYGB7Un0Kc3RyMSAgICAgICAgPC0gJ3sicXVlcnkiOicKc3RyMiAgICAgICAgPC0gJyJ3cml0ZV9kaXNwb3NpdGlvbiI6IldSSVRFX1RSVU5DQVRFIn0nCnBhcmFtc19zdHIgIDwtIHBhc3RlMChzdHIxLCBxdWVyeV9zdHIsIHN0cjIpCmNhdChwYXJhbXNfc3RyKQoKYGBgCgpgYGB7YmFzaH0KIyBSZXNvdXJjZSBuYW1lOiBwcm9qZWN0cy8xMDYxNDMwNDYzNDU1L2xvY2F0aW9ucy91cy90cmFuc2ZlckNvbmZpZ3MvNjM3N2U4ODItMDAwMC0yNzM2LWI2MTgtMjQwNTg4NzIzZjE4CnN0cjA9IiciCnN0cjE9J3sicXVlcnkiOicKc3RyMj0nfScKc3RyMz0iJyIKUEFSQU1TX1NUUj0kc3RyMCRzdHIxJEdDUF9RVUVSWSRzdHIyJHN0cjMKIyBlY2hvICRQQVJBTVNfU1RSCgpicSBscyAtaiAtLXByb2plY3RfaWQgJFBST0pFQ1RfSUQgPiAvZGV2L251bGwKCmJxIHVwZGF0ZSBcCi0tdHJhbnNmZXJfY29uZmlnIFwKLS1kaXNwbGF5X25hbWU9J0ZsYXRDb25uZWN0LnBhcnRpY2lwYW50c19KUCcgXAotLXBhcmFtcz0kUEFSQU1TX1NUUiBcCgojYnEgdXBkYXRlIFwKIy0tdHJhbnNmZXJfY29uZmlnIFwKIy0tcGFyYW1zPSRQQVJBTVNfU1RSCiMtLWRpc3BsYXlfbmFtZT0nRmxhdENvbm5lY3QucGFydGljaXBhbnRzX0pQJwojLS1zZXJ2aWNlX2FjY291bnRfbmFtZT0kR0NQX1NFUlZJQ0VfQUNDT1VOVAojLS1wcm9qZWN0X2lkPSRQUk9KRUNUX0lECmBgYAo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiR2VuZXJhdGUgUXVlcnkgZnJvbSBTb3VyY2UgVGFibGUgU2NoZW1hICYgTWVyZ2Ugdy8gTWFuYXVsIFF1ZXJ5IgpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sKZWRpdG9yX29wdGlvbnM6IAogIG1hcmtkb3duOiAKICAgIHdyYXA6IDcyCi0tLQoKIyMjIyAwLiBMb2FkIGRlcGVuZGVuY2llcyBhbmQgZGVmaW5lIHBhcmFtZXRlcnMKCmBgYHtyLCBzZXR1cH0KbGlicmFyeShqc29ubGl0ZSkKbGlicmFyeSh0b29scykKbGlicmFyeShyZXRpY3VsYXRlKQpsaWJyYXJ5KGJpZ3JxdWVyeSkKCiMgTG9hZCBoZWxwZXIgZnVuY3Rpb25zCnNvdXJjZSgiZ2NwX3F1ZXJ5X3Rvb2xzL2Nvbm5lY3RfYW5hbHl0aWNzX2hlbHBlcl9mdW5jdGlvbnMuUiIpCgojIyMjIyMjIyMjIyBERUZJTkUgUEFSQU1FVEVSUyAjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKIyBwcm9qZWN0ICAgPC0gIm5paC1uY2ktZGNlZy1jb25uZWN0LWRldiIKIyBwcm9qZWN0ICAgPC0gIm5paC1uY2ktZGNlZy1jb25uZWN0LXN0Zy01NTE5Igpwcm9qZWN0IDwtICJuaWgtbmNpLWRjZWctY29ubmVjdC1wcm9kLTZkMDQiCnRhYmxlICAgPC0gIkNvbm5lY3QuYmlvc3BlY2ltZW4iIAojIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKCiMgQXV0aGVudGljYXRlIHRvIEJpZ1F1ZXJ5CmJxX2F1dGgoKQpgYGAKCiMjIyMgMS4gR2V0IHNjaGVtYSBmcm9tIEJpZ1F1ZXJ5IGFzIGEgSlNPTiBmaWxlIChvbmx5IGZvcm1hdCBvcHRpb24pCgpgYGB7cn0KIyBHZW5lcmF0ZSBmaWxlIG5hbWVzIGdpdmVuIHRhYmxlIG5hbWUKbW9kdWxlICAgICAgICA8LSBzdHJzcGxpdCh0YWJsZSwgc3BsaXQ9Ii4iLCBmaXhlZD1UUlVFKVtbMV1dWzJdCnF1ZXJ5X2ZvbGRlciAgPC0gInF1ZXJ5R2VuZXJhdG9ycy9GbGF0Q29ubmVjdF9xdWVyaWVzLyIKbW9kdWxlX2ZvbGRlciA8LSBwYXN0ZTAocXVlcnlfZm9sZGVyLCBtb2R1bGUsICIvIikKCiMgQ3JlYXRlIHRlbXBvcmFyeSBkaXJlY3RvcnkgdG8gc3RvcmUgdGVtcCBmaWxlcyBpbgp0bXBfZm9sZGVyIDwtIHBhc3RlMChtb2R1bGVfZm9sZGVyLCJ0bXAvIikKaWYgKCFkaXIuZXhpc3RzKHRtcF9mb2xkZXIpKSB7ZGlyLmNyZWF0ZSh0bXBfZm9sZGVyKX0KCiMgTmFtZSBzY2hlbWEgZmlsZXMKc2NoZW1hX2pzb24gICA8LSBwYXN0ZTAodG1wX2ZvbGRlcixtb2R1bGUsIi1zY2hlbWEuanNvbiIpCnNjaGVtYV9jc3YgICAgPC0gcGFzdGUwKHRtcF9mb2xkZXIsbW9kdWxlLCItc2NoZW1hLmNzdiIpCgojIFNldCBkZWZhdWx0IEdDUCBwcm9qZWN0CnNldF9kZWZhdWx0X2djcF9wcm9qZWN0KHByb2plY3QpCgojIEdldCB0aGUgdGFibGUgc2NoZW1hIGZyb20gR0NQIGFzIGEgSlNPTiBmaWxlIG5hbWVkIHNjaGVtYV9qc29uCmdldF9nY3BfdGFibGVfc2NoZW1hKHByb2plY3QsIHRhYmxlLCBzY2hlbWFfanNvbikgCmBgYAoKIyMjIyAyLiBDb252ZXJ0IHNjaGVtYSBmcm9tIEpTT04gdG8gQ1NWCgojIFNldCB1cCBweXRob24KYGBge3J9CiMgU2V0IGVudmlyb25tZW50IHZhcmlhYmxlcwojIFZhcmlhYmxlcyB3aXRoIHRoZXNlIHByb3BlcnRpZXMgd2lsbCBiZSBmaWx0ZXJlZCBvdXQuIFN0cmluZyBjYW5ub3QgY29udGFpbiBzcGFjZXMuCnNjaGVtYV9maWx0ZXIgPC0gJ3sibmFtZSI6WyJfX2tleV9fIiwiX19lcnJvcl9fIiwiX19oYXNfZXJyb3JfXyIsInRyZWVKU09OIiwiYWxsRW1haWxzIiwiYWxsUGhvbmVObyJdLCJ0eXBlIjpbIlJFQ09SRCJdfScKcHlfZnVuYyA8LSAnZ2NwX3F1ZXJ5X3Rvb2xzL2pzb25fc2NoZW1hX3RvX2Nzdl9iLnB5JwpTeXMuc2V0ZW52KFNDSEVNQV9DU1YgPSBzY2hlbWFfY3N2KQpTeXMuc2V0ZW52KFNDSEVNQV9KU09OID0gc2NoZW1hX2pzb24pClN5cy5zZXRlbnYoU0NIRU1BX0ZJTFRFUiA9IHNjaGVtYV9maWx0ZXIpClN5cy5zZXRlbnYoUFlfRlVOQyA9IHB5X2Z1bmMpCnN5c3RlbSgncHl0aG9uMyAkUFlfRlVOQyAkU0NIRU1BX0pTT04gJFNDSEVNQV9DU1YgJFNDSEVNQV9GSUxURVInKQpgYGAKCgoKIyMjIyAzLiBHZW5lcmF0ZSBcKi12YXJpYWJsZXMuY3N2IGFuZCBcKi1saXN0cy5qc29uIGZpbGUgZnJvbSBzb3VyY2UgdGFibGUgc2NoZW1hLgoKSGVyZSwgd2UnbGwgZ2VuZXJhdGUgYSBuZXcgcXVlcnkgZnJvbSBhIEJpZ1F1ZXJ5IHRhYmxlIHNjaGVtYSwgT3VyCnF1ZXJpZXMgcmVxdWlyZSBhIHF1ZXJ5X2dlbmVyYXRvci5qcywgXCotdmFyaWFibGVzLmNzdiBhbmQgYQpcKi1saXN0cy5qc29uLiBUaGlzIGZ1bmN0aW9uIGdlbmVyYXRlcyBmaWx0ZXJzIHRoZSB2YXJpYWJsZXMgaW4gdGhlCnNjaGVtYSBiYXNlZCBvbiB3aGV0aGVyIHRoZXkgc2hvdWxkIGJlIGluIHRoZSB2YXJpYWJsZXMuY3N2IGZpbGUgb3IgdGhlClwqLWxpc3QuanNvbiBmaWxlLiBBbGwgdmFyaWFibGVzIGRlc3RpbmVkIGZvciB0aGUgbGlzdCBmaWxlIGFyZSBhc3NpZ25lZAphIGxpc3Qgb2YgQ0lEcyB0aGF0IGFyZSBwcmVzZW50IGluIHRoZSBkYXRhIHNldCBmb3IgdGhhdCB2YXJpYWJsZSwKYWNyb3NzIGFsbCByb3dzLgoKYGBge3J9CiMgR2VuZXJhdGUgdGhlIHF1ZXJ5IGZyb20gdGhlIHNjaGVtYSBpbiB0aGUgZm9ybSBvZiBhIHNldCBvZiAKIyB2YXJpYWJsZXMuY3N2IGFuZCBsaXN0cy5qc29uIGZpbGVzLgpvdXRfanNvbiA8LSBwYXN0ZTAodG1wX2ZvbGRlciwgbW9kdWxlLCAiLWxpc3RzLWZyb20tc2NoZW1hLmpzb24iKQpvdXRfY3N2ICA8LSBwYXN0ZTAodG1wX2ZvbGRlciwgbW9kdWxlLCAiLXZhcmlhYmxlcy1mcm9tLXNjaGVtYS5jc3YiKQoKIyBHZXQgdmFyaWFibGVzIGFuZCBsaXN0cyBmaWxlcyBmcm9tIHNjaGVtYQpmaWx0ZXJfdmFyc19mcm9tX3NjaGVtYShwcm9qZWN0LCB0YWJsZSwgc2NoZW1hX2Nzdiwgb3V0X2Nzdiwgb3V0X2pzb24sIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb3V0cHV0X2ZpbGVfdHlwZSA9ICJqc29uIikKYGBgCgojIyMjIDQuIENvbWJpbmUganNvbiBhbmQgY3N2IGZpbGVzIHByaW9yIHRvIGdlbmVyYXRpbmcgcXVlcnkKCk5vdyB0aGF0IHdlIGhhdmUgYSBuZXcgcXVlcnkgaW4gdGhlIGZvcm0gb2YgdmFyaWFibGVzLmNzdiBhbmQgbGlzdHMuanNvbgpmaWxlcywgd2UgbmVlZCB0byBjb21iaW5lIHRoZSBuZXcganNvbiBmaWxlIHdpdGggdGhlIG9sZCBqc29uIGZpbGUuCgpgYGB7cn0KIyAtbGlzdHMuanNvbiBmaWxlIGZyb20gcGFyZW50IGZvbGRlcgpvbGRfbGlzdHNfanNvbiA8LSBwYXN0ZTAobW9kdWxlX2ZvbGRlciwgbW9kdWxlLCAiLWxpc3RzLmpzb24iKQpvbGRfbGlzdHNfanNvbgoKIyBuYW1lIGNvbWJpbmVkIGpzb24gZmlsZQp1bmlvbl9saXN0c19qc29uIDwtIHBhc3RlMCh0bXBfZm9sZGVyLCBtb2R1bGUsICItbGlzdHMtdW5pb24uanNvbiIpCnVuaW9uX2xpc3RzX2pzb24KCiMgR2V0IHVuaW9uIG9mIG9sZF9saXN0c19qc29uIGFuZCBvdXRfanNvbgp1bmlvbl9qc29uX3N0ciA8LSBnZXRfdW5pb25fb2ZfanNvbl9hcnJheXMob2xkX2xpc3RzX2pzb24sIG91dF9qc29uLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHVuaW9uX2xpc3RzX2pzb24pCgpwcmludCh1bmlvbl9qc29uX3N0cikKYGBgCgpXZSBhbHNvIG5lZWQgdG8gY29tYmluZSB0aGUgdmFyaWFibGVzLmNzdiBmaWxlIHRoYXQgd2FzIGdlbmVyYXRlZCBmcm9tCnRoZSBzY2hlbWEgd2l0aCB0aGUgb2xkLCBtYW51YWxseSBnZW5lcmF0ZWQgdmFyaWFibGVzLmNzdiBmaWxlLiBUaGlzCmNvZGUgd2lsbCBleGNsdWRlIGFueSBkdXBsaWNhdGVzLgoKYGBge3J9CiMgR2V0IHVuaW9uIG9mIHZhcmlhYmxlIGZpbGVzCiMgLWxpc3RzLmpzb24gZmlsZSBmcm9tIHBhcmVudCBmb2xkZXIKb2xkX3ZhcnNfY3N2ICAgPC0gcGFzdGUwKG1vZHVsZV9mb2xkZXIsIG1vZHVsZSwgIi12YXJpYWJsZXMuY3N2IikKCiMgbmFtZSBjb21iaW5lZCBjc3YgZmlsZQp1bmlvbl92YXJzX2NzdiA8LSBwYXN0ZTAodG1wX2ZvbGRlciwgbW9kdWxlLCAiLXZhcnMtdW5pb24uY3N2IikKdW5pb25fdmFyc19jc3YKCnVuaW9uX3Zhcl9jaHJfYXJyYXkgPC0gZ2V0X3VuaW9uX29mX3ZhcmlhYmxlX2NzdihvbGRfdmFyc19jc3YsIG91dF9jc3YsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdW5pb25fdmFyc19jc3YpCmBgYAoKIyMjIyA1LiBEZWFsIHdpdGggZXhjZXB0aW9ucwoKYGBge3J9CiMgRGVmaW5lIGV4Y2VwdGlvbnMKZXhjZXB0aW9ucyA8LSBjKDE3ODQyMDMwMiwgOTU4MjM5NjE2LCAzNTMzNTg5MDksIDEwNDQzMDYzMSkKCiMgR2V0IGEgbGlzdCBvZiB2YXJpYWJsZXMgd2l0aCBhcnJheXMgY29udGFpbmluZyAiZXhjZXB0aW9uIENJRCIKdmFyc193X2V4Y2VwdGlvbnMgPC0gZ2V0X3ZhcnNfd2l0aF9zcGVjaWZpZWRfdmFscyh1bmlvbl9saXN0c19qc29uLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBleGNlcHRpb25zLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtYXhfYXJyYXlfbGVuID0gMikgCnZhcnNfd19leGNlcHRpb25zCgojIFJlbW92ZSBsaXN0IG9mIHZhcmlhYmxlcyB3aXRoIGV4Y2VwdGlvbnMgZnJvbSB0aGUgZGF0YSBzZXQKbmV3X2xpc3RzX2pzb24gICAgPC0gcGFzdGUwKHRtcF9mb2xkZXIsIG1vZHVsZSwgIi1saXN0cy11bmlvbi1tb2QuanNvbiIpCnVwZGF0ZWRfdmFyaWFibGVzIDwtIHJlbW92ZV92YXJzX2Zyb21fanNvbih1bmlvbl9saXN0c19qc29uLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZhcnNfd19leGNlcHRpb25zLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb3V0cHV0X2ZpbGVuYW1lID0gbmV3X2xpc3RzX2pzb24pIAoKIyBBZGQgbGlzdCBvZiB2YXJpYWJsZXMgd2l0aCBleGNlcHRpb25zIHRvIFwqLXZhcmlhYmxlc1wqLmNzdgpuZXdfdmFyc19jc3YgIDwtIHBhc3RlMCh0bXBfZm9sZGVyLCBtb2R1bGUsICItdmFyaWFibGVzLXVuaW9uLW1vZC5jc3YiKQoKYWRkX25vdmVsX3ZhcnNfdG9fY3N2KHZhcnNfd19leGNlcHRpb25zLCB1bmlvbl92YXJzX2NzdiwgCiAgICAgICAgICAgICAgICAgICAgICBvdXRfZmlsZSA9IG5ld192YXJzX2NzdikKYGBgCgpHZXQgbGlzdCBvZiB2YXJpYWJsZXMgZnJvbSBjc3YgZmlsZSB0aGF0IGFyZSBvZiB0eXBlIFJFQ09SRCBvciBtb2RlClJFUEVBVEVEIGluIHRoZSBzY2hlbWEuIFRoZXJlIHNob3VsZG4ndCBiZSBhbnkgbGVmdCBhdCB0aGlzIHBvaW50LCBidXQKanVzdCBpbiBjYXNlLi4uCgpgYGB7cn0KI1RPRE8gVGhpcyBjaHVuayBuZWVkcyB0byBiZSB0ZXN0ZWQuCnZhcnNfdG9fcmVtb3ZlIDwtIGdldF9yZWNvcmRfYW5kX3JlcGVhdGVkX3ZhcnMocHJvamVjdCwgdGFibGUsIHNjaGVtYV9jc3YsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbmV3X3ZhcnNfY3N2KQp2YXJzX3RvX3JlbW92ZQoKIyBSZW1vdmUgdGhlc2UgdmFyaWFibGVzIGZyb20gdGhlIG5ldyBjc3YgZmlsZQppZiAoIGxlbmd0aCh2YXJzX3RvX3JlbW92ZSApICE9IDApIHsKICByZW1vdmVfdmFyc19mcm9tX2NzdihuZXdfdmFyc19jc3YsIHZhcnNfdG9fcmVtb3ZlKQp9CmBgYAoKIyMjIyA2LiBNb3ZlIG1vZGlmaWVkIGxpc3RzLmpzb24gYW5kIHZhcmlhYmxlcy5jc3YgZmlsZXMgdG8gcGFyZW50IGRpcmVjdG9yeQoKYGBge3J9CiMgTW92ZSB1cC10by1kYXRlIGZpbGVzIHRvIHBhcmVudCBkaXJlY3RvcnkKZmlsZS5yZW5hbWUobmV3X3ZhcnNfY3N2LCBvbGRfdmFyc19jc3YpCmZpbGUucmVuYW1lKG5ld19saXN0c19qc29uLCBvbGRfbGlzdHNfanNvbikKYGBgCgojIyMjIDcuIENsZWFuIHVwIGludGVybWVkaWF0ZSBmaWxlcyBmcm9tIHdvcmtpbmcgZGlyZWN0b3J5CgpgYGB7cn0KIyBEZWxldGUgaW50ZXJtZWRpYXRlIGZpbGVzIGZyb20gZGlyZWN0b3J5CnVubGluayh0bXBfZm9sZGVyLCByZWN1cnNpdmU9VFJVRSkKYGBgCgojIyMjIDguIEdlbmVyYXRlIHF1ZXJ5IHVzaW5nIFdhcnJlbiBMdS1zdHlsZSBRdWVyeSBHZW5lcmF0b3IKCmBgYHtyfQp3b3JraW5nX2RpciAgICAgPC0gZ2V0d2QoKQpxdWVyeV9nZW5lcmF0b3IgPC0gcGFzdGUwKG1vZHVsZSwgIi1xdWVyeV9nZW5lcmF0b3IuanMiKQpTeXMuc2V0ZW52KE1PRFVMRV9GT0xERVIgPSBtb2R1bGVfZm9sZGVyLAogICAgICAgICAgIFFVRVJZX0dFTkVSQVRPUiA9IHF1ZXJ5X2dlbmVyYXRvciwKICAgICAgICAgICBXT1JLTkdfRElSID0gd29ya2luZ19kaXIpCgojIFVzaW5nIHNoZWxsIGNvbW1hbmRzLCBnbyB0byB0aGUgbW9kdWxlIGZvbGRlciwgcnVuIHRoZSBxdWVyeSBnZW5lcmF0b3IgKG5vZGUuanMpLAojIGFuZCByZXR1cm4gdG8gdGhlIHdvcmtpbmcgZGlyZWN0b3J5LgpzeXN0ZW0oImNkICR7TU9EVUxFX0ZPTERFUn0gJiYgbm9kZSAke1FVRVJZX0dFTkVSQVRPUn07IGNkICR7V09SS0lOR19ESVJ9IikKYGBgCgojIyMjIDkuIFVwZGF0ZSBzY2hlZHVsZWQgcXVlcmllcyBpbiBHQ1AgcHJvZ3JhbWF0aWNhbGx5CgpgYGB7cn0KIyBOb3RlOiBJZiB5b3UgZ2V0IHRoaXMgZXJyb3IgCiMgICAgICJIYW5kc2hha2UgZmFpbGVkIHdpdGggZmF0YWwgZXJyb3IgU1NMX0VSUk9SX1NTTDogCiMgICAgICBlcnJvcjoxMDAwMDA3ZDpTU0wgcm91dGluZXM6T1BFTlNTTF9pbnRlcm5hbDpDRVJUSUZJQ0FURV9WRVJJRllfRkFJTEVEIgojICAgICAgZGlzY29ubmVjdCBmcm9tIHRoZSBWUE4gYW5kIHRyeSBhZ2Fpbi4gSXQgc2VlbXMgbGlrZSBOSUggYmxvY2tzIHRoaXMuCnB5X2Z1bmMgPC0gJ2djcF9xdWVyeV90b29scy91cGRhdGVfZ2NwX3NjaGVkdWxlZF9xdWVyeV9iLnB5JwpTeXMuc2V0ZW52KFBZX0ZVTkMgPSBweV9mdW5jLCBSVU5fTk9XID0gVFJVRSkKCnByb2plY3RfaWRfbGlzdCA9IGMoIm5paC1uY2ktZGNlZy1jb25uZWN0LWRldiIsIAogICAgICAgICAgICAgICAgICAgICJuaWgtbmNpLWRjZWctY29ubmVjdC1zdGctNTUxOSIpCiMgICAgICAgICAgICAgICAgICJuaWgtbmNpLWRjZWctY29ubmVjdC1wcm9kLTZkMDQiKQoKIyBzeXN0ZW0oImdjbG91ZCBhdXRoIGxvZ2luIikgIyBVc2UgdGhpcyB0byBhdXRoZW50aWNhdGUgaWYgbmVlZGVkCmZvciAocHJvamVjdF9pZCBpbiBwcm9qZWN0X2lkX2xpc3QpewogIFN5cy5zZXRlbnYoUFJPSkVDVF9JRCA9IHByb2plY3RfaWQpCiAgc3lzdGVtKCdweXRob24zICRQWV9GVU5DICRQUk9KRUNUX0lEICRNT0RVTEVfRk9MREVSICRSVU5fTk9XJykKfQpgYGAK</div>
 
 
 
