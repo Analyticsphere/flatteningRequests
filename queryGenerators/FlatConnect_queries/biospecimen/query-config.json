@@ -1,0 +1,13 @@
+{
+    "data_source": {
+      "dev":  "nih-nci-dceg-connect-dev.Connect.biospecimen",
+      "stg":  "nih-nci-dceg-connect-stg-5519.Connect.biospecimen",
+      "prod": "nih-nci-dceg-connect-prod-6d04.Connect.biospecimen"
+    },
+    "variables_csv":  "biospecimen-variables.csv",
+    "lists_json":     "biospecimen-lists.json",
+    "query_name":     "FlatConnect.biospecimen_JP",
+    "output_table":   "FlatConnect.biospecimen_JP",
+    "table_description": "Source table: Connect.biospecimen; Scheduled Query: FlatConnect.biospecimen_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/biospecimen; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.biospecimen."
+}
+    
