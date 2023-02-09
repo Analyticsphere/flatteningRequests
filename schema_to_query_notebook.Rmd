@@ -21,7 +21,21 @@ source("gcp_query_tools/connect_analytics_helper_functions.R")
 # project   <- "nih-nci-dceg-connect-dev"
 # project   <- "nih-nci-dceg-connect-stg-5519"
 project <- "nih-nci-dceg-connect-prod-6d04"
-table   <- "Connect.biospecimen" 
+table   <- "Connect.module4_v1" 
+table_slection <- 1
+table   <- switch(table_selection,
+                  "biospecimen",  # 1
+                  "bioSurvey_v1", # 2
+                  "clinicalBioSurvey_v1", # 3
+                  "menstrualSurvey_v1",   # 4
+                  "module1_v1",  # 5
+                  "module1_v2",  # 6
+                  "module2_v1",  # 7
+                  "module1_v2",  # 8
+                  "module3_v1",  # 9
+                  "module4_v1",  # 10
+                  "participants" # 11
+                  )
 #########################################################
 
 # Authenticate to BigQuery
@@ -208,8 +222,8 @@ py_func <- 'gcp_query_tools/update_gcp_scheduled_query_b.py'
 Sys.setenv(PY_FUNC = py_func, RUN_NOW = TRUE)
 
 project_id_list = c("nih-nci-dceg-connect-dev", 
-                    "nih-nci-dceg-connect-stg-5519")
-#                 "nih-nci-dceg-connect-prod-6d04")
+                    "nih-nci-dceg-connect-stg-5519",
+                    "nih-nci-dceg-connect-prod-6d04")
 
 # system("gcloud auth login") # Use this to authenticate if needed
 for (project_id in project_id_list){
