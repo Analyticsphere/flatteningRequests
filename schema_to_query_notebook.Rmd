@@ -224,7 +224,6 @@ Sys.setenv(PY_FUNC = py_func, RUN_NOW = TRUE)
 
 project_id_list = c("nih-nci-dceg-connect-dev", 
                     "nih-nci-dceg-connect-stg-5519")
-#,
 #                    "nih-nci-dceg-connect-prod-6d04")
 
 # system("gcloud auth login") # Use this to authenticate if needed
