@@ -20,7 +20,7 @@
 #        "FAILED"    = stop(paste0("The sch. query for ", table_name, " failed. Reach out to Jake.")),
 #        "PENDING"   = stop(paste0("The query for ", table_name, " is scheduled and waiting to be run.")),
 #        "RUNNING"   = stop(paste0("The sch. query for ", table_name, " is still running. Wait until complete.")),
-#        "SUCCEEDED" = print(pate0("The most. recent scheduled query for ", table_name, " succeeded. The table is up-to-date."))
+#        "SUCCEEDED" = print(paste0("The most. recent scheduled query for ", table_name, " succeeded. The table is up-to-date."))
 # )
 
 check_sch_query_status <- 
@@ -37,7 +37,7 @@ check_sch_query_status <-
     response   <- lapply(response[-2], function(x) scan(text = x, what = ""))
     header     <- simplify2array(response[1]) # Array of column names
     
-    # Bind rows of data into one row
+    # Bind rows of data into one array
     for (i in length(header)){
       x <- c() # Initialize array with first non-header line of data
       # Loop through remaining data
