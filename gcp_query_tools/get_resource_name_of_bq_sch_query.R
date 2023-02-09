@@ -13,14 +13,10 @@
 # # [1] projects/155089172944/locations/us/transferConfigs/63a134bd-0000-2c48-8c16-883d24f91d30"
 
 get_resource_name_of_bq_sch_query <- 
-  function(project, query_name){
-    
-    # Set default project for BQ CLI
-    set_proj_cmd <- paste0("bq ls -j --project_id ", project, " > /dev/null")
-    system(set_proj_cmd)
+  function(project_id, query_name){
     
     # Get list of scheduled queries from bq
-    bq_request <- "bq ls --transfer_config --transfer_location='us' --filter='dataSourceIds:scheduled_query'"
+    bq_request <- paste0("bq ls --transfer_config --transfer_location='us' --project_id ", project_id, " --filter='dataSourceIds:scheduled_query'")
     response   <- system(bq_request, intern=TRUE)
     # Remove second line "----" of table and remove white space from each row
     response   <- lapply(response[-2], function(x) scan(text = x, what = ""))
@@ -48,5 +44,5 @@ get_resource_name_of_bq_sch_query <-
     } else if (length(df$name[df$displayName==table_name]) > 1) {
       stop(paste0("This query_name is not unique!"))
     }
-      
+    
   }

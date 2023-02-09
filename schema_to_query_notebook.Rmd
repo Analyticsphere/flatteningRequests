@@ -21,21 +21,21 @@ source("gcp_query_tools/connect_analytics_helper_functions.R")
 # project   <- "nih-nci-dceg-connect-dev"
 # project   <- "nih-nci-dceg-connect-stg-5519"
 project <- "nih-nci-dceg-connect-prod-6d04"
-table   <- "Connect.module4_v1" 
-table_slection <- 1
+table_selection <- 11
 table   <- switch(table_selection,
-                  "biospecimen",  # 1
-                  "bioSurvey_v1", # 2
-                  "clinicalBioSurvey_v1", # 3
-                  "menstrualSurvey_v1",   # 4
-                  "module1_v1",  # 5
-                  "module1_v2",  # 6
-                  "module2_v1",  # 7
-                  "module1_v2",  # 8
-                  "module3_v1",  # 9
-                  "module4_v1",  # 10
-                  "participants" # 11
+                  "Connect.biospecimen",  # 1
+                  "Connect.bioSurvey_v1", # 2
+                  "Connect.clinicalBioSurvey_v1", # 3
+                  "Connect.menstrualSurvey_v1",   # 4
+                  "Connect.module1_v1",  # 5
+                  "Connect.module1_v2",  # 6
+                  "Connect.module2_v1",  # 7
+                  "Connect.module1_v2",  # 8
+                  "Connect.module3_v1",  # 9
+                  "Connect.module4_v1",  # 10
+                  "Connect.participants" # 11
                   )
+table
 #########################################################
 
 # Authenticate to BigQuery
@@ -218,15 +218,29 @@ system("cd ${MODULE_FOLDER} && node ${QUERY_GENERATOR}; cd ${WORKING_DIR}")
 #     "Handshake failed with fatal error SSL_ERROR_SSL: 
 #      error:1000007d:SSL routines:OPENSSL_internal:CERTIFICATE_VERIFY_FAILED"
 #      disconnect from the VPN and try again. It seems like NIH blocks this.
+source("gcp_query_tools/get_resource_name_of_bq_sch_query.R")
 py_func <- 'gcp_query_tools/update_gcp_scheduled_query_b.py'
 Sys.setenv(PY_FUNC = py_func, RUN_NOW = TRUE)
 
 project_id_list = c("nih-nci-dceg-connect-dev", 
-                    "nih-nci-dceg-connect-stg-5519",
-                    "nih-nci-dceg-connect-prod-6d04")
+                    "nih-nci-dceg-connect-stg-5519")
+#,
+#                    "nih-nci-dceg-connect-prod-6d04")
 
 # system("gcloud auth login") # Use this to authenticate if needed
 for (project_id in project_id_list){
+  
+  # Make sure resource_name in query_config is correct/unique
+  query_config <- jsonlite::fromJSON(paste0(module_folder,"query-config.json"))
+  if (grepl("dev", project_id)) {tier <- "dev"}
+  else if (grepl("stg", project_id)) {tier <- "stg"}
+  else if (grepl("prod", project_id)) {tier <- "prod"}
+  resource_name <- query_config$resource_name[tier]
+  
+  if (resource_name != get_resource_name_of_bq_sch_query(project_id, table_name)) {
+    stop("Resource_name in query_config.json is wrong!")
+  }
+  
   Sys.setenv(PROJECT_ID = project_id)
   system('python3 $PY_FUNC $PROJECT_ID $MODULE_FOLDER $RUN_NOW')
 }
