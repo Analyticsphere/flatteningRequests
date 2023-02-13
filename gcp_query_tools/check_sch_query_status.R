@@ -31,7 +31,7 @@ check_sch_query_status <-
     # system(set_proj_cmd)
     
     # Get list of scheduled queries from bq
-    bq_request <- paste0("bq ls --transfer_config --transfer_location='us' --filter='dataSourceIds:scheduled_query' --project_id=",project)
+    bq_request <- paste0('bq ls --transfer_config --transfer_location="us" --filter="dataSourceIds:scheduled_query" --project_id=',project)
     response   <- system(bq_request, intern=TRUE)
     # Remove second line "----" of table and remove white space from each row
     response   <- lapply(response[-2], function(x) scan(text = x, what = ""))
@@ -53,19 +53,3 @@ check_sch_query_status <-
     # Return sch. query status as "SUCCEEDED", "PENDING", "RUNNING" or "FAILED".
     df$state[df$displayName==table_name] 
   }
-
-table_name <- "FlatConnect.participants_JP"
-project    <- "nih-nci-dceg-connect-prod-6d04"
-print(check_sch_query_status(project, table_name))
-# Check status of scheduled query
-query_status <- check_sch_query_status(project, table_name)
-
-switch(query_status,
-       "FAILED"    = stop(paste0("The sch. query for ", table_name, " failed. Reach out to Jake.")),
-       "PENDING"   = stop(paste0("The query for ", table_name, " is scheduled and waiting to be run.")),
-       "RUNNING"   = stop(paste0("The sch. query for ", table_name, " is still running. Wait until complete.")),
-       "SUCCEEDED" = print(paste0("The most. recent scheduled query for ", table_name, " succeeded. The table is up-to-date."))
-)
-
-
-
