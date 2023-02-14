@@ -84,7 +84,7 @@ if run_now:
     client = bigquery.Client(project=project)
     query_job = client.query(query_string)  # Make an API request.
     print("Running query.. Check GCP to confirm when complete.")
-    query_job.result()  # Wait for the job to complete.
+    # query_job.result()  # Wait for the job to complete.
     
 
 
