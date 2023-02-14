@@ -6,7 +6,7 @@ Use the *issues* tools to make and manage requests.
 
 ## Diagram of automated flattening pipeline
 
-![](flattening_pipeline_diagram.pdf)
+![](flattening_pipeline_diagram.png)
 
 ## queryGenerators
 
