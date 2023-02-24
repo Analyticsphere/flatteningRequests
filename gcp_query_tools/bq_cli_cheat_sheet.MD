@@ -1,8 +1,15 @@
 ### BQ CLI Cheat Sheet
 
+#### Set default progject (on Mac or Linux)
+
+
 #### Get list of tables w/ resource name, displayName and state
 
 `bq ls --transfer_config --transfer_location='us' --filter='dataSourceIds:scheduled_query' --project_id=nih-nci-dceg-connect-prod-6d04`
+
+`bq ls --transfer_config --transfer_location='us' --filter='dataSourceIds:scheduled_query' --project_id=nih-nci-dceg-connect-stg-5519`
+
+`bq ls --transfer_config --transfer_location='us' --filter='dataSourceIds:scheduled_query' --project_id=nih-nci-dceg-connect-dev`
 
 #### List tables in FlatConnect data set
 
