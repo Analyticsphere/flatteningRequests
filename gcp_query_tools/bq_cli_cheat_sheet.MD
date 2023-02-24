@@ -1,7 +1,8 @@
 ### BQ CLI Cheat Sheet
 
-#### Set default progject (on Mac or Linux)
+#### Set default project (on Mac or Linux)
 
+`bq ls -j --project_id nih-nci-dceg-connect-prod-6d04 > /dev/null`
 
 #### Get list of tables w/ resource name, displayName and state
 
