@@ -12,6 +12,7 @@ library(jsonlite)
 library(tools)
 library(reticulate)
 library(bigrquery)
+library(dplyr)
 
 # Load helper functions
 source("gcp_query_tools/connect_analytics_helper_functions.R")
@@ -63,6 +64,9 @@ set_default_gcp_project(project)
 
 # Get the table schema from GCP as a JSON file named schema_json
 get_gcp_table_schema(project, table, schema_json) 
+
+# TODO Make PC compatible. Setting default project only works on mac. Switch
+# to passing project as parameter.
 ```
 
 #### 2. Convert schema from JSON to CSV
