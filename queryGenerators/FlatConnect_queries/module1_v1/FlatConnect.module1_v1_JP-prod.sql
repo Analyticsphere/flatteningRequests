@@ -820,7 +820,9 @@ CREATE TEMP FUNCTION
 
 """;
 
-  CREATE OR REPLACE TABLE FlatConnect.module1_v1_JP AS (
+  CREATE OR REPLACE TABLE FlatConnect.module1_v1_JP 
+OPTIONS (description="Source table: Connect.module1_v1; Scheduled Query: FlatConnect.module1_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/module1_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.module1_v1.", labels=[("maintainer","jakepeters"),("sourcetable","connect")]) 
+AS (
   WITH
   json_data AS (
     SELECT

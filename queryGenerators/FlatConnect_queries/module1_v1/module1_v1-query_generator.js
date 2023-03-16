@@ -88,7 +88,7 @@ for (let tier of Object.keys(config.data_source)) {
 """;
 
   CREATE OR REPLACE TABLE ${config.output_table} 
-OPTIONS (description="${config.table_description}") 
+OPTIONS (description="${config.table_description}", labels=[("maintainer","jakepeters"),("sourcetable","connect")]) 
 AS (
   WITH
   json_data AS (

@@ -7,7 +7,6 @@ editor_options:
 ---
 
 #### 0. Load dependencies and define parameters
-
 ```{r, setup}
 library(jsonlite)
 library(tools)
@@ -17,33 +16,34 @@ library(bigrquery)
 # Load helper functions
 source("gcp_query_tools/connect_analytics_helper_functions.R")
 
-########### DEFINE PARAMETERS ###########################
-# project   <- "nih-nci-dceg-connect-dev"
-# project   <- "nih-nci-dceg-connect-stg-5519"
-project <- "nih-nci-dceg-connect-prod-6d04"
-table_selection <- 11
-table   <- switch(table_selection,
-                  "Connect.biospecimen",  # 1
-                  "Connect.bioSurvey_v1", # 2
-                  "Connect.clinicalBioSurvey_v1", # 3
-                  "Connect.menstrualSurvey_v1",   # 4
-                  "Connect.module1_v1",  # 5
-                  "Connect.module1_v2",  # 6
-                  "Connect.module2_v1",  # 7
-                  "Connect.module1_v2",  # 8
-                  "Connect.module3_v1",  # 9
-                  "Connect.module4_v1",  # 10
-                  "Connect.participants" # 11
-                  )
-table
-#########################################################
+# GCP Project IDs
+projects <- list(dev  = "nih-nci-dceg-connect-dev", 
+                 stg  = "nih-nci-dceg-connect-stg-5519", 
+                 prod = "nih-nci-dceg-connect-prod-6d04")
+# BQ Source Tables
+tables   <- list(b    = "Connect.biospecimen", 
+                 bs   = "Connect.bioSurvey_v1", 
+                 cbs  = "Connect.clinicalBioSurvey_v1", 
+                 ms   = "Connect.menstrualSurvey_v1",   
+                 m1v1 = "Connect.module1_v1",
+                 m1v2 = "Connect.module1_v2",  
+                 m2v1 = "Connect.module2_v1", 
+                 m2v2 = "Connect.module2_v2", 
+                 m3   = "Connect.module3_v1", 
+                 m4   = "Connect.module4_v1",  
+                 p    = "Connect.participants")
+
+########### DEFINE PARAMETERS ##################################################
+project <- projects$prod # project to get schema from (can only select one)
+projects_to_update <- c(projects$stg, projects$prod) # projects to update sch. queries for
+table <- tables$p # table to be flattened (can only select one)
+################################################################################
 
 # Authenticate to BigQuery
 bq_auth()
 ```
 
-#### 1. Get schema from BigQuery as a JSON file (only format option)
-
+#### 1. Get schema from BQ as a JSON (only format option)
 ```{r}
 # Generate file names given table name
 module        <- strsplit(table, split=".", fixed=TRUE)[[1]][2]
@@ -66,10 +66,7 @@ get_gcp_table_schema(project, table, schema_json)
 ```
 
 #### 2. Convert schema from JSON to CSV
-
-# Set up python
 ```{r}
-# Set environment variables
 # Variables with these properties will be filtered out. String cannot contain spaces.
 schema_filter <- '{"name":["__key__","__error__","__has_error__","treeJSON","allEmails","allPhoneNo"],"type":["RECORD"]}'
 py_func <- 'gcp_query_tools/json_schema_to_csv_b.py'
@@ -82,15 +79,14 @@ system('python3 $PY_FUNC $SCHEMA_JSON $SCHEMA_CSV $SCHEMA_FILTER')
 
 
 
-#### 3. Generate \*-variables.csv and \*-lists.json file from source table schema.
+#### 3. Filter variables into "lists" and "variables" files based on data structure
 
-Here, we'll generate a new query from a BigQuery table schema, Our
-queries require a query_generator.js, \*-variables.csv and a
-\*-lists.json. This function generates filters the variables in the
-schema based on whether they should be in the variables.csv file or the
-\*-list.json file. All variables destined for the list file are assigned
-a list of CIDs that are present in the data set for that variable,
-across all rows.
+Variables in the schema are filtered into 2 groups and sends them to different 
+file formats that can be used by the query generator: 
+  (1) variables with JSON arrays (aka lists) --> tmp/*-lists-from-schema.json
+  (2) variables with single values           --> tmp/*-variables-from-schema.csv
+    
+Note that only leaf variables are considered.
 
 ```{r}
 # Generate the query from the schema in the form of a set of 
@@ -106,7 +102,10 @@ filter_vars_from_schema(project, table, schema_csv, out_csv, out_json,
 #### 4. Combine json and csv files prior to generating query
 
 Now that we have a new query in the form of variables.csv and lists.json
-files, we need to combine the new json file with the old json file.
+files, we need to combine the new json file with the old json file. This is 
+useful because it allows variables from the original files to remain even if 
+they are not present in the BQ tables yet. It also allows manual changes to be
+preserved.
 
 ```{r}
 # -lists.json file from parent folder
@@ -120,12 +119,11 @@ union_lists_json
 # Get union of old_lists_json and out_json
 union_json_str <- get_union_of_json_arrays(old_lists_json, out_json, 
                                            union_lists_json)
-
-print(union_json_str)
+union_json_str
 ```
 
 We also need to combine the variables.csv file that was generated from
-the schema with the old, manually generated variables.csv file. This
+the schema with the original, manually generated variables.csv file. This
 code will exclude any duplicates.
 
 ```{r}
@@ -142,6 +140,14 @@ union_var_chr_array <- get_union_of_variable_csv(old_vars_csv, out_csv,
 ```
 
 #### 5. Deal with exceptions
+
+Some of the variables that contain JSON arrays in BQ only have single values
+in the array. So we can exclude them from the "lists.json" file and put them
+in the "variables.csv" instead. So a variable that appears as 
+"d_CID: [178420302]" will not be flattened as "d_cid_d_178420302" and have a 
+value of 1. It will instead be flatted as d_cid and will return a value of 
+[178420302]. I added this exception process to accommodate some issues Kelsey 
+was having with variables from Quest with unexpected data structure.
 
 ```{r}
 # Define exceptions
@@ -182,18 +188,18 @@ if ( length(vars_to_remove ) != 0) {
 }
 ```
 
-#### 6. Move modified lists.json and variables.csv files to parent directory
+#### 6. Replace original lists.json and variables.csv files in the parent directory
 
 ```{r}
-# Move up-to-date files to parent directory
+# Replace original files in parent directory with new ones
 file.rename(new_vars_csv, old_vars_csv)
 file.rename(new_lists_json, old_lists_json)
 ```
 
-#### 7. Clean up intermediate files from working directory
-
+#### 7. Clean up intermediate files from tmp folder
+They don't need to be saved or version controlled so might as well avoid clutter.
 ```{r}
-# Delete intermediate files from directory
+# Delete intermediate files from tmp folder. 
 unlink(tmp_folder, recursive=TRUE)
 ```
 
@@ -222,12 +228,8 @@ source("gcp_query_tools/get_resource_name_of_bq_sch_query.R")
 py_func <- 'gcp_query_tools/update_gcp_scheduled_query_b.py'
 Sys.setenv(PY_FUNC = py_func, RUN_NOW = TRUE)
 
-project_id_list = c("nih-nci-dceg-connect-dev", 
-                    "nih-nci-dceg-connect-stg-5519",
-                    "nih-nci-dceg-connect-prod-6d04")
-
 # system("gcloud auth login") # Use this to authenticate if needed
-for (project_id in project_id_list){
+for (project_id in projects_to_update){
   
   # Make sure resource_name in query_config is correct/unique
   query_config <- jsonlite::fromJSON(paste0(module_folder,"query-config.json"))
@@ -236,7 +238,8 @@ for (project_id in project_id_list){
   else if (grepl("prod", project_id)) {tier <- "prod"}
   resource_name <- query_config$resource_name[tier]
   
-  if (resource_name != get_resource_name_of_bq_sch_query(project_id, table_name)) {
+  # Make sure the resource_name from the query_config is correct
+  if (resource_name != get_resource_name_of_bq_sch_query(project_id, query_config$query_name)) {
     stop("Resource_name in query_config.json is wrong!")
   }
   

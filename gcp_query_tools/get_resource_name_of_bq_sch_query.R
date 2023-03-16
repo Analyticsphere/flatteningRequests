@@ -37,11 +37,11 @@ get_resource_name_of_bq_sch_query <-
     
     # Return resource name
     # ex: projects/155089172944/locations/us/transferConfigs/64120cbd-0000-2223-9479-089e08289458
-    if (length(df$name[df$displayName==table_name]) == 1) {
-      return(df$name[df$displayName==table_name])
-    } else if (length(df$name[df$displayName==table_name]) == 0) {
+    if (length(df$name[df$displayName==query_name]) == 1) {
+      return(df$name[df$displayName==query_name])
+    } else if (length(df$name[df$displayName==query_name]) == 0) {
       return(NULL)
-    } else if (length(df$name[df$displayName==table_name]) > 1) {
+    } else if (length(df$name[df$displayName==query_name]) > 1) {
       stop(paste0("This query_name is not unique!"))
     }
     
