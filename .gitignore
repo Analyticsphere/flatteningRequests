@@ -6,4 +6,15 @@
 towardsAutomaticFlattening/.DS_Store
 filterVarsFromSchema/
 *schema_to_query_notebook.nb.html
-*/tmp/*
+# Ignore tmp files
+queryGenerators/FlatConnect_queries/biospecimen/tmp/
+queryGenerators/FlatConnect_queries/bioSurvey_v1/tmp/
+queryGenerators/FlatConnect_queries/participants/tmp/
+queryGenerators/FlatConnect_queries/clinicalBioSurvey_v1/tmp/
+queryGenerators/FlatConnect_queries/menstrualSurvey_v1/tmp/
+queryGenerators/FlatConnect_queries/module1_v1/tmp/
+queryGenerators/FlatConnect_queries/module1_v2/tmp/
+queryGenerators/FlatConnect_queries/module2_v1/tmp/
+queryGenerators/FlatConnect_queries/module2_v2/tmp/
+queryGenerators/FlatConnect_queries/module3_v1/tmp/
+queryGenerators/FlatConnect_queries/module4_v4/tmp/
