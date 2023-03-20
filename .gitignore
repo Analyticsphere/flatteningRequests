@@ -6,3 +6,4 @@
 towardsAutomaticFlattening/.DS_Store
 filterVarsFromSchema/
 *schema_to_query_notebook.nb.html
+*/tmp/*
