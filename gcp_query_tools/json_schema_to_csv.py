@@ -1,14 +1,35 @@
-def json_schema_to_csv(json_file_name, csv_file_name, 
+# JSON schema to CSV
+#
+# Convert GCP table schema from JSON file to CSV file. 
+# Implemented as a breadth-first tree traversal.
+# 
+# Written by: Jake Peters
+# Date: February, 2023
+#
+# parameters: 
+#             json_file_name  Name of the GCP schema as JSON file.
+#             csv_file_name   Name of the CSV file to schema to.
+#             filter          json string with names/types to filter out
+#
+# returns:    A dictionary with the filtered schema
+
+# example: 
+
+# Filter some names and types from csv and export to csv. Return the filtered
+# schema as a dictionary.
+   
+# filter='{"name": ["__key__", "__error__", "__has_error__", "treeJSON", "allEmails", "allPhoneNo"],"type": ["RECORD"]}' 
+# schema_dict = json_schema_to_csv("schema.json", "schema.csv", filter)
+                    
+def json_schema_to_csv(json_file_name, 
+                       csv_file_name, 
                        filter='{"name": ["__key__", "__error__", "__has_error__", "treeJSON", "allEmails", "allPhoneNo"], "type": ["RECORD"]}'
                        ):
-    
+    import sys
     import json
     import csv
-
-    if filter:
-        filter = json.loads(filter)
-    else:
-        filter = {}
+    
+    filter = json.loads(filter)
     
     # Open json file
     f = open(json_file_name)
@@ -20,7 +41,6 @@ def json_schema_to_csv(json_file_name, csv_file_name,
     keys = data_queue[0].keys() # should be 'description', 'mode', 'name', 'type', and maybe 'fileds'
 
     data_out = []
-    idx = 0
     while data_queue:
         data_obj = data_queue.pop(0) # get/remove first obj from queue
         
@@ -32,7 +52,6 @@ def json_schema_to_csv(json_file_name, csv_file_name,
                 data_queue.append(child_obj)
                 
         elif 'fields' not in data_obj:
-            
             # Check if filter rules apply
             pass_filter = True
             for filter_key in filter.keys():
@@ -59,5 +78,5 @@ def json_schema_to_csv(json_file_name, csv_file_name,
                     li.append(None)
             writer.writerow(li)
     print("generated " + csv_file_name)
-            
-#json_schema_to_csv('module2_v2-schema.json', 'module2_v2-schema.csv')             
+    
+    return data_out

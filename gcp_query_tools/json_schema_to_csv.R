@@ -1,6 +1,7 @@
 #' JSON schema to CSV
 #'
-#' Convert GCP table schema from JSON file to CSV file.
+#' Convert GCP table schema from JSON file to CSV file. 
+#' Implemented as a breadth-first tree traversal.
 #' 
 #' Written by: Jake Peters
 #' Date: March 20, 2023
