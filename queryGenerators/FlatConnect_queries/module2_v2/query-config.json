@@ -4,10 +4,11 @@
       "stg":  "nih-nci-dceg-connect-stg-5519.Connect.module2_v2",
       "prod": "nih-nci-dceg-connect-prod-6d04.Connect.module2_v2"
     },
-    "variables_csv":  "module2_v2-variables.csv",
-    "lists_json":     "module2_v2-lists.json",
-    "query_name":     "FlatConnect.module2_v2_JP",
-    "output_table":   "FlatConnect.module2_v2_JP",    
+    "variables_csv":   "module2_v2-variables.csv",
+    "lists_json":      "module2_v2-lists.json",
+    "query_name":      "FlatConnect.module2_v2_JP",
+    "output_table":    "FlatConnect.module2_v2_JP",
+    "variable_prefix": "D_",
     "resource_name": {
       "dev":  "projects/1061430463455/locations/us/transferConfigs/63935df6-0000-2e74-a771-2405888518b0",
       "stg":  "projects/810867956467/locations/us/transferConfigs/6387b131-0000-2358-a40b-582429aafaac",

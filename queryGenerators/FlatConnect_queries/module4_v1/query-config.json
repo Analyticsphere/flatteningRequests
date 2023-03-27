@@ -8,6 +8,7 @@
     "lists_json":     "module4_v1-lists.json",
     "query_name":     "FlatConnect.module4_v1_JP",
     "output_table":   "FlatConnect.module4_v1_JP",
+    "variable_prefix": "D_",
     "resource_name": {
       "dev":  "projects/1061430463455/locations/us/transferConfigs/6398a9a6-0000-292d-b5d3-089e0825a6ac",
       "stg":  "projects/810867956467/locations/us/transferConfigs/63c3b765-0000-2d69-b742-883d24fa94fc",

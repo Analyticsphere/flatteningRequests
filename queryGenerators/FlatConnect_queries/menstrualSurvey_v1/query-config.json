@@ -8,6 +8,8 @@
     "lists_json":     "menstrualSurvey_v1-lists.json",
     "query_name":     "FlatConnect.menstrualSurvey_v1_JP",
     "output_table":   "FlatConnect.menstrualSurvey_v1_JP",
+
+    "variable_prefix": "d_",
     "resource_name": {
       "dev":  "projects/1061430463455/locations/us/transferConfigs/6385c748-0000-2467-aec9-f4f5e80cad6c",
       "stg":  "projects/810867956467/locations/us/transferConfigs/63f68cb5-0000-2de9-8e9b-001a114f4c2c",
