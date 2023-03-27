@@ -28,7 +28,7 @@
 #'                                    arrays_json       = json_file,
 #'                                    filter_statement  = filter_statement,
 #'                                    output_file_path  = output_file_path,
-#'                                    var_prefix        = var_prefix)
+#'                                    var_prefix        = vvar_prefix)
 #' cat(query)
 
 generate_flattening_query <- function(source_table,
@@ -43,7 +43,7 @@ generate_flattening_query <- function(source_table,
   
   arrays_to_be_flattened <- paste(readLines(json_file), collapse='\n')
   # Flatten each CID and array of responses to <D_ParentCID.D_ChildCID> format
-  cids_from_lists        <- generate_path_from_cid_list(arrays_json)
+  cids_from_lists        <- generate_paths_from_cid_list(arrays_json, var_prefix)
   # Read list of CIDS with no array of responses as a list
   cids_without_lists     <- readLines(variable_csv)
   # Combine the two lists
@@ -201,7 +201,7 @@ CREATE OR REPLACE TABLE
 #' with the full paths. 
 #'
 #' @param json JSON file with list of variables--that have JSON arrays as values
-#'
+#' @param var_prefix A string indicating the prefix used to seperate variable names, i.e., "D_"
 #' @return character arary with the full paths, i.e., D_parent.D_child
 #' @export
 #'
@@ -214,7 +214,7 @@ CREATE OR REPLACE TABLE
 #' json_str <- paste(readLines("test.json"), collapse='\n')
 #' cat(json_str) 
 #' 
-#' full_paths <- generate_paths_from_cid_list("test.json")
+#' full_paths <- generate_paths_from_cid_list("test.json", var_prefix="D_")
 #' 
 #' typeof(full_paths)
 #' [1] "character"
@@ -224,16 +224,17 @@ CREATE OR REPLACE TABLE
 #' [3] "D_152138929.D_191656389" "D_152138929.D_243596698"
 #' [5] "D_152138929.D_283652434"
   
-generate_paths_from_cid_list <- function(json) {
+generate_paths_from_cid_list <- function(json, var_prefix='D_') {
   
   parent_variables <- jsonlite::read_json(json) # Load JSON as list
-  
-  ## Generate a list of full paths ".D_"
+  var_prefix  <- paste0('.', var_prefix)
+  print(var_prefix)
+  ## Generate a list of full paths with separation between vars like ".D_" or ".d_"
   full_paths <- c()
   for (parent_name in names(parent_variables)) {
     for (child_name in parent_variables[parent_name]) {
       full_paths <- append(full_paths,
-                           paste(parent_name, child_name, sep = '.D_'))
+                           paste(parent_name, child_name, sep=var_prefix))
     }
   }
   return(full_paths)
@@ -286,6 +287,7 @@ generate_selects <- function(variables = '') {
   
 }
 
+# # Code for testing:
 # destination_table <- 'FlatConnect.module2_v2_JP'
 # table_description <- 'this table is just a test'
 # source_table      <- 'nih-nci-dceg-connect-dev.Connect.module2_v2'
