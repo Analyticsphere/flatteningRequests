@@ -20,6 +20,8 @@ Examples:
     $ gcloud config set project nih-nci-dceg-connect-prod-6d04
     $ gcloud config set project nih-nci-dceg-connect-stg-5519
     $ gcloud config set project nih-nci-dceg-connect-dev
+
+API Documentation: https://cloud.google.com/bigquery/docs/reference/datatransfer/rest/v1/projects.locations.transferConfigs/patch
 '''
 
 import sys
