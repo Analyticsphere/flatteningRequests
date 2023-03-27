@@ -286,21 +286,21 @@ generate_selects <- function(variables = '') {
   
 }
 
-destination_table <- 'FlatConnect.module2_v2_JP'
-table_description <- 'this table is just a test'
-source_table      <- 'nih-nci-dceg-connect-dev.Connect.module2_v2'
-json_file         <- 'module2_v2-lists.json'
-csv_file          <- 'module2_v2-variables.csv'
-filter_statement  <- 'WHERE Connect_ID IS NOT NULL'
-output_file_path  <- 'test.sql'
-var_prefix        <- 'D_'
-
-query <- generate_flattening_query(destination_table = destination_table,
-                                   table_description = table_description,
-                                   source_table      = source_table,
-                                   variable_csv      = csv_file,
-                                   arrays_json       = json_file,
-                                   filter_statement  = filter_statement,
-                                   output_file_path  = output_file_path,
-                                   var_prefix        = var_prefix)
-cat(query)
+# destination_table <- 'FlatConnect.module2_v2_JP'
+# table_description <- 'this table is just a test'
+# source_table      <- 'nih-nci-dceg-connect-dev.Connect.module2_v2'
+# json_file         <- 'module2_v2-lists.json'
+# csv_file          <- 'module2_v2-variables.csv'
+# filter_statement  <- 'WHERE Connect_ID IS NOT NULL'
+# output_file_path  <- 'test.sql'
+# var_prefix        <- 'D_'
+# 
+# query <- generate_flattening_query(destination_table = destination_table,
+#                                    table_description = table_description,
+#                                    source_table      = source_table,
+#                                    variable_csv      = csv_file,
+#                                    arrays_json       = json_file,
+#                                    filter_statement  = filter_statement,
+#                                    output_file_path  = output_file_path,
+#                                    var_prefix        = var_prefix)
+# cat(query)
