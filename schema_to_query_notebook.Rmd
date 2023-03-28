@@ -36,20 +36,22 @@ run_now            <- TRUE # Set to true if you want to both sch. and run query
 
 # Authenticate to BigQuery
 bigrquery::bq_auth()
+
+# Generate file names given table name
+module        <- strsplit(table, split=".", fixed=TRUE)[[1]][2]
+query_folder  <- "queryGenerators/FlatConnect_queries/"
+module_folder <- paste0(query_folder, module, "/")
+query_config  <- jsonlite::fromJSON(paste0(module_folder,"query-config.json"))
+query_config
+
+# Create temporary directory to store temp files in
+tmp_folder    <- paste0(module_folder,"tmp/")
+if (!dir.exists(tmp_folder)) {dir.create(tmp_folder)}
 ```
 
 #### 1. Get schema from BQ as a JSON (only format option)
 
 ```{r}
-# Generate file names given table name
-module        <- strsplit(table, split=".", fixed=TRUE)[[1]][2]
-query_folder  <- "queryGenerators/FlatConnect_queries/"
-module_folder <- paste0(query_folder, module, "/")
-
-# Create temporary directory to store temp files in
-tmp_folder    <- paste0(module_folder,"tmp/")
-if (!dir.exists(tmp_folder)) {dir.create(tmp_folder)}
-
 # Name schema files
 schema_json   <- paste0(tmp_folder,module,"-schema.json")
 schema_csv    <- paste0(tmp_folder,module,"-schema.csv")
@@ -64,7 +66,7 @@ get_gcp_table_schema(project, table, schema_json)
 # to passing project as parameter.
 ```
 
-#### get2. Convert schema from JSON to CSV
+#### 2. Convert schema from JSON to CSV
 
 ```{r}
 # Filter some names and types from csv and export to csv. Return a dataframe.
@@ -199,6 +201,20 @@ Sys.setenv(MODULE_FOLDER   = module_folder,
 system("cd ${MODULE_FOLDER} && node ${QUERY_GENERATOR}; cd ${WORKING_DIR}")
 ```
 
+```{r}
+#TODO Modify such that query can be generated for each tier
+#TODO Add option to take query_config as variable
+query <- generate_flattening_query(destination_table = query_config$output_table,
+                                   table_description = query_config$table_description,
+                                   source_table      = query_config$data_source,
+                                   variable_csv      = old_vars_csv,
+                                   arrays_json       = old_lists_json,
+                                   filter_statement  = query_config$filter_statement,
+                                   output_file_path  = output_file_path,
+                                   var_prefix        = query_config$variable_prefix)
+# cat(query)
+```
+
 #### 9. Update scheduled queries in GCP programatically
 
 ```{r}
@@ -214,7 +230,6 @@ Sys.setenv(PY_FUNC = py_func, RUN_NOW = run_now)
 for (project_id in projects_to_update){
   
   # Make sure resource_name in query_config is correct/unique for a given tier
-  query_config <- jsonlite::fromJSON(paste0(module_folder,"query-config.json"))
   if      (grepl("dev",  project_id)) {tier <- "dev" }
   else if (grepl("stg",  project_id)) {tier <- "stg" }
   else if (grepl("prod", project_id)) {tier <- "prod"}
