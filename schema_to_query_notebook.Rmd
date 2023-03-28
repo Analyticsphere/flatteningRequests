@@ -29,7 +29,7 @@ tables   <- list(b    = "Connect.biospecimen",          bs   = "Connect.bioSurve
 
 ########### DEFINE PARAMETERS ##################################################
 project            <- projects$prod # project to get schema from (can only select one)
-projects_to_update <- c(projects$prod) # projects to update sch. queries for
+tiers_to_update    <- c('prod') # GCP tiers to update sch. queries for
 table              <- tables$p # table to be flattened (can only select one)
 run_now            <- TRUE # Set to true if you want to both sch. and run query
 ################################################################################
@@ -187,32 +187,38 @@ clutter.
 unlink(tmp_folder, recursive=TRUE)
 ```
 
-#### 8. Generate query using Warren Lu-style Query Generator
+#### 8. Generate query
 
 ```{r}
-working_dir     <- getwd()
-query_generator <- paste0(module, "-query_generator.js")
-Sys.setenv(MODULE_FOLDER   = module_folder,
-           QUERY_GENERATOR = query_generator,
-           WORKNG_DIR      = working_dir)
+## Warren's query generator
+# working_dir     <- getwd()
+# query_generator <- paste0(module, "-query_generator.js")
+# Sys.setenv(MODULE_FOLDER   = module_folder,
+#            QUERY_GENERATOR = query_generator,
+#            WORKNG_DIR      = working_dir)
+# 
+# # Using shell commands, go to the module folder, run the query generator (node.js),
+# # and return to the working directory.
+# system("cd ${MODULE_FOLDER} && node ${QUERY_GENERATOR}; cd ${WORKING_DIR}")
 
-# Using shell commands, go to the module folder, run the query generator (node.js),
-# and return to the working directory.
-system("cd ${MODULE_FOLDER} && node ${QUERY_GENERATOR}; cd ${WORKING_DIR}")
-```
+# TODO Add option to take query_config as variable
+source('gcp_query_tools/generate_flattening_query.R')
+for (tier in tiers_to_update){
+  print(tier)
+    query <- 
+      generate_flattening_query(source_table      = query_config$data_source[tier],
+                                destination_table = query_config$output_table,
+                                variable_csv      = old_vars_csv,
+                                arrays_json       = old_lists_json,
+                                table_description = query_config$table_description,
+                                filter_statement  = query_config$filter_statement,
+                                var_prefix        = query_config$variable_prefix)
+    query_file_path <- paste0(module_folder,query_config$output_table,"-",tier,".sql") %>%                           print()
+    fileConn <- file(query_file_path)
+    writeLines(query, fileConn)
+    close(fileConn)
+}
 
-```{r}
-#TODO Modify such that query can be generated for each tier
-#TODO Add option to take query_config as variable
-query <- generate_flattening_query(destination_table = query_config$output_table,
-                                   table_description = query_config$table_description,
-                                   source_table      = query_config$data_source,
-                                   variable_csv      = old_vars_csv,
-                                   arrays_json       = old_lists_json,
-                                   filter_statement  = query_config$filter_statement,
-                                   output_file_path  = output_file_path,
-                                   var_prefix        = query_config$variable_prefix)
-# cat(query)
 ```
 
 #### 9. Update scheduled queries in GCP programatically
@@ -227,14 +233,9 @@ py_func <- 'gcp_query_tools/update_gcp_scheduled_query_b.py'
 Sys.setenv(PY_FUNC = py_func, RUN_NOW = run_now)
 
 # system("gcloud auth login") # Use this to authenticate if needed
-for (project_id in projects_to_update){
-  
-  # Make sure resource_name in query_config is correct/unique for a given tier
-  if      (grepl("dev",  project_id)) {tier <- "dev" }
-  else if (grepl("stg",  project_id)) {tier <- "stg" }
-  else if (grepl("prod", project_id)) {tier <- "prod"}
+for (tier in tiers_to_update){
   resource_name <- query_config$resource_name[tier]
-  
+  project_id    <- projects[tier]
   # Make sure the resource_name from the query_config is correct
   if (resource_name != get_resource_name_of_bq_sch_query(project_id, query_config$query_name))      {stop("Resource_name in query_config.json is wrong!")}
   

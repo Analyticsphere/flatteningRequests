@@ -28,7 +28,7 @@
 #'                                    arrays_json       = json_file,
 #'                                    filter_statement  = filter_statement,
 #'                                    output_file_path  = output_file_path,
-#'                                    var_prefix        = vvar_prefix)
+#'                                    var_prefix        = var_prefix)
 #' cat(query)
 
 generate_flattening_query <- function(source_table,
@@ -37,11 +37,11 @@ generate_flattening_query <- function(source_table,
                                       arrays_json,
                                       filter_statement='',
                                       table_description='',
-                                      output_file_path='',
                                       var_prefix='D_',
-                                      config_file='') {
+                                      config_file='',
+                                      output_file_path='') {
   
-  arrays_to_be_flattened <- paste(readLines(json_file), collapse='\n')
+  arrays_to_be_flattened <- paste(readLines(arrays_json), collapse='\n')
   # Flatten each CID and array of responses to <D_ParentCID.D_ChildCID> format
   cids_from_lists        <- generate_paths_from_cid_list(arrays_json, var_prefix)
   # Read list of CIDS with no array of responses as a list
@@ -53,7 +53,6 @@ generate_flattening_query <- function(source_table,
     
   # Generate line of Cloud SQL code for each variable to be pasted into sql_body
   selects                <- generate_selects(variables)
-  print(selects)
   
   notes <- 
   ' 
@@ -68,9 +67,7 @@ generate_flattening_query <- function(source_table,
   -- 
   -- source_table: %s
   -- destination table: %s
-  -- config_file: %s
-  -- table_description: %s
-  ' %>% sprintf(source_table, destination_table, config_file, table_description)
+  ' %>% sprintf(source_table, destination_table)
   
   # The body of the SQL query is a long string with %s placeholders to sprintf
   # string variables into.
@@ -150,7 +147,6 @@ CREATE OR REPLACE TABLE
     json_data AS (
     SELECT
       Connect_ID,
-      uid,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       \`%s\` AS input_row -- source_table
@@ -228,7 +224,6 @@ generate_paths_from_cid_list <- function(json, var_prefix='D_') {
   
   parent_variables <- jsonlite::read_json(json) # Load JSON as list
   var_prefix  <- paste0('.', var_prefix)
-  print(var_prefix)
   ## Generate a list of full paths with separation between vars like ".D_" or ".d_"
   full_paths <- c()
   for (parent_name in names(parent_variables)) {
@@ -279,7 +274,7 @@ generate_selects <- function(variables = '') {
     f          <- function(x) gsub('\\.', '_', x)
     selects    <- variables %>% 
                   lapply(function(x) sprintf(str_format, x, f(x))) %>% 
-                  simplify()
+                  purrr::simplify()
     selects    <- paste(selects, collapse=',\n')
     
     return(selects)
