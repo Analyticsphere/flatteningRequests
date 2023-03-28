@@ -9,6 +9,7 @@
     "query_name":     "FlatConnect.module2_v1_JP",
     "output_table":   "FlatConnect.module2_v1_JP",    
     "variable_prefix": "D_",
+    "filter_statement": "WHERE Connect_ID IS NOT NULL",
     "resource_name": {
       "dev":  "projects/1061430463455/locations/us/transferConfigs/639893e5-0000-27d7-8349-001a114abf52",
       "stg":  "projects/810867956467/locations/us/transferConfigs/63877e3f-0000-2f03-826c-240588744004",

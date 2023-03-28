@@ -9,6 +9,7 @@
     "query_name":     "FlatConnect.clinicalBioSurvey_v1_JP",
     "output_table":   "FlatConnect.clinicalBioSurvey_v1_JP",
     "variable_prefix": "d_",
+    "filter_statement": "WHERE Connect_ID IS NOT NULL",
     "resource_name": {
       "dev":  "projects/1061430463455/locations/us/transferConfigs/639e559b-0000-2595-b560-089e083263bc",
       "stg":  "projects/810867956467/locations/us/transferConfigs/638786d4-0000-2874-87cd-883d24f8fcb0",

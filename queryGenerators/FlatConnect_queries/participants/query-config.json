@@ -1,19 +1,19 @@
 {
-    "data_source": {
-      "dev":  "nih-nci-dceg-connect-dev.Connect.participants",
-      "stg":  "nih-nci-dceg-connect-stg-5519.Connect.participants",
+   "data_source": {
+      "dev": "nih-nci-dceg-connect-dev.Connect.participants",
+      "stg": "nih-nci-dceg-connect-stg-5519.Connect.participants",
       "prod": "nih-nci-dceg-connect-prod-6d04.Connect.participants"
-    },
-    "variables_csv":    "participants-variables.csv",
-    "lists_json":       "participants-lists.json",
-    "query_name":       "FlatConnect.participants_JP",
-    "output_table":     "FlatConnect.participants_JP",
-    "variable_prefix": "D_",
-    "resource_name": {
-      "dev":  "projects/1061430463455/locations/us/transferConfigs/6377e882-0000-2736-b618-240588723f18",
-      "stg":  "projects/810867956467/locations/us/transferConfigs/638780a1-0000-2f00-ac25-f4f5e80928c0",
+   },
+   "variables_csv": "participants-variables.csv",
+   "lists_json": "participants-lists.json",
+   "query_name": "FlatConnect.participants_JP",
+   "output_table": "FlatConnect.participants_JP",
+   "variable_prefix": "D_",
+   "filter_statement": "",
+   "resource_name": {
+      "dev": "projects/1061430463455/locations/us/transferConfigs/6377e882-0000-2736-b618-240588723f18",
+      "stg": "projects/810867956467/locations/us/transferConfigs/638780a1-0000-2f00-ac25-f4f5e80928c0",
       "prod": "projects/155089172944/locations/us/transferConfigs/63a134bd-0000-2c48-8c16-883d24f91d30"
-    },
-    "table_description": "Source table: Connect.participants; Scheduled Query: FlatConnect.participants_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/participants; Team: Analytics; Maintainer: Jake Peters; Super Users: Jing, Kelsey; Notes: This table is a flattened version of Connect.participants. It is used for recruitment reporting purposes."
+   },
+   "table_description": "Source table: Connect.participants; Scheduled Query: FlatConnect.participants_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/participants; Team: Analytics; Maintainer: Jake Peters; Super Users: Jing, Kelsey; Notes: This table is a flattened version of Connect.participants. It is used for recruitment reporting purposes."
 }
-    
