@@ -14,6 +14,7 @@ library(tools)
 library(reticulate)
 library(bigrquery)
 library(dplyr)
+library(glue)
 source("gcp_query_tools/connect_analytics_helper_functions.R") # Load helper functions
 
 # GCP Project IDs
@@ -22,15 +23,16 @@ projects <- list(dev  = "nih-nci-dceg-connect-dev",
                  prod = "nih-nci-dceg-connect-prod-6d04")
 # BQ Source Tables
 tables   <- list(b    = "Connect.biospecimen",          bs   = "Connect.bioSurvey_v1", 
-                 cbs  = "Connect.clinicalBioSurvey_v1", ms   = "Connect.menstrualSurvey_v1",                   m1v1 = "Connect.module1_v1",           m1v2 = "Connect.module1_v2",  
-                 m2v1 = "Connect.module2_v1",           m2v2 = "Connect.module2_v2", 
-                 m3   = "Connect.module3_v1",           m4   = "Connect.module4_v1",  
+                 cbs  = "Connect.clinicalBioSurvey_v1", ms   = "Connect.menstrualSurvey_v1",
+                 m1v1 = "Connect.module1_v1",           m1v2 = "Connect.module1_v2",
+                 m2v1 = "Connect.module2_v1",           m2v2 = "Connect.module2_v2",
+                 m3   = "Connect.module3_v1",           m4   = "Connect.module4_v1",
                  p    = "Connect.participants")
 
 ########### DEFINE PARAMETERS ##################################################
 project            <- projects$prod # project to get schema from (can only select one)
-tiers_to_update    <- c('prod') # GCP tiers to update sch. queries for
-table              <- tables$p # table to be flattened (can only select one)
+tiers_to_update    <- c('dev', 'prod', 'stg') # GCP tiers to update sch. queries for
+table              <- tables$m1v2 # table to be flattened (can only select one)
 run_now            <- TRUE # Set to true if you want to both sch. and run query
 ################################################################################
 
@@ -230,7 +232,7 @@ for (tier in tiers_to_update){
 #       ...disconnect from the VPN and try again. It seems like NIH blocks this.
 source("gcp_query_tools/get_resource_name_of_bq_sch_query.R")
 py_func <- 'gcp_query_tools/update_gcp_scheduled_query_b.py'
-Sys.setenv(PY_FUNC = py_func, RUN_NOW = run_now)
+Sys.setenv(PY_FUNC = py_func, MODULE_FOLDER = module_folder, RUN_NOW = run_now)
 
 # system("gcloud auth login") # Use this to authenticate if needed
 for (tier in tiers_to_update){

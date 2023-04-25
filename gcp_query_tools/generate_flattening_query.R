@@ -54,7 +54,7 @@ generate_flattening_query <- function(source_table,
   # Generate line of Cloud SQL code for each variable to be pasted into sql_body
   selects                <- generate_selects(variables)
   
-  notes <- 
+  notes <- glue::glue(
   ' 
   -- FYI: This query was automatically generated using R code written by Jake 
   -- Peters. The code references a the source table schema and a configuration
@@ -65,9 +65,10 @@ generate_flattening_query <- function(source_table,
   -- Repository: https://github.com/Analyticsphere/flatteningRequests
   -- Relavent functions: generate_flattening_query.R
   -- 
-  -- source_table: %s
-  -- destination table: %s
-  ' %>% sprintf(source_table, destination_table)
+  -- source_table: {source_table}
+  -- destination table: {destination_table}
+  ')
+
   
   # The body of the SQL query is a long string with %s placeholders to sprintf
   # string variables into.
@@ -115,7 +116,7 @@ CREATE TEMP FUNCTION
     return setNestedObjectValueFromPathArray(obj, pathString.split("."), value);
   }
   
-  const arraysToBeFlattened= %s -- ARRAYS_TO_BE_FLATTENED
+  const arraysToBeFlattened= %s 
   
   function handleRowJS(row) {
     for (let arrPath of Object.keys(arraysToBeFlattened)) {
