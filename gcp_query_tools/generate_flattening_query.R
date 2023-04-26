@@ -126,8 +126,8 @@ CREATE TEMP FUNCTION
       inputConceptIdList = inputConceptIdList.map(v => +v);
       for (let cid of arraysToBeFlattened[arrPath]) {
         if (inputConceptIdList.indexOf(cid) >= 0) {
-          currObj["D_" + cid] = 1;
-        } else currObj["D_" + cid] = 0;
+          currObj["%s" + cid] = 1;
+        } else currObj["%s" + cid] = 0;
       }
       setNestedObjectValue(row, arrPath, currObj);
     }
@@ -173,6 +173,8 @@ CREATE OR REPLACE TABLE
     sprintf(
       notes,
       arrays_to_be_flattened,
+      var_prefix,
+      var_prefix,
       destination_table,
       table_description,
       source_table,
