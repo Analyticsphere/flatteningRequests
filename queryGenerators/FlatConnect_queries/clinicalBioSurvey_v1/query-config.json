@@ -8,7 +8,7 @@
     "lists_json":     "clinicalBioSurvey_v1-lists.json",
     "query_name":     "FlatConnect.clinicalBioSurvey_v1_JP",
     "output_table":   "FlatConnect.clinicalBioSurvey_v1_JP",
-    "variable_prefix": "d_",
+    "variable_prefix": "D_",
     "filter_statement": "WHERE Connect_ID IS NOT NULL",
     "resource_name": {
       "dev":  "projects/1061430463455/locations/us/transferConfigs/639e559b-0000-2595-b560-089e083263bc",
