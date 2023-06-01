@@ -397,8 +397,7 @@ CREATE OR REPLACE TABLE
     WHERE Connect_ID IS NOT NULL), -- filter_statement
     flattened_data AS (
     SELECT
-      	REPLACE(JSON_QUERY(row,'$.'), '\"', '') AS ,
-	REPLACE(JSON_QUERY(row,'$.COMPLETED'), '\"', '') AS COMPLETED,
+      	REPLACE(JSON_QUERY(row,'$.COMPLETED'), '\"', '') AS COMPLETED,
 	REPLACE(JSON_QUERY(row,'$.COMPLETED_TS'), '\"', '') AS COMPLETED_TS,
 	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
 	REPLACE(JSON_QUERY(row,'$.D_100937200'), '\"', '') AS D_100937200,
