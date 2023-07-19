@@ -30,9 +30,9 @@ tables   <- list(b    = "Connect.biospecimen",          bs   = "Connect.bioSurve
                  p    = "Connect.participants")
 
 ########### DEFINE PARAMETERS ##################################################
-project            <- projects$prod # project to get schema from (can only select one)
-tiers_to_update    <- c('dev', 'prod', 'stg') # GCP tiers to update sch. queries for
-table              <- tables$m1v2 # table to be flattened (can only select one)
+project            <- projects$dev # project to get schema from (can only select one)
+tiers_to_update    <- c('dev') # GCP tiers to update sch. queries for
+table              <- tables$p # table to be flattened (can only select one)
 run_now            <- TRUE # Set to true if you want to both sch. and run query
 ################################################################################
 
