@@ -18,3 +18,11 @@ queryGenerators/FlatConnect_queries/module2_v1/tmp/
 queryGenerators/FlatConnect_queries/module2_v2/tmp/
 queryGenerators/FlatConnect_queries/module3_v1/tmp/
 queryGenerators/FlatConnect_queries/module4_v4/tmp/
+.Rproj.user
+data-flattening-meeting-8-8-2022.docx
+.RData
+flatteningRequests.Rproj
+gcp_query_tools/filter_pii_vars.R
+gcp_query_tools/get_cid_descriptions_for_schema.R
+generate_flattening_query_glue.R
+test.sql
