@@ -8,7 +8,7 @@
    "lists_json": "participants-lists.json",
    "query_name": "FlatConnect.participants_JP",
    "output_table": "FlatConnect.participants_JP",
-   "variable_prefix": "D_",
+   "variable_prefix": "d_",
    "filter_statement": "",
    "resource_name": {
       "dev": "projects/1061430463455/locations/us/transferConfigs/6377e882-0000-2736-b618-240588723f18",
