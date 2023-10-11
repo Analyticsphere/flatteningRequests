@@ -10,6 +10,7 @@
    "output_table": "FlatConnect.participants_JP",
    "variable_prefix": "d_",
    "filter_statement": "",
+   "order_statement": "",
    "resource_name": {
       "dev": "projects/1061430463455/locations/us/transferConfigs/6377e882-0000-2736-b618-240588723f18",
       "stg": "projects/810867956467/locations/us/transferConfigs/638780a1-0000-2f00-ac25-f4f5e80928c0",

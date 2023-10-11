@@ -5,8 +5,8 @@
 #' 
 #' Written: September 2023
 #' Last Updated: September 2023
-#'#' @author Jake Peters
-#' 
+#' @author Jake Peters
+#'  
 #' @param project The BigQuery project ID.
 #' @param dataset The BigQuery dataset name.
 #' @param table The BigQuery table name.
@@ -27,6 +27,7 @@ get_bq_schema_and_dictionary <- function(project, dataset, table) {
   library(bigrquery)
   library(glue)
   library(stringr)
+  library(dplyr)
   
   # Get master data dictionary
   urlfile <- "https://raw.githubusercontent.com/episphere/conceptGithubActions/master/csv/masterFile.csv" 
@@ -66,6 +67,10 @@ get_bq_schema_and_dictionary <- function(project, dataset, table) {
   idx <- which(data_dict$conceptId.3 != "")
   var_metadata <- data.frame(
     last_cid = data_dict$conceptId.3[idx],
+    all_cids = c(data_dict$conceptId.1[idx],
+                 data_dict$conceptId.2[idx],
+                 data_dict$conceptId.3[idx],
+                 data_dict$conceptId.4[idx]),
     pii = ifelse(tolower(trimws(data_dict$PII[idx])) == 'yes', TRUE, FALSE),
     variable_name  = data_dict$Variable.Name[idx],
     variable_label = data_dict$Variable.Label[idx],
@@ -76,12 +81,12 @@ get_bq_schema_and_dictionary <- function(project, dataset, table) {
   )
   
   # Merge the data frames based on the 'cid' column
-  output_df <- merge(sch_df, var_metadata, by = c("last_cid"), all.x = TRUE)
+  output_df <- left_join(var_metadata, sch_df, by = "last_cid")
   
   # Create a 'description' column by combining 'variable_name' and 'variable_label'
   output_df$description <- paste(output_df$variable_name, output_df$variable_label, sep = ' -- ')
   
-  # Reorder the dataframe
+  # Reorder the data frame
   new_order <- c("table_catalog","table_schema","table_name",
                  "column_name","field_path","data_type","description",
                  "collation_name","rounding_mode","cids","last_cid","pii",

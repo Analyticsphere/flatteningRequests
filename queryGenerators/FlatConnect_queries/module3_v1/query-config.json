@@ -10,6 +10,7 @@
     "output_table":   "FlatConnect.module3_v1_JP",
     "variable_prefix": "D_",
     "filter_statement": "WHERE Connect_ID IS NOT NULL",
+    "order_statement": "",
     "resource_name": {
       "dev":  "projects/1061430463455/locations/us/transferConfigs/6393272e-0000-2e3f-859f-f40304358318",
       "stg":  "projects/810867956467/locations/us/transferConfigs/6387ab5c-0000-27a1-9440-883d24f7fd24",

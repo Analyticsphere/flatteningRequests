@@ -10,6 +10,7 @@
     "output_table":   "FlatConnect.covid19Survey_v1_JP",
     "variable_prefix": "D_",
     "filter_statement": "WHERE Connect_ID IS NOT NULL",
+    "order_statement": "",
     "resource_name": {
       "dev":  "projects/1061430463455/locations/us/transferConfigs/64ed03e1-0000-2413-9662-089e08e55fb1",
       "stg":  "projects/810867956467/locations/us/transferConfigs/64cf921d-0000-2025-91dc-f403043662bc",

@@ -39,7 +39,8 @@ generate_flattening_query <- function(source_table,
                                       table_description='',
                                       var_prefix='D_',
                                       config_file='',
-                                      output_file_path='') {
+                                      output_file_path='',
+                                      order_statement = '\nORDER BY\n\tConnect_ID') {
   
   arrays_to_be_flattened <- paste(readLines(arrays_json), collapse='\n')
   # Flatten each CID and array of responses to <D_ParentCID.D_ChildCID> format
@@ -162,29 +163,29 @@ CREATE OR REPLACE TABLE
     *,
     FORMAT_TIMESTAMP(\"%s\", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
   FROM
-    flattened_data
-  ORDER BY
-    Connect_ID )
+    flattened_data 
+  %s -- order statement
+  );
+    
 '
   
   # Use sprint to put variables in place of "%s" in sql_body
   date_format <- "%Y%m%d"
-  query <- sql_body %>%
-    sprintf(
-      notes,
-      arrays_to_be_flattened,
-      var_prefix,
-      var_prefix,
-      destination_table,
-      table_description,
-      source_table,
-      filter_statement,
-      selects,
-      date_format
-    )
+  query <- sprintf(sql_body,
+                   notes,
+                   arrays_to_be_flattened,
+                   var_prefix,
+                   var_prefix,
+                   destination_table,
+                   table_description,
+                   source_table,
+                   filter_statement,
+                   selects,
+                   date_format,
+                   order_statement )
   
   if (length(output_file_path) != 0) {
-    fileConn <- file(output_file_path)
+    fileConn <- file(output_file_path, open="w+")
     writeLines(query, fileConn)
     close(fileConn)
   }
@@ -284,6 +285,8 @@ generate_selects <- function(variables = '') {
   }
   
 }
+
+
 
 # # Code for testing:
 # destination_table <- 'FlatConnect.module2_v2_JP'

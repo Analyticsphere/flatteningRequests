@@ -2349,7 +2349,6 @@ CREATE OR REPLACE TABLE
     *,
     FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
   FROM
-    flattened_data
-  ORDER BY
-    Connect_ID )
+    flattened_data  -- order statement);
+    
 

@@ -10,6 +10,7 @@
     "output_table":   "FlatConnect.biospecimen_JP",
     "variable_prefix": "d_",
     "filter_statement": "WHERE Connect_ID IS NOT NULL",
+    "order_statement": "",
     "resource_name": {
       "dev":  "projects/1061430463455/locations/us/transferConfigs/63b5e716-0000-2d2c-a911-f4f5e806e154",
       "stg":  "projects/810867956467/locations/us/transferConfigs/63b8067c-0000-299d-a208-94eb2c1c5bc4",

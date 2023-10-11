@@ -250,6 +250,9 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_589588440.d_926457119'), '\"', '') AS d_589588440_d_926457119,
 	REPLACE(JSON_QUERY(row,'$.d_611091485'), '\"', '') AS d_611091485,
 	REPLACE(JSON_QUERY(row,'$.d_646899796'), '\"', '') AS d_646899796,
+	REPLACE(JSON_QUERY(row,'$.d_646899796.integer'), '\"', '') AS d_646899796_integer,
+	REPLACE(JSON_QUERY(row,'$.d_646899796.provided'), '\"', '') AS d_646899796_provided,
+	REPLACE(JSON_QUERY(row,'$.d_646899796.string'), '\"', '') AS d_646899796_string,
 	REPLACE(JSON_QUERY(row,'$.d_650516960'), '\"', '') AS d_650516960,
 	REPLACE(JSON_QUERY(row,'$.d_652357376.d_248868659.d_242307474'), '\"', '') AS d_652357376_d_248868659_d_242307474,
 	REPLACE(JSON_QUERY(row,'$.d_652357376.d_248868659.d_283900611'), '\"', '') AS d_652357376_d_248868659_d_283900611,
@@ -367,6 +370,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_838567176.d_926457119'), '\"', '') AS d_838567176_d_926457119,
 	REPLACE(JSON_QUERY(row,'$.d_915838974'), '\"', '') AS d_915838974,
 	REPLACE(JSON_QUERY(row,'$.d_926457119'), '\"', '') AS d_926457119,
+	REPLACE(JSON_QUERY(row,'$.d_928693120'), '\"', '') AS d_928693120,
 	REPLACE(JSON_QUERY(row,'$.d_928693120.integer'), '\"', '') AS d_928693120_integer,
 	REPLACE(JSON_QUERY(row,'$.d_928693120.provided'), '\"', '') AS d_928693120_provided,
 	REPLACE(JSON_QUERY(row,'$.d_928693120.string'), '\"', '') AS d_928693120_string,
@@ -419,7 +423,6 @@ CREATE OR REPLACE TABLE
     *,
     FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
   FROM
-    flattened_data
-  ORDER BY
-    Connect_ID )
+    flattened_data  -- order statement);
+    
 
