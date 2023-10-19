@@ -246,6 +246,7 @@ add_novel_vars_to_csv <- function(vars, in_file, out_file = NULL) {
 }
 
 get_list_of_unique_responses <- function(var_name, project, table){
+  #rebecca test comment
   # Description:
   #   This function queries a variable (that returns a json array in GCP) 
   #   specified by var_name within a given project and table, and generates a 
