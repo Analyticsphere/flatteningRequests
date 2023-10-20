@@ -27,13 +27,14 @@ tables   <- list(b    = "Connect.biospecimen",          bs      = "Connect.bioSu
                  m1v1 = "Connect.module1_v1",           m1v2    = "Connect.module1_v2",
                  m2v1 = "Connect.module2_v1",           m2v2    = "Connect.module2_v2",
                  m3   = "Connect.module3_v1",           m4      = "Connect.module4_v1",
-                 p    = "Connect.participants",         cs19_v1 = "Connect.covid19Survey_v1")
+                 p    = "Connect.participants",         cs19_v1 = "Connect.covid19Survey_v1",
+                 n    = "Connect.notifications")
 
 ########### DEFINE PARAMETERS ##################################################
-project            <- projects$dev # project to get schema from (can only select one)
-tiers_to_update    <- c('dev') # GCP tiers to update sch. queries for
-table              <- tables$p # table to be flattened (can only select one)
-run_now            <- TRUE # Set to true if you want to both sch. and run query
+project            <- projects$prod # project to get schema from (can only select one)
+tiers_to_update    <- c('prod') # GCP tiers to update sch. queries for
+table              <- tables$bs # table to be flattened (can only select one)
+run_now            <- FALSE # Set to true if you want to both sch. and run query
 ################################################################################
 
 # Authenticate to BigQuery
@@ -55,17 +56,27 @@ if (!dir.exists(tmp_folder)) {dir.create(tmp_folder)}
 
 ```{r}
 # Name schema files
-schema_json   <- paste0(tmp_folder,module,"-schema.json")
-schema_csv    <- paste0(tmp_folder,module,"-schema.csv")
+schema_json  <- paste0(tmp_folder,module,"-schema.json")
+schema_csv   <- paste0(tmp_folder,module,"-schema.csv")
 
-# # Set default GCP project
-# set_default_gcp_project(project)
+# Split the string using "."
+split_string <- strsplit(table, ".", fixed = TRUE)
+dataset_id   <- split_string[[1]][1]
+table_id     <- split_string[[1]][2]
 
-# Get the table schema from GCP as a JSON file named schema_json
-get_gcp_table_schema(project, table, schema_json) 
+# Construct bq_table object
+bq_table     <- bq_table(project, dataset_id, table_id)
 
-# TODO Make PC compatible. Setting default project only works on mac. Switch
-# to passing project as parameter.
+# Retrive the metadata for the table (a list containing the schema)
+metadata     <- bigrquery::bq_table_meta(bq_table)
+
+# Simplify the structure of the schema so that it matches that returned by bq CLI
+schema       <- metadata$schema$fields
+
+# Write the schema to a JSON string
+schema_as_json <- jsonlite::toJSON(schema, pretty = TRUE, auto_unbox = TRUE)
+write(schema_as_json, schema_json)
+
 ```
 
 #### 2. Convert schema from JSON to CSV
@@ -133,7 +144,7 @@ union_var_chr_array <- get_union_of_variable_csv(old_vars_csv, out_csv, union_va
 Some of the variables that contain JSON arrays in BQ only have single values in
 the array. So we can exclude them from the "lists.json" file and put them in the
 "variables.csv" instead. So a variable that appears as "d_CID: [178420302]" will
-not be flattened as "d_cid_d\_178420302" and have a value of 1. It will instead
+not be flattened as "d_cid_d_178420302" and have a value of 1. It will instead
 be flatted as d_cid and will return a value of [178420302]. I added this
 exception process to accommodate some issues Kelsey was having with variables
 from Quest with unexpected data structure.
@@ -214,7 +225,8 @@ for (tier in tiers_to_update){
                                 arrays_json       = old_lists_json,
                                 table_description = query_config$table_description,
                                 filter_statement  = query_config$filter_statement,
-                                var_prefix        = query_config$variable_prefix)
+                                var_prefix        = query_config$variable_prefix,
+                                order_statement   = query_config$order_statement)
     query_file_path <- paste0(module_folder,query_config$output_table,"-",tier,".sql") %>%                           print()
     fileConn <- file(query_file_path)
     writeLines(query, fileConn)
