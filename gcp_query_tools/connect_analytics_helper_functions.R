@@ -7,6 +7,7 @@
 #              with a manually edited query.
 # Author:      Jake Peters
 # Date:        October-January 2022
+library(purrr)
 
 get_union_of_json_arrays <- function(json_A, json_B, json_C) { # nolint
   # Description:
@@ -263,28 +264,26 @@ get_list_of_unique_responses <- function(var_name, project, table){
   #       of them. There is a 10MB minimum charge, so combining running one 
   #       query for all of the variables would be more cost efficient.
   
+  #ensure input is character
+  # Convert var_name to a character vector if it's not already
+  if (!is.character(var_name)) {
+    var_name <- as.character(var_name)
+  }
+  
+  # Convert var_name to a character vector if it's a single string
+  if (!is.vector(var_name)) {
+    var_name <- c(var_name)
+  }
+  
   # Query data for this variable
   tab_path <- paste0("`", project, ".", table, "`") # Format table path for SQL
-  bq_query <- paste("SELECT", var_name, "AS var FROM", tab_path,  
-                    "WHERE",  var_name, "IS NOT NULL", sep=" ")
+  bq_query <- paste("SELECT DISTINCT", paste0(var_name, collapse = ", "),
+                    "FROM", tab_path, sep = " ")
   bq_table <- bq_project_query(project, bq_query) # 
   df_var   <- bq_table_download(bq_table, bigint = "integer64")
-  
-  # Build list of unique responses for this variable
-  unique_responses <- c()
-  for (i in 1:nrow(df_var)){
-    responses           <- df_var$var[[i]]
-    responses_available <- length(responses) > 0
-    if (responses_available){
-      for (j in 1:length(responses)){
-        response          <- responses[j]
-        response_is_novel <- !(response %in% unique_responses)
-        if (response_is_novel){
-          unique_responses <- append(unique_responses, response)
-        }
-      }
-    }
-  }
+  #ensure no repeats in the dataframe, no NAs
+  unique_responses <- map(df_var, ~unique(na.omit(.)))
+
   return(unique_responses)
 }
 
