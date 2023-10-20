@@ -59,20 +59,20 @@ if (!dir.exists(tmp_folder)) {dir.create(tmp_folder)}
 schema_json   <- paste0(tmp_folder,module,"-schema.json")
 schema_csv    <- paste0(tmp_folder,module,"-schema.csv")
 
-# # Set default GCP project
-# set_default_gcp_project(project)
-
-# Get the table schema from GCP as a JSON file named schema_json
-
-# get_gcp_table_schema(project, table, schema_json) # This function used the CLI
-
 # Split the string using "."
 split_string <- strsplit(table, ".", fixed = TRUE)
 dataset_id   <- split_string[[1]][1]
 table_id     <- split_string[[1]][2]
-bq_table     <- bq_table(project, dataset_id, table_id) 
+bq_table     <- bq_table(project, dataset_id, table_id)
 schema       <- bigrquery::bq_table_meta(bq_table, fields="schema")
-jsonlite::write_json(schema, schema_json)
+
+# Simplify the structure of the schema so that it matches that returned by bq CLI
+schema <- schema$schema$fields
+
+# Write the schema to a JSON string
+schema_as_json <- jsonlite::toJSON(schema, pretty = TRUE, auto_unbox = TRUE)
+write(schema_as_json, schema_json)
+
 ```
 
 #### 2. Convert schema from JSON to CSV
