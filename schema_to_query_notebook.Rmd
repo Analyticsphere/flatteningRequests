@@ -134,7 +134,7 @@ union_var_chr_array <- get_union_of_variable_csv(old_vars_csv, out_csv, union_va
 Some of the variables that contain JSON arrays in BQ only have single values in
 the array. So we can exclude them from the "lists.json" file and put them in the
 "variables.csv" instead. So a variable that appears as "d_CID: [178420302]" will
-not be flattened as "d_cid_d\_178420302" and have a value of 1. It will instead
+not be flattened as "d_cid_d_178420302" and have a value of 1. It will instead
 be flatted as d_cid and will return a value of [178420302]. I added this
 exception process to accommodate some issues Kelsey was having with variables
 from Quest with unexpected data structure.
