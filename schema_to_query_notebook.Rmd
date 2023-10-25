@@ -106,7 +106,7 @@ out_json <- paste0(tmp_folder, module, "-lists-from-schema.json")
 out_csv  <- paste0(tmp_folder, module, "-variables-from-schema.csv")
 
 # Get variables and lists files from schema
-filter_vars_from_schema(project,table,schema_csv,out_csv,out_json,output_file_type="json")
+filter_vars_from_schema(project,table,schema_csv,out_csv,out_json)
 ```
 
 #### 4. Combine json and csv files prior to generating query
