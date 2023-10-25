@@ -246,50 +246,48 @@ add_novel_vars_to_csv <- function(vars, in_file, out_file = NULL) {
   #return(vars_to_export)
 }
 
-get_list_of_unique_responses <- function(var_name, project, table){
-  #rebecca test comment
-  # Description:
-  #   This function queries a variable (that returns a json array in GCP) 
-  #   specified by var_name within a given project and table, and generates a 
-  #   list of unique values or responses that appear in the json arrays for that 
-  #   variable.
-  # Inputs:
-  #   var_name: The name of the variable of interest as a string.
-  #   project:  The GCP project ID as a string.
-  #   table:    The name of the table as a string (e.g., "Database.table_name")
-  # Returns:
-  #   unique_responses: A character array of the unique values or responses 
-  #                     returned by the variable across all rows of the table.
-  # TODO: Take an array of variables as an input and write one query for all 
-  #       of them. There is a 10MB minimum charge, so combining running one 
-  #       query for all of the variables would be more cost efficient.
-  
-  #ensure input is character
-  # Convert var_name to a character vector if it's not already
-  if (!is.character(var_name)) {
-    var_name <- as.character(var_name)
-  }
-  
-  # Convert var_name to a character vector if it's a single string
-  if (!is.vector(var_name)) {
-    var_name <- c(var_name)
-  }
-  
-  # Query data for this variable
-  tab_path <- paste0("`", project, ".", table, "`") # Format table path for SQL
-  bq_query <- paste("SELECT DISTINCT", paste0(var_name, collapse = ", "),
-                    "FROM", tab_path, sep = " ")
-  bq_table <- bq_project_query(project, bq_query) # 
-  df_var   <- bq_table_download(bq_table, bigint = "integer64")
-  #ensure no repeats in the dataframe, no NAs
-  unique_responses <- map(df_var, ~unique(na.omit(.)))
 
-  return(unique_responses)
+get_unique_values <- function(project, table, array_vars) {
+  
+  # Initialize a string to store the SQL query
+  sql_query <- ""
+  
+  # Loop through each array variable to generate the SQL query
+  for (array_var in array_vars) {
+    
+    # Add to the SQL query a SELECT DISTINCT statement to get unique values for the array variable
+    sql_query <- glue("{sql_query}
+      SELECT DISTINCT
+        '{array_var}' AS variable,  # Label the array variable
+        array_element               # Select distinct elements in the array
+      FROM
+        `{project}.{table}`,        # Specify the BigQuery table
+        UNNEST({array_var}) AS array_element      # UNNEST the array to transform it into rows
+    ")
+    
+    # If the current variable is not the last in the list, add UNION ALL to combine results
+    if (array_var != tail(array_vars, 1)) {
+      sql_query <- glue("{sql_query}
+        UNION ALL
+      ")
+    }
+  }
+  
+  #Execute the SQL query on BigQuery and download the results
+  bq_table <- bq_project_query(project, query = sql_query)
+  df_var <- bq_table_download(bq_table, bigint = "integer64")
+  
+  #Convert the results into a list where each element corresponds to a variable
+  results_list <- split(as.numeric(df_var$array_element), df_var$variable)
+  
+  # Return the list of unique values for each variable
+  return(results_list)
 }
 
-filter_vars_from_schema <- function(project, table, schema, out_csv, out_json, 
+
+filter_vars_from_schema <- function(project, table, schema, out_csv, out_json, GUV_out_json,
                                     output_file_type = "json"
-                                    ) {
+) {
   # Description
   #   This function filters the variables in the schema of a bigquery table by 
   #   type and puts them in a *-lists.json file if they return json arrays or a
@@ -344,49 +342,28 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json,
   
   ## Export variables to M2V*-variables.csv file for queryGenerator
   write.table(df_vars$name, file = out_csv, col.names = FALSE,
-              row.names = FALSE, quote = FALSE, sep = ","
-  )
+              row.names = FALSE, quote = FALSE, sep = ",")
   
-  if (output_file_type == "js"){
-    
-    # Define strings to open and close M2V*-lists.js files
-    opening_line <- "const pathToConceptIdList = {"
-    closing_line <- "};"
-    ending_line  <- "module.exports=pathToConceptIdList;"
-    
-    # Write lines
-    write(opening_line, file = out_json, append = FALSE) # Overwrite existing file
-    cnt <- 0
-    for (var_name in df_lists$name) {
-      cnt            <- cnt + 1
-      responses_list <- get_list_of_unique_responses(var_name, project, table)
-      responses_str  <- paste(responses_list, collapse = ", ")
-      var_line       <- paste0("'", var_name, "': [", responses_str, "],")
-      write(var_line, file = out_json, append = TRUE) # Do not overwrite, append
-    }
-    write(closing_line, file = out_json, append = TRUE)
-    write(ending_line,  file = out_json, append = TRUE)
-    
-    json_data <- NULL
-    
-  } else if (output_file_type == "json") {
-  
-    resp <- list()
-    for (var_name in df_lists$name) {
-      responses_list <- get_list_of_unique_responses(var_name, project, table)
-      resp[[var_name]] <- as.array(as.numeric(responses_list))
-      cat(resp[[var_name]])
-    }
-    json_data <- toJSON(resp,pretty=TRUE,auto_unbox=TRUE)
+  #need to check and see if any variables need to be flattened, if not 
+  #just output an empty json
+  if(length(df_lists$name)>0){
+    responses_list <- get_unique_values(project,
+                                            table,
+                                            as.character(df_lists$name))
+    json_data <- toJSON(responses_list, pretty=TRUE,auto_unbox = TRUE)
     write(json_data, out_json)
-    
+  }else{
+    responses_list <- list()
+    json_data <- toJSON(responses_list, pretty=TRUE,auto_unbox = TRUE)
+    write(json_data, out_json)
   }
-  
   output_list            <- list()
   output_list$variables  <- df_vars$name
   output_list$array_json <- json_data
   return(output_list)
 }
+
+
 
 set_default_gcp_project <- function(project){
   bash_cmd_str <- paste0("bq ls -j --project_id ", project, " > /dev/null")
@@ -422,7 +399,6 @@ get_record_and_repeated_vars <- function(project, table, schema, csv_file) {
   require("dplyr")
   
   ## Get schema 
-  #df <- read_excel(schema, sheet = sheet) 
   df <- read.csv(schema, header=TRUE)
   
   df[] <- lapply(df, factor) 
