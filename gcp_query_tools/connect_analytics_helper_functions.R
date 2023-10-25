@@ -7,7 +7,7 @@
 #              with a manually edited query.
 # Author:      Jake Peters
 # Date:        October-January 2022
-library(purrr)
+
 
 get_union_of_json_arrays <- function(json_A, json_B, json_C) { # nolint
   # Description:
@@ -285,9 +285,7 @@ get_unique_values <- function(project, table, array_vars) {
 }
 
 
-filter_vars_from_schema <- function(project, table, schema, out_csv, out_json, GUV_out_json,
-                                    output_file_type = "json"
-) {
+filter_vars_from_schema <- function(project, table, schema, out_csv, out_json) {
   # Description
   #   This function filters the variables in the schema of a bigquery table by 
   #   type and puts them in a *-lists.json file if they return json arrays or a
