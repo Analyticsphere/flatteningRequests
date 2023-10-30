@@ -76,7 +76,6 @@ schema       <- metadata$schema$fields
 # Write the schema to a JSON string
 schema_as_json <- jsonlite::toJSON(schema, pretty = TRUE, auto_unbox = TRUE)
 write(schema_as_json, schema_json)
-
 ```
 
 #### 2. Convert schema from JSON to CSV
