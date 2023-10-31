@@ -27,3 +27,5 @@ gcp_query_tools/get_cid_descriptions_for_schema.R
 generate_flattening_query_glue.R
 test.sql
 flattening_code.Rproj
+schema_to_query_notebook.Rmd
+test/schemas/*
