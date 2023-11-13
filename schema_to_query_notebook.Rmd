@@ -31,8 +31,8 @@ tables   <- list(b    = "Connect.biospecimen",          bs      = "Connect.bioSu
                  n    = "Connect.notifications")
 
 ########### DEFINE PARAMETERS ##################################################
-project            <- projects$prod # project to get schema from (can only select one)
-tiers_to_update    <- c('prod') # GCP tiers to update sch. queries for
+project            <- projects$stg # project to get schema from (can only select one)
+tiers_to_update    <- c('stg') # GCP tiers to update sch. queries for
 table              <- tables$bs # table to be flattened (can only select one)
 run_now            <- FALSE # Set to true if you want to both sch. and run query
 ################################################################################
@@ -42,8 +42,8 @@ bigrquery::bq_auth()
 
 # Generate file names given table name
 module        <- strsplit(table, split=".", fixed=TRUE)[[1]][2]
-query_folder  <- "queryGenerators/FlatConnect_queries/"
-module_folder <- paste0(query_folder, module, "/")
+query_folder  <- paste0("queryGenerators/FlatConnect_queries/")
+module_folder <- paste0(query_folder, module,"/",tiers_to_update,"/")
 query_config  <- jsonlite::fromJSON(paste0(module_folder,"query-config.json"))
 query_config
 
@@ -106,7 +106,7 @@ out_json <- paste0(tmp_folder, module, "-lists-from-schema.json")
 out_csv  <- paste0(tmp_folder, module, "-variables-from-schema.csv")
 
 # Get variables and lists files from schema
-filter_vars_from_schema(project,table,schema_csv,out_csv,out_json,output_file_type="json")
+filter_vars_from_schema(project,table,schema_csv,out_csv,out_json)
 ```
 
 #### 4. Combine json and csv files prior to generating query
@@ -237,23 +237,23 @@ for (tier in tiers_to_update){
 
 #### 9. Update scheduled queries in GCP programatically
 
-```{r}
-# Note: If you get this error...
-#           "Handshake failed with fatal error SSL_ERROR_SSL: 
-#            error:1000007d:SSL routines:OPENSSL_internal:CERTIFICATE_VERIFY_FAILED"
-#       ...disconnect from the VPN and try again. It seems like NIH blocks this.
-source("gcp_query_tools/get_resource_name_of_bq_sch_query.R")
-py_func <- 'gcp_query_tools/update_gcp_scheduled_query_b.py'
-Sys.setenv(PY_FUNC = py_func, MODULE_FOLDER = module_folder, RUN_NOW = run_now)
-
-# system("gcloud auth login") # Use this to authenticate if needed
-for (tier in tiers_to_update){
-  resource_name <- query_config$resource_name[tier]
-  project_id    <- projects[tier]
-  # Make sure the resource_name from the query_config is correct
-  if (resource_name != get_resource_name_of_bq_sch_query(project_id, query_config$query_name))      {stop("Resource_name in query_config.json is wrong!")}
-  
-  Sys.setenv(PROJECT_ID = project_id)
-  system('python3 $PY_FUNC $PROJECT_ID $MODULE_FOLDER $RUN_NOW')
-}
+# ```{r}
+# # Note: If you get this error...
+# #           "Handshake failed with fatal error SSL_ERROR_SSL: 
+# #            error:1000007d:SSL routines:OPENSSL_internal:CERTIFICATE_VERIFY_FAILED"
+# #       ...disconnect from the VPN and try again. It seems like NIH blocks this.
+# source("gcp_query_tools/get_resource_name_of_bq_sch_query.R")
+# py_func <- 'gcp_query_tools/update_gcp_scheduled_query_b.py'
+# Sys.setenv(PY_FUNC = py_func, MODULE_FOLDER = module_folder, RUN_NOW = run_now)
+# 
+# # system("gcloud auth login") # Use this to authenticate if needed
+# for (tier in tiers_to_update){
+#   resource_name <- query_config$resource_name[tier]
+#   project_id    <- projects[tier]
+#   # Make sure the resource_name from the query_config is correct
+#   if (resource_name != get_resource_name_of_bq_sch_query(project_id, query_config$query_name))      {stop("Resource_name in query_config.json is wrong!")}
+#   
+#   Sys.setenv(PROJECT_ID = project_id)
+#   system('python3 $PY_FUNC $PROJECT_ID $MODULE_FOLDER $RUN_NOW')
+# }
 ```
