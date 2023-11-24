@@ -1,0 +1,21 @@
+{
+    "data_source": {
+      "dev":  "nih-nci-dceg-connect-dev.Connect.biospecimen",
+      "stg":  "nih-nci-dceg-connect-stg-5519.Connect.biospecimen",
+      "prod": "nih-nci-dceg-connect-prod-6d04.Connect.biospecimen"
+    },
+    "variables_csv":  "biospecimen-variables.csv",
+    "lists_json":     "biospecimen-lists.json",
+    "query_name":     "FlatConnect.biospecimen_JP",
+    "output_table":   "FlatConnect.biospecimen_JP",
+    "variable_prefix": "d_",
+    "filter_statement": "WHERE Connect_ID IS NOT NULL",
+    "order_statement": "",
+    "resource_name": {
+      "dev":  "projects/1061430463455/locations/us/transferConfigs/63b5e716-0000-2d2c-a911-f4f5e806e154",
+      "stg":  "projects/810867956467/locations/us/transferConfigs/63b8067c-0000-299d-a208-94eb2c1c5bc4",
+      "prod": "projects/155089172944/locations/us/transferConfigs/63b7ba89-0000-2bc0-a25d-001a114463a2"
+    },
+    "table_description": "Source table: Connect.biospecimen; Scheduled Query: FlatConnect.biospecimen_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/biospecimen; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.biospecimen."
+}
+    
