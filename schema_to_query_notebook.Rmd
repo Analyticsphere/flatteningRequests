@@ -31,13 +31,13 @@ tables   <- list(b    = "Connect.biospecimen",          bs      = "Connect.bioSu
                  n    = "Connect.notifications")
 
 ########### DEFINE PARAMETERS ##################################################
-project            <- projects$stg # project to get schema from (can only select one)
-tiers_to_update    <- c('stg') # GCP tiers to update sch. queries for
-table              <- tables$bs # table to be flattened (can only select one)
+tiers_to_update    <- 'dev' # GCP tiers to update sch. queries for
+table              <- tables$b # table to be flattened (can only select one)
 run_now            <- FALSE # Set to true if you want to both sch. and run query
 ################################################################################
 
 # Authenticate to BigQuery
+project            <- projects[[tiers_to_update]] # project to get schema from (can only select one)
 bigrquery::bq_auth()
 
 # Generate file names given table name
@@ -147,11 +147,12 @@ the array. So we can exclude them from the "lists.json" file and put them in the
 not be flattened as "d_cid_d_178420302" and have a value of 1. It will instead
 be flatted as d_cid and will return a value of [178420302]. I added this
 exception process to accommodate some issues Kelsey was having with variables
-from Quest with unexpected data structure.
+from Quest with unexpected data structure. We're ignoring the CID: d_742186726
+which identifies stray tubes.
 
 ```{r}
 # Define exceptions
-exceptions <- c(178420302, 958239616, 353358909, 104430631)
+exceptions <- c(178420302, 958239616, 353358909, 104430631, 742186726)
 
 # Get a list of variables with arrays containing "exception CID"
 vars_w_exceptions <- get_vars_with_specified_vals(union_lists_json, 
@@ -237,23 +238,23 @@ for (tier in tiers_to_update){
 
 #### 9. Update scheduled queries in GCP programatically
 
-# ```{r}
-# # Note: If you get this error...
-# #           "Handshake failed with fatal error SSL_ERROR_SSL: 
-# #            error:1000007d:SSL routines:OPENSSL_internal:CERTIFICATE_VERIFY_FAILED"
-# #       ...disconnect from the VPN and try again. It seems like NIH blocks this.
-# source("gcp_query_tools/get_resource_name_of_bq_sch_query.R")
-# py_func <- 'gcp_query_tools/update_gcp_scheduled_query_b.py'
-# Sys.setenv(PY_FUNC = py_func, MODULE_FOLDER = module_folder, RUN_NOW = run_now)
-# 
-# # system("gcloud auth login") # Use this to authenticate if needed
-# for (tier in tiers_to_update){
-#   resource_name <- query_config$resource_name[tier]
-#   project_id    <- projects[tier]
-#   # Make sure the resource_name from the query_config is correct
-#   if (resource_name != get_resource_name_of_bq_sch_query(project_id, query_config$query_name))      {stop("Resource_name in query_config.json is wrong!")}
-#   
-#   Sys.setenv(PROJECT_ID = project_id)
-#   system('python3 $PY_FUNC $PROJECT_ID $MODULE_FOLDER $RUN_NOW')
-# }
+```{r}
+# Note: If you get this error...
+#           "Handshake failed with fatal error SSL_ERROR_SSL: 
+#            error:1000007d:SSL routines:OPENSSL_internal:CERTIFICATE_VERIFY_FAILED"
+#       ...disconnect from the VPN and try again. It seems like NIH blocks this.
+source("gcp_query_tools/get_resource_name_of_bq_sch_query.R")
+py_func <- 'gcp_query_tools/update_gcp_scheduled_query_b.py'
+Sys.setenv(PY_FUNC = py_func, MODULE_FOLDER = module_folder, RUN_NOW = run_now)
+
+# system("gcloud auth login") # Use this to authenticate if needed
+for (tier in tiers_to_update){
+  resource_name <- query_config$resource_name[tier]
+  project_id    <- projects[tier]
+  # Make sure the resource_name from the query_config is correct
+  if (resource_name != get_resource_name_of_bq_sch_query(project_id, query_config$query_name))      {stop("Resource_name in query_config.json is wrong!")}
+  
+  Sys.setenv(PROJECT_ID = project_id)
+  system('python3 $PY_FUNC $PROJECT_ID $MODULE_FOLDER $RUN_NOW')
+}
 ```
