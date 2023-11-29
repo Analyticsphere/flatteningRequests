@@ -33,19 +33,19 @@ tables   <- list(
   mw   = "Connect.mouthwash_v1")
 
 ########### DEFINE PARAMETERS ##################################################
-project            <- projects$dev # project to get schema from (can only select one)
-tiers_to_update    <- c('dev') # GCP tiers to update sch. queries for
-table              <- tables$mw # table to be flattened (can only select one)
-run_now            <- TRUE # Set to true if you want to both sch. and run query
+tiers_to_update    <- 'dev' # GCP tiers to update sch. queries for
+table              <- tables$b # table to be flattened (can only select one)
+run_now            <- FALSE # Set to true if you want to both sch. and run query
 ################################################################################
 
 # Authenticate to BigQuery
+project            <- projects[[tiers_to_update]] # project to get schema from (can only select one)
 bigrquery::bq_auth()
 
 # Generate file names given table name
 module        <- strsplit(table, split=".", fixed=TRUE)[[1]][2]
-query_folder  <- "queryGenerators/FlatConnect_queries/"
-module_folder <- paste0(query_folder, module, "/")
+query_folder  <- paste0("queryGenerators/FlatConnect_queries/")
+module_folder <- paste0(query_folder, module,"/",tiers_to_update,"/")
 query_config  <- jsonlite::fromJSON(paste0(module_folder,"query-config.json"))
 query_config
 
@@ -148,11 +148,12 @@ the array. So we can exclude them from the "lists.json" file and put them in the
 not be flattened as "d_cid_d_178420302" and have a value of 1. It will instead
 be flatted as d_cid and will return a value of [178420302]. I added this
 exception process to accommodate some issues Kelsey was having with variables
-from Quest with unexpected data structure.
+from Quest with unexpected data structure. We're ignoring the CID: d_742186726
+which identifies stray tubes.
 
 ```{r}
 # Define exceptions
-exceptions <- c(178420302, 958239616, 353358909, 104430631)
+exceptions <- c(178420302, 958239616, 353358909, 104430631, 742186726)
 
 # Get a list of variables with arrays containing "exception CID"
 vars_w_exceptions <- get_vars_with_specified_vals(union_lists_json, 

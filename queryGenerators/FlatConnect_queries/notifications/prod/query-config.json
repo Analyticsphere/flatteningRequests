@@ -1,0 +1,20 @@
+{
+   "data_source": {
+      "dev": "nih-nci-dceg-connect-dev.Connect.participants",
+      "stg": "nih-nci-dceg-connect-stg-5519.Connect.participants",
+      "prod": "nih-nci-dceg-connect-prod-6d04.Connect.participants"
+   },
+   "variables_csv": "notifications-variables.csv",
+   "lists_json": "notifications-lists.json",
+   "query_name": "FlatConnect.notifications_JP",
+   "output_table": "FlatConnect.notifications_JP",
+   "variable_prefix": "",
+   "filter_statement": "",
+    "order_statement": "",
+   "resource_name": {
+      "dev": "projects/1061430463455/locations/us/transferConfigs/65641a13-0000-2938-969c-f403045efc18",
+      "stg": "projects/810867956467/locations/us/transferConfigs/653c166e-0000-2a2e-8317-f403045fbb1a",
+      "prod": ""
+   },
+   "table_description": "Source table: Connect.notifications; Scheduled Query: FlatConnect.notifications_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/notifications; Team: Analytics; Maintainer: Jake Peters; Super Users: Jing, Kelsey; Notes: This table is a flattened version of Connect.notifications. It is used for QAQC/metrics purposes."
+}

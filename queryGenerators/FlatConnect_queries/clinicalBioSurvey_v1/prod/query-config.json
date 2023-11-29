@@ -1,0 +1,21 @@
+{
+    "data_source": {
+      "dev":  "nih-nci-dceg-connect-dev.Connect.clinicalBioSurvey_v1",
+      "stg":  "nih-nci-dceg-connect-stg-5519.Connect.clinicalBioSurvey_v1",
+      "prod": "nih-nci-dceg-connect-prod-6d04.Connect.clinicalBioSurvey_v1"
+    },
+    "variables_csv":  "clinicalBioSurvey_v1-variables.csv",
+    "lists_json":     "clinicalBioSurvey_v1-lists.json",
+    "query_name":     "FlatConnect.clinicalBioSurvey_v1_JP",
+    "output_table":   "FlatConnect.clinicalBioSurvey_v1_JP",
+    "variable_prefix": "D_",
+    "filter_statement": "WHERE Connect_ID IS NOT NULL",
+    "order_statement": "",
+    "resource_name": {
+      "dev":  "projects/1061430463455/locations/us/transferConfigs/639e559b-0000-2595-b560-089e083263bc",
+      "stg":  "projects/810867956467/locations/us/transferConfigs/638786d4-0000-2874-87cd-883d24f8fcb0",
+      "prod": "projects/155089172944/locations/us/transferConfigs/63a1f7f1-0000-235c-a436-001a11c00c1a"
+    },
+    "table_description": "Source table: Connect.clinicalBioSurvey_v1; Scheduled Query: FlatConnect.clinicalBioSurvey_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/clinicalBioSurvey_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.clinicalBioSurvey_v1."
+}
+    
