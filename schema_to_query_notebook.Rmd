@@ -22,19 +22,21 @@ projects <- list(dev  = "nih-nci-dceg-connect-dev",
                  stg  = "nih-nci-dceg-connect-stg-5519", 
                  prod = "nih-nci-dceg-connect-prod-6d04")
 # BQ Source Tables
-tables   <- list(b    = "Connect.biospecimen",          bs      = "Connect.bioSurvey_v1", 
-                 cbs  = "Connect.clinicalBioSurvey_v1", ms      = "Connect.menstrualSurvey_v1",
-                 m1v1 = "Connect.module1_v1",           m1v2    = "Connect.module1_v2",
-                 m2v1 = "Connect.module2_v1",           m2v2    = "Connect.module2_v2",
-                 m3   = "Connect.module3_v1",           m4      = "Connect.module4_v1",
-                 p    = "Connect.participants",         cs19_v1 = "Connect.covid19Survey_v1",
-                 n    = "Connect.notifications")
+tables   <- list(
+  b    = "Connect.biospecimen",          bs      = "Connect.bioSurvey_v1", 
+  cbs  = "Connect.clinicalBioSurvey_v1", ms      = "Connect.menstrualSurvey_v1",
+  m1v1 = "Connect.module1_v1",           m1v2    = "Connect.module1_v2",
+  m2v1 = "Connect.module2_v1",           m2v2    = "Connect.module2_v2",
+  m3   = "Connect.module3_v1",           m4      = "Connect.module4_v1",
+  p    = "Connect.participants",         cs19    = "Connect.covid19Survey_v1",
+  n    = "Connect.notifications",        k       = "Connect.kitAssembly",
+  mw   = "Connect.mouthwash_v1")
 
 ########### DEFINE PARAMETERS ##################################################
-project            <- projects$prod # project to get schema from (can only select one)
-tiers_to_update    <- c('prod') # GCP tiers to update sch. queries for
-table              <- tables$p # table to be flattened (can only select one)
-run_now            <- FALSE # Set to true if you want to both sch. and run query
+project            <- projects$dev # project to get schema from (can only select one)
+tiers_to_update    <- c('dev') # GCP tiers to update sch. queries for
+table              <- tables$mw # table to be flattened (can only select one)
+run_now            <- TRUE # Set to true if you want to both sch. and run query
 ################################################################################
 
 # Authenticate to BigQuery
@@ -105,7 +107,7 @@ out_json <- paste0(tmp_folder, module, "-lists-from-schema.json")
 out_csv  <- paste0(tmp_folder, module, "-variables-from-schema.csv")
 
 # Get variables and lists files from schema
-filter_vars_from_schema(project,table,schema_csv,out_csv,out_json,output_file_type="json")
+filter_vars_from_schema(project,table,schema_csv,out_csv,out_json)
 ```
 
 #### 4. Combine json and csv files prior to generating query
