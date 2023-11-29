@@ -1,0 +1,21 @@
+{
+    "data_source": {
+      "dev":  "nih-nci-dceg-connect-dev.Connect.kitAssembly",
+      "stg":  "nih-nci-dceg-connect-stg-5519.Connect.kitAssembly",
+      "prod": "nih-nci-dceg-connect-prod-6d04.Connect.kitAssembly"
+    },
+    "variables_csv":  "kitAssembly-variables.csv",
+    "lists_json":     "kitAssembly-lists.json",
+    "query_name":     "FlatConnect.kitAssembly_JP",
+    "output_table":   "FlatConnect.kitAssembly_JP",
+    "variable_prefix": "d_",
+    "filter_statement": "WHERE Connect_ID IS NOT NULL",
+    "order_statement": "",
+    "resource_name": {
+      "dev":  "projects/1061430463455/locations/us/transferConfigs/659377be-0000-2a1f-b3f1-14223bb2a56a",
+      "stg":  "projects/810867956467/locations/us/transferConfigs/657024da-0000-2e3f-92cb-14223bc419f2",
+      "prod": ""
+    },
+    "table_description": "Source table: Connect.kitAssembly; Scheduled Query: FlatConnect.kitAssembly_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/kitAssembly; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.kitAssembly table."
+}
+    
