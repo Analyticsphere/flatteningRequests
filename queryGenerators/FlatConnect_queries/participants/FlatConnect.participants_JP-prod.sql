@@ -52,7 +52,9 @@ CREATE TEMP FUNCTION
   }
   
   const arraysToBeFlattened= {
-
+    "query.firstName": [
+        163898
+    ]
 }
  
   
@@ -260,6 +262,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_431428747'), '\"', '') AS d_431428747,
 	REPLACE(JSON_QUERY(row,'$.d_436680969'), '\"', '') AS d_436680969,
 	REPLACE(JSON_QUERY(row,'$.d_438643922'), '\"', '') AS d_438643922,
+	REPLACE(JSON_QUERY(row,'$.d_440351122'), '\"', '') AS d_440351122,
 	REPLACE(JSON_QUERY(row,'$.d_442166669'), '\"', '') AS d_442166669,
 	REPLACE(JSON_QUERY(row,'$.d_451953807'), '\"', '') AS d_451953807,
 	REPLACE(JSON_QUERY(row,'$.d_452166062'), '\"', '') AS d_452166062,
@@ -440,6 +443,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.pin'), '\"', '') AS pin,
 	REPLACE(JSON_QUERY(row,'$.query.emailsReceived'), '\"', '') AS query_emailsReceived,
 	REPLACE(JSON_QUERY(row,'$.query.firstName'), '\"', '') AS query_firstName,
+	REPLACE(JSON_QUERY(row,'$.query.firstName.d_163898'), '\"', '') AS query_firstName_d_163898,
 	REPLACE(JSON_QUERY(row,'$.query.lastName'), '\"', '') AS query_lastName,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.a074f881_9ad7_4ee7_a905_f510ea0119bd'), '\"', '') AS query_notificationSpecIdsUsed_a074f881_9ad7_4ee7_a905_f510ea0119bd,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.a0a9b659_363f_4e38_afe4_5f858c1494e9'), '\"', '') AS query_notificationSpecIdsUsed_a0a9b659_363f_4e38_afe4_5f858c1494e9,
@@ -459,6 +463,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.ad298979_356e_4b63_ba7b_38639b6c3ff2'), '\"', '') AS query_notificationSpecIdsUsed_ad298979_356e_4b63_ba7b_38639b6c3ff2,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.adacca16_1757_4ba6_acf2_36cd62501167'), '\"', '') AS query_notificationSpecIdsUsed_adacca16_1757_4ba6_acf2_36cd62501167,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.aea1542c_0497_4ce9_b07f_ce315377bbca'), '\"', '') AS query_notificationSpecIdsUsed_aea1542c_0497_4ce9_b07f_ce315377bbca,
+	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.af0097e4_d92c_4291_8d0c_7d74e94d6dd6'), '\"', '') AS query_notificationSpecIdsUsed_af0097e4_d92c_4291_8d0c_7d74e94d6dd6,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.af1f7211_f7a2_4c4b_bcd0_e3289418ff89'), '\"', '') AS query_notificationSpecIdsUsed_af1f7211_f7a2_4c4b_bcd0_e3289418ff89,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.afb02ed9_fc06_4cc2_b2ec_e1c98ef60de5'), '\"', '') AS query_notificationSpecIdsUsed_afb02ed9_fc06_4cc2_b2ec_e1c98ef60de5,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.afcb3e51_e993_468b_99fa_6cb1fdb186cb'), '\"', '') AS query_notificationSpecIdsUsed_afcb3e51_e993_468b_99fa_6cb1fdb186cb,
@@ -466,6 +471,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.b2a2a5fb_d7c2_421a_b636_fa8df0b9702e'), '\"', '') AS query_notificationSpecIdsUsed_b2a2a5fb_d7c2_421a_b636_fa8df0b9702e,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.b62e719f_0801_4d3f_886b_43783e2f22e0'), '\"', '') AS query_notificationSpecIdsUsed_b62e719f_0801_4d3f_886b_43783e2f22e0,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.b633c73e_9b81_4253_ad6e_843109f8b23f'), '\"', '') AS query_notificationSpecIdsUsed_b633c73e_9b81_4253_ad6e_843109f8b23f,
+	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.b7c8647f_ffef_4d4b_b60c_dbe428e5182f'), '\"', '') AS query_notificationSpecIdsUsed_b7c8647f_ffef_4d4b_b60c_dbe428e5182f,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.bc8fd06a_cf36_4628_b1a1_6fb17d16ecd3'), '\"', '') AS query_notificationSpecIdsUsed_bc8fd06a_cf36_4628_b1a1_6fb17d16ecd3,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.bcaea24f_21c4_40fe_afeb_74bacda08784'), '\"', '') AS query_notificationSpecIdsUsed_bcaea24f_21c4_40fe_afeb_74bacda08784,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.bcf115cb_f7f1_476e_9b9e_62b324f6476a'), '\"', '') AS query_notificationSpecIdsUsed_bcf115cb_f7f1_476e_9b9e_62b324f6476a,
@@ -487,6 +493,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_0395216c_55e3_4e4a_8524_492377e77916'), '\"', '') AS query_notificationSpecIdsUsed_d_0395216c_55e3_4e4a_8524_492377e77916,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_044c14df_38cd_4b61_b808_df5465007fbd'), '\"', '') AS query_notificationSpecIdsUsed_d_044c14df_38cd_4b61_b808_df5465007fbd,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_0639c5e4_8154_4e88_b8f2_0b62a9866c0b'), '\"', '') AS query_notificationSpecIdsUsed_d_0639c5e4_8154_4e88_b8f2_0b62a9866c0b,
+	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_06ccd73a_499e_4895_88fd_fba896e4b15f'), '\"', '') AS query_notificationSpecIdsUsed_d_06ccd73a_499e_4895_88fd_fba896e4b15f,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_0719fd9b_ad8f_48e3_a72d_5f72483b61ca'), '\"', '') AS query_notificationSpecIdsUsed_d_0719fd9b_ad8f_48e3_a72d_5f72483b61ca,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_08ee553f_773d_4cb3_a02a_2f538b1d3a5e'), '\"', '') AS query_notificationSpecIdsUsed_d_08ee553f_773d_4cb3_a02a_2f538b1d3a5e,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_09d0ed3c_d565_44dc_a395_3f0b9935d838'), '\"', '') AS query_notificationSpecIdsUsed_d_09d0ed3c_d565_44dc_a395_3f0b9935d838,
@@ -508,6 +515,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_1a1065b4_d752_4e34_909b_1a67fdeb30f5'), '\"', '') AS query_notificationSpecIdsUsed_d_1a1065b4_d752_4e34_909b_1a67fdeb30f5,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_1ae69647_74d5_4a10_805b_3c2bfeb3258b'), '\"', '') AS query_notificationSpecIdsUsed_d_1ae69647_74d5_4a10_805b_3c2bfeb3258b,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_1b27cdcc_053d_454c_a8a5_da7a313769ac'), '\"', '') AS query_notificationSpecIdsUsed_d_1b27cdcc_053d_454c_a8a5_da7a313769ac,
+	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_1bac321a_c426_4847_9983_e73e3136ffdd'), '\"', '') AS query_notificationSpecIdsUsed_d_1bac321a_c426_4847_9983_e73e3136ffdd,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_1bbc5dad_93bd_4d90_9d70_0111c47d5d00'), '\"', '') AS query_notificationSpecIdsUsed_d_1bbc5dad_93bd_4d90_9d70_0111c47d5d00,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_1c51ed7b_582d_4a07_9937_97c32a206ed8'), '\"', '') AS query_notificationSpecIdsUsed_d_1c51ed7b_582d_4a07_9937_97c32a206ed8,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_1cd955eb_3288_489f_b354_658d4e7549c2'), '\"', '') AS query_notificationSpecIdsUsed_d_1cd955eb_3288_489f_b354_658d4e7549c2,
@@ -558,6 +566,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_52d826eb_052f_4902_9521_34a500303b40'), '\"', '') AS query_notificationSpecIdsUsed_d_52d826eb_052f_4902_9521_34a500303b40,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_53380e52_a947_465c_b659_119df203bc7e'), '\"', '') AS query_notificationSpecIdsUsed_d_53380e52_a947_465c_b659_119df203bc7e,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_542ff346_0f59_43ba_88e9_1b7f98bc4f15'), '\"', '') AS query_notificationSpecIdsUsed_d_542ff346_0f59_43ba_88e9_1b7f98bc4f15,
+	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_55627686_9b09_4fcc_bdc0_1a2caafbd590'), '\"', '') AS query_notificationSpecIdsUsed_d_55627686_9b09_4fcc_bdc0_1a2caafbd590,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_55c4b436_32ba_46ee_a219_9e95f4af61cb'), '\"', '') AS query_notificationSpecIdsUsed_d_55c4b436_32ba_46ee_a219_9e95f4af61cb,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_58cf4c36_7c98_452a_b6dc_8c854b03cf10'), '\"', '') AS query_notificationSpecIdsUsed_d_58cf4c36_7c98_452a_b6dc_8c854b03cf10,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_5aa25313_2c07_41e9_aafa_727049a2a59e'), '\"', '') AS query_notificationSpecIdsUsed_d_5aa25313_2c07_41e9_aafa_727049a2a59e,
@@ -586,12 +595,14 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_7917beb2_d3c7_4f4f_915d_0ef14d359aaa'), '\"', '') AS query_notificationSpecIdsUsed_d_7917beb2_d3c7_4f4f_915d_0ef14d359aaa,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_793e92f0_0fef_44c3_9143_e49a2c10ab2a'), '\"', '') AS query_notificationSpecIdsUsed_d_793e92f0_0fef_44c3_9143_e49a2c10ab2a,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_7a9ae44f_78da_43d9_b366_1cdba40c3e1a'), '\"', '') AS query_notificationSpecIdsUsed_d_7a9ae44f_78da_43d9_b366_1cdba40c3e1a,
+	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_7b724c83_baec_4d01_bc26_071a9b115cd4'), '\"', '') AS query_notificationSpecIdsUsed_d_7b724c83_baec_4d01_bc26_071a9b115cd4,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_7b9f9f59_16f6_46d0_bc1c_c15012ac4844'), '\"', '') AS query_notificationSpecIdsUsed_d_7b9f9f59_16f6_46d0_bc1c_c15012ac4844,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_7bc28c5f_c34a_4672_97a7_1677cf24baeb'), '\"', '') AS query_notificationSpecIdsUsed_d_7bc28c5f_c34a_4672_97a7_1677cf24baeb,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_7bcdfb7f_a5ec_424b_bda4_dbb2434daa27'), '\"', '') AS query_notificationSpecIdsUsed_d_7bcdfb7f_a5ec_424b_bda4_dbb2434daa27,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_7c25b7cf_13a8_4c46_939a_d5a06852106b'), '\"', '') AS query_notificationSpecIdsUsed_d_7c25b7cf_13a8_4c46_939a_d5a06852106b,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_7c6d952f_2364_47c4_a4c1_0653f43879a0'), '\"', '') AS query_notificationSpecIdsUsed_d_7c6d952f_2364_47c4_a4c1_0653f43879a0,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_7cc5b113_b097_4a36_b8a7_e7086681f79e'), '\"', '') AS query_notificationSpecIdsUsed_d_7cc5b113_b097_4a36_b8a7_e7086681f79e,
+	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_7d2fe91b_1216_4005_b994_ff9535b790e7'), '\"', '') AS query_notificationSpecIdsUsed_d_7d2fe91b_1216_4005_b994_ff9535b790e7,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_7d69f350_5e6e_45f5_be2a_1a80fd1f87cb'), '\"', '') AS query_notificationSpecIdsUsed_d_7d69f350_5e6e_45f5_be2a_1a80fd1f87cb,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_7da8460b_c950_4d8b_8648_4aec34f8a2ed'), '\"', '') AS query_notificationSpecIdsUsed_d_7da8460b_c950_4d8b_8648_4aec34f8a2ed,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d_7e8dbdc5_b4ab_489b_97a4_9e8ca187f880'), '\"', '') AS query_notificationSpecIdsUsed_d_7e8dbdc5_b4ab_489b_97a4_9e8ca187f880,
@@ -636,6 +647,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d3ac20a3_2d56_44ef_84f7_935efad91780'), '\"', '') AS query_notificationSpecIdsUsed_d3ac20a3_2d56_44ef_84f7_935efad91780,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d4169f1d_e1e1_48e3_ac4e_05e6c7ec4969'), '\"', '') AS query_notificationSpecIdsUsed_d4169f1d_e1e1_48e3_ac4e_05e6c7ec4969,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d7c2f4ed_6b87_4214_b212_8bae232456c7'), '\"', '') AS query_notificationSpecIdsUsed_d7c2f4ed_6b87_4214_b212_8bae232456c7,
+	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d856309d_ad67_45bd_b906_b1dfb11c595d'), '\"', '') AS query_notificationSpecIdsUsed_d856309d_ad67_45bd_b906_b1dfb11c595d,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d8cb20ba_fa66_49df_bb7c_a17fee79affe'), '\"', '') AS query_notificationSpecIdsUsed_d8cb20ba_fa66_49df_bb7c_a17fee79affe,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d93d191a_b2a5_4e25_a8d8_8b1c0fe5b123'), '\"', '') AS query_notificationSpecIdsUsed_d93d191a_b2a5_4e25_a8d8_8b1c0fe5b123,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.d9aa92b9_dba8_4110_bb9a_39ee56c38824'), '\"', '') AS query_notificationSpecIdsUsed_d9aa92b9_dba8_4110_bb9a_39ee56c38824,
@@ -649,6 +661,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.e309bfab_895e_46a7_b615_a8774722ddcb'), '\"', '') AS query_notificationSpecIdsUsed_e309bfab_895e_46a7_b615_a8774722ddcb,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.e727ffc3_65ca_4ed7_a8e6_2afab8120a16'), '\"', '') AS query_notificationSpecIdsUsed_e727ffc3_65ca_4ed7_a8e6_2afab8120a16,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.eac4bea1_c60a_412a_983e_197aaf3621ff'), '\"', '') AS query_notificationSpecIdsUsed_eac4bea1_c60a_412a_983e_197aaf3621ff,
+	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.ead681a1_4380_40f8_97bb_3309c2773eb0'), '\"', '') AS query_notificationSpecIdsUsed_ead681a1_4380_40f8_97bb_3309c2773eb0,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.eb7e83e8_bf16_47c9_8e35_e1587c84b772'), '\"', '') AS query_notificationSpecIdsUsed_eb7e83e8_bf16_47c9_8e35_e1587c84b772,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.efc9ef7c_f0f7_42c7_94ed_df4b2c0560db'), '\"', '') AS query_notificationSpecIdsUsed_efc9ef7c_f0f7_42c7_94ed_df4b2c0560db,
 	REPLACE(JSON_QUERY(row,'$.query.notificationSpecIdsUsed.f1370242_b5f5_48d0_aa17_ad49b749756b'), '\"', '') AS query_notificationSpecIdsUsed_f1370242_b5f5_48d0_aa17_ad49b749756b,
@@ -723,6 +736,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.state.d_725929722'), '\"', '') AS state_d_725929722,
 	REPLACE(JSON_QUERY(row,'$.state.d_749475364'), '\"', '') AS state_d_749475364,
 	REPLACE(JSON_QUERY(row,'$.state.d_793822265'), '\"', '') AS state_d_793822265,
+	REPLACE(JSON_QUERY(row,'$.state.d_811353546'), '\"', '') AS state_d_811353546,
 	REPLACE(JSON_QUERY(row,'$.state.d_821247024'), '\"', '') AS state_d_821247024,
 	REPLACE(JSON_QUERY(row,'$.state.d_821247024.integer'), '\"', '') AS state_d_821247024_integer,
 	REPLACE(JSON_QUERY(row,'$.state.d_821247024.provided'), '\"', '') AS state_d_821247024_provided,
@@ -759,7 +773,8 @@ CREATE OR REPLACE TABLE
     *,
     FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
   FROM
-    flattened_data  -- order statement
-    );
+    flattened_data 
+   -- order statement
+  );
     
 
