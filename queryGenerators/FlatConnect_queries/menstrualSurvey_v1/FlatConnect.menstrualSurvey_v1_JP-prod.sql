@@ -7,8 +7,8 @@
 -- Repository: https://github.com/Analyticsphere/flatteningRequests
 -- Relavent functions: generate_flattening_query.R
 -- 
--- source_table: nih-nci-dceg-connect-dev.Connect.kitAssembly
--- destination table: FlatConnect.kitAssembly_JP -- notes
+-- source_table: nih-nci-dceg-connect-prod-6d04.Connect.menstrualSurvey_v1
+-- destination table: FlatConnect.menstrualSurvey_v1_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -79,8 +79,8 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  FlatConnect.kitAssembly_JP -- destination_table
-  OPTIONS (description="Source table: Connect.kitAssembly; Scheduled Query: FlatConnect.kitAssembly_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/kitAssembly; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.kitAssembly table.") -- table_description
+  FlatConnect.menstrualSurvey_v1_JP -- destination_table
+  OPTIONS (description="Source table: menstrualSurvey_v1; Scheduled Query: FlatConnect.menstrualSurvey_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/menstrualSurvey_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.menstrualSurvey_v1.") -- table_description
   AS (
   WITH
     json_data AS (
@@ -88,36 +88,18 @@ CREATE OR REPLACE TABLE
       Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
-      `nih-nci-dceg-connect-dev.Connect.kitAssembly` AS input_row -- source_table
+      `nih-nci-dceg-connect-prod-6d04.Connect.menstrualSurvey_v1` AS input_row -- source_table
     WHERE Connect_ID IS NOT NULL), -- filter_statement
     flattened_data AS (
     SELECT
-      	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
-	REPLACE(JSON_QUERY(row,'$.d_101010101'), '\"', '') AS d_101010101,
-	REPLACE(JSON_QUERY(row,'$.d_137401245'), '\"', '') AS d_137401245,
-	REPLACE(JSON_QUERY(row,'$.d_194252513'), '\"', '') AS d_194252513,
-	REPLACE(JSON_QUERY(row,'$.d_221592017'), '\"', '') AS d_221592017,
-	REPLACE(JSON_QUERY(row,'$.d_259846815'), '\"', '') AS d_259846815,
-	REPLACE(JSON_QUERY(row,'$.d_341636034'), '\"', '') AS d_341636034,
-	REPLACE(JSON_QUERY(row,'$.d_379252329'), '\"', '') AS d_379252329,
-	REPLACE(JSON_QUERY(row,'$.d_418571751'), '\"', '') AS d_418571751,
-	REPLACE(JSON_QUERY(row,'$.d_531858099'), '\"', '') AS d_531858099,
-	REPLACE(JSON_QUERY(row,'$.d_633640710.d_100618603'), '\"', '') AS d_633640710_d_100618603,
-	REPLACE(JSON_QUERY(row,'$.d_633640710.d_205954477'), '\"', '') AS d_633640710_d_205954477,
-	REPLACE(JSON_QUERY(row,'$.d_633640710.d_289239334'), '\"', '') AS d_633640710_d_289239334,
-	REPLACE(JSON_QUERY(row,'$.d_633640710.d_427719697'), '\"', '') AS d_633640710_d_427719697,
-	REPLACE(JSON_QUERY(row,'$.d_633640710.d_541085383'), '\"', '') AS d_633640710_d_541085383,
-	REPLACE(JSON_QUERY(row,'$.d_633640710.d_545319575'), '\"', '') AS d_633640710_d_545319575,
-	REPLACE(JSON_QUERY(row,'$.d_633640710.d_938338155'), '\"', '') AS d_633640710_d_938338155,
-	REPLACE(JSON_QUERY(row,'$.d_633640710.d_950521660'), '\"', '') AS d_633640710_d_950521660,
-	REPLACE(JSON_QUERY(row,'$.d_633640710.d_992420392'), '\"', '') AS d_633640710_d_992420392,
-	REPLACE(JSON_QUERY(row,'$.d_661940160'), '\"', '') AS d_661940160,
-	REPLACE(JSON_QUERY(row,'$.d_687158491'), '\"', '') AS d_687158491,
-	REPLACE(JSON_QUERY(row,'$.d_690210658'), '\"', '') AS d_690210658,
-	REPLACE(JSON_QUERY(row,'$.d_755095663'), '\"', '') AS d_755095663,
-	REPLACE(JSON_QUERY(row,'$.d_786397882'), '\"', '') AS d_786397882,
-	REPLACE(JSON_QUERY(row,'$.d_826941471'), '\"', '') AS d_826941471,
-	REPLACE(JSON_QUERY(row,'$.d_972453354'), '\"', '') AS d_972453354 -- selects
+      	REPLACE(JSON_QUERY(row,'$.__has_error__'), '\"', '') AS __has_error__,
+	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
+	REPLACE(JSON_QUERY(row,'$.D_593467240'), '\"', '') AS D_593467240,
+	REPLACE(JSON_QUERY(row,'$.d_901199566'), '\"', '') AS d_901199566,
+	REPLACE(JSON_QUERY(row,'$.D_951357171'), '\"', '') AS D_951357171,
+	REPLACE(JSON_QUERY(row,'$.sha'), '\"', '') AS sha,
+	REPLACE(JSON_QUERY(row,'$.treeJSON'), '\"', '') AS treeJSON,
+	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid -- selects
     FROM
       json_data,
       UNNEST(body) AS ROW )

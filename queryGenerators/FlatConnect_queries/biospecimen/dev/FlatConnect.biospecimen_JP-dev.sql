@@ -243,6 +243,11 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_505347689.d_825582494'), '\"', '') AS d_505347689_d_825582494,
 	REPLACE(JSON_QUERY(row,'$.d_505347689.d_883732523'), '\"', '') AS d_505347689_d_883732523,
 	REPLACE(JSON_QUERY(row,'$.d_505347689.d_926457119'), '\"', '') AS d_505347689_d_926457119,
+<<<<<<< HEAD:queryGenerators/FlatConnect_queries/biospecimen/dev/FlatConnect.biospecimen_JP-dev.sql
+=======
+	REPLACE(JSON_QUERY(row,'$.d_534041351'), '\"', '') AS d_534041351,
+	REPLACE(JSON_QUERY(row,'$.d_541311218'), '\"', '') AS d_541311218,
+>>>>>>> 5a5a1c9 (overdue update):queryGenerators/FlatConnect_queries/biospecimen/FlatConnect.biospecimen_JP-dev.sql
 	REPLACE(JSON_QUERY(row,'$.d_556788178'), '\"', '') AS d_556788178,
 	REPLACE(JSON_QUERY(row,'$.d_589588440.d_248868659.d_102695484'), '\"', '') AS d_589588440_d_248868659_d_102695484,
 	REPLACE(JSON_QUERY(row,'$.d_589588440.d_248868659.d_242307474'), '\"', '') AS d_589588440_d_248868659_d_242307474,

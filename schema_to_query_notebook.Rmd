@@ -30,7 +30,7 @@ tables   <- list(
   m3   = "Connect.module3_v1",           m4      = "Connect.module4_v1",
   p    = "Connect.participants",         cs19    = "Connect.covid19Survey_v1",
   n    = "Connect.notifications",        k       = "Connect.kitAssembly",
-  mw   = "Connect.mouthwash_v1")
+  mw   = "Connect.mouthwash_v1")#,         sgt     = "Connect.sendgridTracking")
 
 ########### DEFINE PARAMETERS ##################################################
 tiers_to_update    <- 'dev' # GCP tiers to update sch. queries for
@@ -85,7 +85,7 @@ write(schema_as_json, schema_json)
 ```{r}
 # Filter some names and types from csv and export to csv. Return a dataframe.
 names_to_filter <- c("__key__", "__error__", "__has_error__",
-                     "treeJSON", "allEmails", "allPhoneNo")
+                     "treeJSON", "allEmails", "allPhoneNo", "query", "uid")
 types_to_filter <- c("RECORD")
 source("gcp_query_tools/json_schema_to_csv.R")
 schema_df <- json_schema_to_csv(schema_json, schema_csv, names_to_filter, types_to_filter)

@@ -7,7 +7,7 @@
 -- Repository: https://github.com/Analyticsphere/flatteningRequests
 -- Relavent functions: generate_flattening_query.R
 -- 
--- source_table: nih-nci-dceg-connect-dev.Connect.kitAssembly
+-- source_table: nih-nci-dceg-connect-stg-5519.Connect.kitAssembly
 -- destination table: FlatConnect.kitAssembly_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
@@ -88,7 +88,7 @@ CREATE OR REPLACE TABLE
       Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
-      `nih-nci-dceg-connect-dev.Connect.kitAssembly` AS input_row -- source_table
+      `nih-nci-dceg-connect-stg-5519.Connect.kitAssembly` AS input_row -- source_table
     WHERE Connect_ID IS NOT NULL), -- filter_statement
     flattened_data AS (
     SELECT
