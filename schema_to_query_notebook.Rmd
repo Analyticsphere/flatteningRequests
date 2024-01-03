@@ -30,12 +30,12 @@ tables   <- list(
   m3   = "Connect.module3_v1",           m4      = "Connect.module4_v1",
   p    = "Connect.participants",         cs19    = "Connect.covid19Survey_v1",
   n    = "Connect.notifications",        k       = "Connect.kitAssembly",
-  mw   = "Connect.mouthwash_v1")#,         sgt     = "Connect.sendgridTracking")
+  mw   = "Connect.mouthwash_v1")
 
 ########### DEFINE PARAMETERS ##################################################
-tiers_to_update    <- 'dev' # GCP tiers to update sch. queries for
-table              <- tables$b # table to be flattened (can only select one)
-run_now            <- FALSE # Set to true if you want to both sch. and run query
+tiers_to_update    <- 'prod' # GCP tiers to update sch. queries for
+table              <- tables$m1v1 # table to be flattened (can only select one)
+run_now            <- TRUE # Set to true if you want to both sch. and run query
 ################################################################################
 
 # Authenticate to BigQuery
