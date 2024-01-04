@@ -893,9 +893,7 @@ CREATE OR REPLACE TABLE
     WHERE Connect_ID IS NOT NULL), -- filter_statement
     flattened_data AS (
     SELECT
-      	REPLACE(JSON_QUERY(row,'$.COMPLETED'), '\"', '') AS COMPLETED,
-	REPLACE(JSON_QUERY(row,'$.COMPLETED_TS'), '\"', '') AS COMPLETED_TS,
-	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
+      	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
 	REPLACE(JSON_QUERY(row,'$.D_103397024.D_206625031'), '\"', '') AS D_103397024_D_206625031,
 	REPLACE(JSON_QUERY(row,'$.D_103397024.D_261863326'), '\"', '') AS D_103397024_D_261863326,
 	REPLACE(JSON_QUERY(row,'$.D_107060069'), '\"', '') AS D_107060069,
@@ -2985,8 +2983,6 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_990114799_7_7.D_206625031_7_7'), '\"', '') AS D_990114799_7_7_D_206625031_7_7,
 	REPLACE(JSON_QUERY(row,'$.D_990114799_9_9.D_206625031_9_9'), '\"', '') AS D_990114799_9_9_D_206625031_9_9,
 	REPLACE(JSON_QUERY(row,'$.D_992987417'), '\"', '') AS D_992987417,
-	REPLACE(JSON_QUERY(row,'$.sha'), '\"', '') AS sha,
-	REPLACE(JSON_QUERY(row,'$.treeJSON'), '\"', '') AS treeJSON,
 	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid -- selects
     FROM
       json_data,
