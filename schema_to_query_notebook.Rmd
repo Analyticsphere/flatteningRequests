@@ -33,8 +33,8 @@ tables   <- list(
   mw   = "Connect.mouthwash_v1")
 
 ########### DEFINE PARAMETERS ##################################################
-tiers_to_update    <- 'dev' # GCP tiers to update sch. queries for
-table              <- tables$m2v2 # table to be flattened (can only select one)
+tiers_to_update    <- 'prod' # GCP tiers to update sch. queries for
+table              <- tables$m2v1 # table to be flattened (can only select one)
 run_now            <- FALSE # Set to true if you want to both sch. and run query
 ################################################################################
 
@@ -157,7 +157,7 @@ which identifies stray tubes.
 
 ```{r}
 # Define exceptions
-exceptions <- c(178420302, 958239616, 353358909, 104430631, 742186726)
+exceptions <- c(178420302, 958239616, 353358909, 104430631, 742186726, 496539718)
 
 # Get a list of variables with arrays containing "exception CID"
 vars_w_exceptions <- get_vars_with_specified_vals(union_lists_json, 

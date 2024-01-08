@@ -1,0 +1,20 @@
+{
+    "data_source": {
+      "dev":  "nih-nci-dceg-connect-dev.Connect.mouthwash_v1",
+      "stg":  "nih-nci-dceg-connect-stg-5519.Connect.mouthwash_v1",
+      "prod": "nih-nci-dceg-connect-prod-6d04.Connect.mouthwash_v1"
+    },
+    "variables_csv":  "mouthwash_v1-variables.csv",
+    "lists_json":     "mouthwash_v1-lists.json",
+    "query_name":     "FlatConnect.mouthwash_v1_JP",
+    "output_table":   "FlatConnect.mouthwash_v1_JP",
+    "variable_prefix": "d_",
+    "filter_statement": "WHERE Connect_ID IS NOT NULL",
+    "order_statement": "",
+    "resource_name": {
+      "dev":  "projects/1061430463455/locations/us/transferConfigs/656f866f-0000-28d6-b5b0-14223bb04126",
+      "stg":  "projects/810867956467/locations/us/transferConfigs/6583c848-0000-290e-9743-14223bc13166",
+      "prod": ""
+    },
+    "table_description": "Source table: Connect.mouthwash_v1; Scheduled Query: FlatConnect.mouthwash_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/mouthwash_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.mouthwash_v1."
+}
