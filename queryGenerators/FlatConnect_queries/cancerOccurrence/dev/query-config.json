@@ -1,0 +1,21 @@
+{
+    "data_source": {
+      "dev":  "nih-nci-dceg-connect-dev.Connect.cancerOccurrence",
+      "stg":  "nih-nci-dceg-connect-stg-5519.Connect.cancerOccurrence",
+      "prod": "nih-nci-dceg-connect-prod-6d04.Connect.cancerOccurrence"
+    },
+    "variables_csv":  "cancerOccurrence-variables.csv",
+    "lists_json":     "cancerOccurrence-lists.json",
+    "query_name":     "FlatConnect.cancerOccurrence_JP",
+    "output_table":   "FlatConnect.cancerOccurrence_JP",
+    "variable_prefix": "d_",
+    "filter_statement": "WHERE Connect_ID IS NOT NULL",
+    "order_statement": "",
+    "resource_name": {
+      "dev":  "projects/1061430463455/locations/us/transferConfigs/65c8cbd0-0000-2421-91a5-582429c39c7c",
+      "stg":  "projects/810867956467/locations/us/transferConfigs/65bc98eb-0000-28ab-a366-ac3eb144de04",
+      "prod": ""
+    },
+    "table_description": "Source table: Connect.cancerOccurrence; Scheduled Query: FlatConnect.cancerOccurrence_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/cancerOccurrence; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.cancerOccurrence."
+}
+    
