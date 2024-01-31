@@ -8,7 +8,7 @@
 -- Relavent functions: generate_flattening_query.R
 -- 
 -- source_table: nih-nci-dceg-connect-dev.Connect.participants
--- destination table: FlatConnect.participants_JP -- notes
+-- destination table: nih-nci-dceg-connect-dev.FlatConnect.participants_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -79,7 +79,7 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  FlatConnect.participants_JP -- destination_table
+  `nih-nci-dceg-connect-dev.FlatConnect.participants_JP` -- destination_table
   OPTIONS (description="Source table: Connect.participants; Scheduled Query: FlatConnect.participants_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/participants; Team: Analytics; Maintainer: Jake Peters; Super Users: Jing, Kelsey; Notes: This table is a flattened version of Connect.participants. It is used for recruitment reporting purposes.") -- table_description
   AS (
   WITH
@@ -420,6 +420,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_784810139'), '\"', '') AS d_784810139,
 	REPLACE(JSON_QUERY(row,'$.d_793072415'), '\"', '') AS d_793072415,
 	REPLACE(JSON_QUERY(row,'$.D_793330426.d_931332817'), '\"', '') AS D_793330426_d_931332817,
+	REPLACE(JSON_QUERY(row,'$.d_793822265'), '\"', '') AS d_793822265,
 	REPLACE(JSON_QUERY(row,'$.d_795827569'), '\"', '') AS d_795827569,
 	REPLACE(JSON_QUERY(row,'$.d_808663245'), '\"', '') AS d_808663245,
 	REPLACE(JSON_QUERY(row,'$.d_821247024'), '\"', '') AS d_821247024,
@@ -466,6 +467,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.modul.tree.currentNode'), '\"', '') AS modul_tree_currentNode,
 	REPLACE(JSON_QUERY(row,'$.modul.tree.rootNode.children.value'), '\"', '') AS modul_tree_rootNode_children_value,
 	REPLACE(JSON_QUERY(row,'$.modul.value'), '\"', '') AS modul_value,
+	REPLACE(JSON_QUERY(row,'$.participantData.d_821247024'), '\"', '') AS participantData_d_821247024,
 	REPLACE(JSON_QUERY(row,'$.pin'), '\"', '') AS pin,
 	REPLACE(JSON_QUERY(row,'$.state.d_119643471'), '\"', '') AS state_d_119643471,
 	REPLACE(JSON_QUERY(row,'$.state.d_147176963'), '\"', '') AS state_d_147176963,
