@@ -142,7 +142,7 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  %s -- destination_table
+  `%s` -- destination_table
   OPTIONS (description=\"%s\") -- table_description
   AS (
   WITH

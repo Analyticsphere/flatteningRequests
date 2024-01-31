@@ -30,12 +30,12 @@ tables   <- list(
   m3   = "Connect.module3_v1",           m4      = "Connect.module4_v1",
   p    = "Connect.participants",         cs19    = "Connect.covid19Survey_v1",
   n    = "Connect.notifications",        k       = "Connect.kitAssembly",
-  mw   = "Connect.mouthwash_v1")
+  mw   = "Connect.mouthwash_v1",         co      = "Connect.cancerOccurrence")
 
 ########### DEFINE PARAMETERS ##################################################
-tiers_to_update    <- 'prod' # GCP tiers to update sch. queries for
-table              <- tables$m2v1 # table to be flattened (can only select one)
-run_now            <- FALSE # Set to true if you want to both sch. and run query
+tiers_to_update    <- 'dev' # GCP tiers to update sch. queries for
+table              <- tables$p # table to be flattened (can only select one)
+run_now            <- TRUE # Set to true if you want to both sch. and run query
 ################################################################################
 
 # Authenticate to BigQuery
@@ -225,14 +225,15 @@ source('gcp_query_tools/generate_flattening_query.R')
 for (tier in tiers_to_update){
   print(tier)
     query <- 
-      generate_flattening_query(source_table      = query_config$data_source[tier],
-                                destination_table = query_config$output_table,
-                                variable_csv      = old_vars_csv,
-                                arrays_json       = old_lists_json,
-                                table_description = query_config$table_description,
-                                filter_statement  = query_config$filter_statement,
-                                var_prefix        = query_config$variable_prefix,
-                                order_statement   = query_config$order_statement)
+      generate_flattening_query(
+        source_table      = query_config$data_source[tier],
+        destination_table = glue("{project}.{query_config$output_table}"),
+        variable_csv      = old_vars_csv,
+        arrays_json       = old_lists_json,
+        table_description = query_config$table_description,
+        filter_statement  = query_config$filter_statement,
+        var_prefix        = query_config$variable_prefix,
+        order_statement   = query_config$order_statement)
     query_file_path <- paste0(module_folder,query_config$output_table,"-",tier,".sql") %>%                           print()
     fileConn <- file(query_file_path)
     writeLines(query, fileConn)
