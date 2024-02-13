@@ -8,7 +8,7 @@
 -- Relavent functions: generate_flattening_query.R
 -- 
 -- source_table: nih-nci-dceg-connect-prod-6d04.Connect.participants
--- destination table: FlatConnect.participants_JP -- notes
+-- destination table: nih-nci-dceg-connect-prod-6d04.FlatConnect.participants_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -79,7 +79,7 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  FlatConnect.participants_JP -- destination_table
+  `nih-nci-dceg-connect-prod-6d04.FlatConnect.participants_JP` -- destination_table
   OPTIONS (description="Source table: Connect.participants; Scheduled Query: FlatConnect.participants_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/participants; Team: Analytics; Maintainer: Jake Peters; Super Users: Jing, Kelsey; Notes: This table is a flattened version of Connect.participants. It is used for recruitment reporting purposes.") -- table_description
   AS (
   WITH
@@ -228,7 +228,6 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_304438543'), '\"', '') AS d_304438543,
 	REPLACE(JSON_QUERY(row,'$.d_311580100'), '\"', '') AS d_311580100,
 	REPLACE(JSON_QUERY(row,'$.d_315032037'), '\"', '') AS d_315032037,
-	REPLACE(JSON_QUERY(row,'$.d_331584571.d_135591601'), '\"', '') AS d_331584571_d_135591601,
 	REPLACE(JSON_QUERY(row,'$.d_331584571.d_266600170.d_135591601'), '\"', '') AS d_331584571_d_266600170_d_135591601,
 	REPLACE(JSON_QUERY(row,'$.d_331584571.d_266600170.d_343048998'), '\"', '') AS d_331584571_d_266600170_d_343048998,
 	REPLACE(JSON_QUERY(row,'$.d_331584571.d_266600170.d_840048338'), '\"', '') AS d_331584571_d_266600170_d_840048338,
