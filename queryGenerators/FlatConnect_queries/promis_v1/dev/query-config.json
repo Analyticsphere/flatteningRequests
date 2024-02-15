@@ -1,0 +1,21 @@
+{
+    "data_source": {
+      "dev":  "nih-nci-dceg-connect-dev.Connect.promis_v1",
+      "stg":  "nih-nci-dceg-connect-stg-5519.Connect.promis_v1",
+      "prod": "nih-nci-dceg-connect-prod-6d04.Connect.promis_v1"
+    },
+    "variables_csv":  "promis_v1-variables.csv",
+    "lists_json":     "promis_v1-lists.json",
+    "query_name":     "FlatConnect.promis_v1_JP",
+    "output_table":   "FlatConnect.promis_v1_JP",
+    "variable_prefix": "d_",
+    "filter_statement": "WHERE Connect_ID IS NOT NULL",
+    "order_statement": "",
+    "resource_name": {
+      "dev":  "projects/1061430463455/locations/us/transferConfigs/65d2c628-0000-2230-8237-14223bb2c98a",
+      "stg":  "",
+      "prod": ""
+    },
+    "table_description": "Source table: Connect.promis_v1; Scheduled Query: FlatConnect.promis_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/promis_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.promis_v1."
+}
+    
