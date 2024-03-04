@@ -1,8 +1,8 @@
 {
    "data_source": {
-      "dev": "nih-nci-dceg-connect-dev.Connect.participants",
-      "stg": "nih-nci-dceg-connect-stg-5519.Connect.participants",
-      "prod": "nih-nci-dceg-connect-prod-6d04.Connect.participants"
+      "dev": "nih-nci-dceg-connect-dev.Connect.notifications",
+      "stg": "nih-nci-dceg-connect-stg-5519.Connect.notifications",
+      "prod": "nih-nci-dceg-connect-prod-6d04.Connect.notifications"
    },
    "variables_csv": "notifications-variables.csv",
    "lists_json": "notifications-lists.json",
