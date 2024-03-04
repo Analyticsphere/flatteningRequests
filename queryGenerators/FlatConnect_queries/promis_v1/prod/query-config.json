@@ -12,9 +12,9 @@
     "filter_statement": "WHERE Connect_ID IS NOT NULL",
     "order_statement": "",
     "resource_name": {
-      "dev":  "",
-      "stg":  "",
-      "prod": ""
+      "dev":  "projects/1061430463455/locations/us/transferConfigs/65d2c628-0000-2230-8237-14223bb2c98a",
+      "stg":  "projects/810867956467/locations/us/transferConfigs/65e0add2-0000-2061-b994-582429c39f04",
+      "prod": "projects/155089172944/locations/us/transferConfigs/65f6d574-0000-2f42-bbe6-14223bb034f2"
     },
     "table_description": "Source table: Connect.promis_v1; Scheduled Query: FlatConnect.promis_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/promis_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.promis_v1."
 }

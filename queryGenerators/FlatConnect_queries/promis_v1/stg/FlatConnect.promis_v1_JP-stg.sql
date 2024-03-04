@@ -7,8 +7,8 @@
 -- Repository: https://github.com/Analyticsphere/flatteningRequests
 -- Relavent functions: generate_flattening_query.R
 -- 
--- source_table: nih-nci-dceg-connect-dev.Connect.promis_v1
--- destination table: nih-nci-dceg-connect-dev.FlatConnect.promis_v1_JP -- notes
+-- source_table: nih-nci-dceg-connect-stg-5519.Connect.promis_v1
+-- destination table: nih-nci-dceg-connect-stg-5519.FlatConnect.promis_v1_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -79,7 +79,7 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  `nih-nci-dceg-connect-dev.FlatConnect.promis_v1_JP` -- destination_table
+  `nih-nci-dceg-connect-stg-5519.FlatConnect.promis_v1_JP` -- destination_table
   OPTIONS (description="Source table: Connect.promis_v1; Scheduled Query: FlatConnect.promis_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/promis_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.promis_v1.") -- table_description
   AS (
   WITH
@@ -88,7 +88,7 @@ CREATE OR REPLACE TABLE
       Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
-      `nih-nci-dceg-connect-dev.Connect.promis_v1` AS input_row -- source_table
+      `nih-nci-dceg-connect-stg-5519.Connect.promis_v1` AS input_row -- source_table
     WHERE Connect_ID IS NOT NULL), -- filter_statement
     flattened_data AS (
     SELECT

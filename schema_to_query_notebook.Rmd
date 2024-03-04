@@ -30,11 +30,12 @@ tables   <- list(
   m3   = "Connect.module3_v1",           m4      = "Connect.module4_v1",
   p    = "Connect.participants",         cs19    = "Connect.covid19Survey_v1",
   n    = "Connect.notifications",        k       = "Connect.kitAssembly",
-  mw   = "Connect.mouthwash_v1",         co      = "Connect.cancerOccurrence")
+  mw   = "Connect.mouthwash_v1",         co      = "Connect.cancerOccurrence",
+  prom = "Connect.promis_v1")
 
 ########### DEFINE PARAMETERS ##################################################
 tiers_to_update    <- 'prod' # GCP tiers to update sch. queries for
-table              <- tables$co # table to be flattened (can only select one)
+table              <- tables$p # table to be flattened (can only select one)
 run_now            <- TRUE # Set to true if you want to both sch. and run query
 ################################################################################
 
