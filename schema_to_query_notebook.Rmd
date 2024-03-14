@@ -15,6 +15,7 @@ library(reticulate)
 library(bigrquery)
 library(dplyr)
 library(glue)
+library(httr)
 source("gcp_query_tools/connect_analytics_helper_functions.R") # Load helper functions
 
 # GCP Project IDs
@@ -246,22 +247,31 @@ for (tier in tiers_to_update){
 #### 9. Update scheduled queries in GCP programatically
 
 ```{r}
-# Note: If you get this error...
-#           "Handshake failed with fatal error SSL_ERROR_SSL: 
-#            error:1000007d:SSL routines:OPENSSL_internal:CERTIFICATE_VERIFY_FAILED"
-#       ...disconnect from the VPN and try again. It seems like NIH blocks this.
-source("gcp_query_tools/get_resource_name_of_bq_sch_query.R")
-py_func <- 'gcp_query_tools/update_gcp_scheduled_query_b.py'
-Sys.setenv(PY_FUNC = py_func, MODULE_FOLDER = module_folder, RUN_NOW = run_now)
+source('gcp_query_tools/update_scheduled_query.R')
 
-# system("gcloud auth login") # Use this to authenticate if needed
-for (tier in tiers_to_update){
-  resource_name <- query_config$resource_name[tier]
-  project_id    <- projects[tier]
-  # Make sure the resource_name from the query_config is correct
-  if (resource_name != get_resource_name_of_bq_sch_query(project_id, query_config$query_name))      {stop("Resource_name in query_config.json is wrong!")}
-  
-  Sys.setenv(PROJECT_ID = project_id)
-  system('python3 $PY_FUNC $PROJECT_ID $MODULE_FOLDER $RUN_NOW')
+# Extract the resource name
+resource_name <- query_config$resource_name[tiers_to_update]
+
+# Extract the transfer configuration ID
+transfer_config_id <- tail(strsplit(resource_name[[tiers_to_update]], "/")[[1]], 1)
+
+# Print the transfer configuration ID
+print(transfer_config_id)
+
+update_scheduled_query(project, query, transfer_config_id)
+```
+
+```{r}
+# If run_now is set to True, run the query in BigQuery, 
+# check the status, 
+# wait for the query to complete, 
+# and then confirm that the status is "DONE"
+if (run_now ==TRUE) {
+  job   <- bigrquery::bq_perform_query(query, 
+                                       project = project,
+                                       billing = project)
+  bigrquery::bq_job_status(job)
+  # bigrquery::bq_job_wait(job)
+  # bigrquery::bq_job_status(job)
 }
 ```
