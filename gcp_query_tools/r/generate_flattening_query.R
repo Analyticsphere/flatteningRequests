@@ -160,8 +160,7 @@ CREATE OR REPLACE TABLE
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP(\"%s\", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
   %s -- order statement
@@ -170,7 +169,6 @@ CREATE OR REPLACE TABLE
 '
   
   # Use sprint to put variables in place of "%s" in sql_body
-  date_format <- "%Y%m%d"
   query <- sprintf(sql_body,
                    notes,
                    arrays_to_be_flattened,
@@ -181,7 +179,6 @@ CREATE OR REPLACE TABLE
                    source_table,
                    filter_statement,
                    selects,
-                   date_format,
                    order_statement )
   
   if (length(output_file_path) != 0) {
