@@ -8,7 +8,7 @@
 -- Relavent functions: generate_flattening_query.R
 -- 
 -- source_table: nih-nci-dceg-connect-dev.Connect.kitAssembly
--- destination table: FlatConnect.kitAssembly_JP -- notes
+-- destination table: nih-nci-dceg-connect-dev.FlatConnect.kitAssembly_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -79,13 +79,12 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  FlatConnect.kitAssembly_JP -- destination_table
+  `nih-nci-dceg-connect-dev.FlatConnect.kitAssembly_JP` -- destination_table
   OPTIONS (description="Source table: Connect.kitAssembly; Scheduled Query: FlatConnect.kitAssembly_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/kitAssembly; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.kitAssembly table.") -- table_description
   AS (
   WITH
     json_data AS (
     SELECT
-      Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       `nih-nci-dceg-connect-dev.Connect.kitAssembly` AS input_row -- source_table
@@ -122,8 +121,7 @@ CREATE OR REPLACE TABLE
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
    -- order statement

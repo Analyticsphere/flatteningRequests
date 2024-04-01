@@ -8,7 +8,7 @@
 -- Relavent functions: generate_flattening_query.R
 -- 
 -- source_table: nih-nci-dceg-connect-stg-5519.Connect.biospecimen
--- destination table: FlatConnect.biospecimen_JP -- notes
+-- destination table: nih-nci-dceg-connect-stg-5519.FlatConnect.biospecimen_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -79,13 +79,12 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  FlatConnect.biospecimen_JP -- destination_table
+  `nih-nci-dceg-connect-stg-5519.FlatConnect.biospecimen_JP` -- destination_table
   OPTIONS (description="Source table: Connect.biospecimen; Scheduled Query: FlatConnect.biospecimen_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/biospecimen; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.biospecimen.") -- table_description
   AS (
   WITH
     json_data AS (
     SELECT
-      Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       `nih-nci-dceg-connect-stg-5519.Connect.biospecimen` AS input_row -- source_table
@@ -93,7 +92,6 @@ CREATE OR REPLACE TABLE
     flattened_data AS (
     SELECT
       	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
-	REPLACE(JSON_QUERY(row,'$.d_137401245'), '\"', '') AS d_137401245,
 	REPLACE(JSON_QUERY(row,'$.d_143615646.d_248868659.d_283900611'), '\"', '') AS d_143615646_d_248868659_d_283900611,
 	REPLACE(JSON_QUERY(row,'$.d_143615646.d_248868659.d_313097539'), '\"', '') AS d_143615646_d_248868659_d_313097539,
 	REPLACE(JSON_QUERY(row,'$.d_143615646.d_248868659.d_453343022'), '\"', '') AS d_143615646_d_248868659_d_453343022,
@@ -103,7 +101,6 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_143615646.d_248868659.d_742806035'), '\"', '') AS d_143615646_d_248868659_d_742806035,
 	REPLACE(JSON_QUERY(row,'$.d_143615646.d_248868659.d_757246707'), '\"', '') AS d_143615646_d_248868659_d_757246707,
 	REPLACE(JSON_QUERY(row,'$.d_143615646.d_248868659.d_982885431'), '\"', '') AS d_143615646_d_248868659_d_982885431,
-	REPLACE(JSON_QUERY(row,'$.d_143615646.d_260133861'), '\"', '') AS d_143615646_d_260133861,
 	REPLACE(JSON_QUERY(row,'$.d_143615646.d_338286049'), '\"', '') AS d_143615646_d_338286049,
 	REPLACE(JSON_QUERY(row,'$.d_143615646.d_536710547'), '\"', '') AS d_143615646_d_536710547,
 	REPLACE(JSON_QUERY(row,'$.d_143615646.d_593843561'), '\"', '') AS d_143615646_d_593843561,
@@ -372,7 +369,6 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_771580890'), '\"', '') AS d_771580890,
 	REPLACE(JSON_QUERY(row,'$.d_787237543.d_593843561'), '\"', '') AS d_787237543_d_593843561,
 	REPLACE(JSON_QUERY(row,'$.d_787237543.d_825582494'), '\"', '') AS d_787237543_d_825582494,
-	REPLACE(JSON_QUERY(row,'$.d_787237543.undefined'), '\"', '') AS d_787237543_undefined,
 	REPLACE(JSON_QUERY(row,'$.d_820476880'), '\"', '') AS d_820476880,
 	REPLACE(JSON_QUERY(row,'$.d_827220437'), '\"', '') AS d_827220437,
 	REPLACE(JSON_QUERY(row,'$.d_838567176.d_248868659.d_242307474'), '\"', '') AS d_838567176_d_248868659_d_242307474,
@@ -396,7 +392,6 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_838567176.d_825582494'), '\"', '') AS d_838567176_d_825582494,
 	REPLACE(JSON_QUERY(row,'$.d_838567176.d_883732523'), '\"', '') AS d_838567176_d_883732523,
 	REPLACE(JSON_QUERY(row,'$.d_838567176.d_926457119'), '\"', '') AS d_838567176_d_926457119,
-	REPLACE(JSON_QUERY(row,'$.d_870456401'), '\"', '') AS d_870456401,
 	REPLACE(JSON_QUERY(row,'$.d_915838974'), '\"', '') AS d_915838974,
 	REPLACE(JSON_QUERY(row,'$.d_926457119'), '\"', '') AS d_926457119,
 	REPLACE(JSON_QUERY(row,'$.d_928693120'), '\"', '') AS d_928693120,
@@ -445,14 +440,12 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.id'), '\"', '') AS id,
 	REPLACE(JSON_QUERY(row,'$.siteAcronym'), '\"', '') AS siteAcronym,
 	REPLACE(JSON_QUERY(row,'$.token'), '\"', '') AS token,
-	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid,
-	REPLACE(JSON_QUERY(row,'$.undefined.d_926457119'), '\"', '') AS undefined_d_926457119 -- selects
+	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid -- selects
     FROM
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
    -- order statement

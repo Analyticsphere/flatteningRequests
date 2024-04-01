@@ -85,7 +85,6 @@ CREATE OR REPLACE TABLE
   WITH
     json_data AS (
     SELECT
-      Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       `nih-nci-dceg-connect-dev.Connect.promis_v1` AS input_row -- source_table
@@ -111,6 +110,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_284353934.D_780866928'), '\"', '') AS D_284353934_D_780866928,
 	REPLACE(JSON_QUERY(row,'$.D_284353934.D_783201540'), '\"', '') AS D_284353934_D_783201540,
 	REPLACE(JSON_QUERY(row,'$.D_284353934.D_917425212'), '\"', '') AS D_284353934_D_917425212,
+	REPLACE(JSON_QUERY(row,'$.D_297016093'), '\"', '') AS D_297016093,
 	REPLACE(JSON_QUERY(row,'$.D_326712049.D_311938392'), '\"', '') AS D_326712049_D_311938392,
 	REPLACE(JSON_QUERY(row,'$.D_326712049.D_387564567'), '\"', '') AS D_326712049_D_387564567,
 	REPLACE(JSON_QUERY(row,'$.D_326712049.D_437905191'), '\"', '') AS D_326712049_D_437905191,
@@ -159,8 +159,7 @@ CREATE OR REPLACE TABLE
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
    -- order statement

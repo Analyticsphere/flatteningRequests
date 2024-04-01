@@ -487,8 +487,7 @@ CREATE OR REPLACE TABLE
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
    -- order statement

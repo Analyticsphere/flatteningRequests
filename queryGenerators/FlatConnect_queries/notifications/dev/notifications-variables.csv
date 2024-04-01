@@ -4,6 +4,9 @@ bounce_date
 bounce_reason
 bounce_status
 bounce_timestamp
+bounceDate
+bounceReason
+bounceStatus
 category
 deferred_date
 deferred_status
@@ -12,6 +15,8 @@ delivered_date
 delivered_status
 delivered_timestamp
 deliveredDate
+deliveredStatus
+deliveredTimestamp
 dropped_date
 dropped_reason
 dropped_status
@@ -34,10 +39,15 @@ notificationType
 open_date
 open_status
 open_timestamp
+openDate
+openStatus
 phone
 processed_date
 processed_status
 processed_timestamp
+processedDate
+processedStatus
+processedTimestamp
 queued_date
 read
 sent_date

@@ -85,7 +85,6 @@ CREATE OR REPLACE TABLE
   WITH
     json_data AS (
     SELECT
-      Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       `nih-nci-dceg-connect-dev.Connect.notifications` AS input_row -- source_table
@@ -98,6 +97,9 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.bounce_reason'), '\"', '') AS bounce_reason,
 	REPLACE(JSON_QUERY(row,'$.bounce_status'), '\"', '') AS bounce_status,
 	REPLACE(JSON_QUERY(row,'$.bounce_timestamp'), '\"', '') AS bounce_timestamp,
+	REPLACE(JSON_QUERY(row,'$.bounceDate'), '\"', '') AS bounceDate,
+	REPLACE(JSON_QUERY(row,'$.bounceReason'), '\"', '') AS bounceReason,
+	REPLACE(JSON_QUERY(row,'$.bounceStatus'), '\"', '') AS bounceStatus,
 	REPLACE(JSON_QUERY(row,'$.category'), '\"', '') AS category,
 	REPLACE(JSON_QUERY(row,'$.deferred_date'), '\"', '') AS deferred_date,
 	REPLACE(JSON_QUERY(row,'$.deferred_status'), '\"', '') AS deferred_status,
@@ -106,6 +108,8 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.delivered_status'), '\"', '') AS delivered_status,
 	REPLACE(JSON_QUERY(row,'$.delivered_timestamp'), '\"', '') AS delivered_timestamp,
 	REPLACE(JSON_QUERY(row,'$.deliveredDate'), '\"', '') AS deliveredDate,
+	REPLACE(JSON_QUERY(row,'$.deliveredStatus'), '\"', '') AS deliveredStatus,
+	REPLACE(JSON_QUERY(row,'$.deliveredTimestamp'), '\"', '') AS deliveredTimestamp,
 	REPLACE(JSON_QUERY(row,'$.dropped_date'), '\"', '') AS dropped_date,
 	REPLACE(JSON_QUERY(row,'$.dropped_reason'), '\"', '') AS dropped_reason,
 	REPLACE(JSON_QUERY(row,'$.dropped_status'), '\"', '') AS dropped_status,
@@ -128,10 +132,15 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.open_date'), '\"', '') AS open_date,
 	REPLACE(JSON_QUERY(row,'$.open_status'), '\"', '') AS open_status,
 	REPLACE(JSON_QUERY(row,'$.open_timestamp'), '\"', '') AS open_timestamp,
+	REPLACE(JSON_QUERY(row,'$.openDate'), '\"', '') AS openDate,
+	REPLACE(JSON_QUERY(row,'$.openStatus'), '\"', '') AS openStatus,
 	REPLACE(JSON_QUERY(row,'$.phone'), '\"', '') AS phone,
 	REPLACE(JSON_QUERY(row,'$.processed_date'), '\"', '') AS processed_date,
 	REPLACE(JSON_QUERY(row,'$.processed_status'), '\"', '') AS processed_status,
 	REPLACE(JSON_QUERY(row,'$.processed_timestamp'), '\"', '') AS processed_timestamp,
+	REPLACE(JSON_QUERY(row,'$.processedDate'), '\"', '') AS processedDate,
+	REPLACE(JSON_QUERY(row,'$.processedStatus'), '\"', '') AS processedStatus,
+	REPLACE(JSON_QUERY(row,'$.processedTimestamp'), '\"', '') AS processedTimestamp,
 	REPLACE(JSON_QUERY(row,'$.queued_date'), '\"', '') AS queued_date,
 	REPLACE(JSON_QUERY(row,'$.read'), '\"', '') AS read,
 	REPLACE(JSON_QUERY(row,'$.sent_date'), '\"', '') AS sent_date,
@@ -146,8 +155,7 @@ CREATE OR REPLACE TABLE
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
    -- order statement

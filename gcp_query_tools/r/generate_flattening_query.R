@@ -148,7 +148,6 @@ CREATE OR REPLACE TABLE
   WITH
     json_data AS (
     SELECT
-      Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       \`%s\` AS input_row -- source_table

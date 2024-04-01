@@ -7,7 +7,7 @@
 -- Repository: https://github.com/Analyticsphere/flatteningRequests
 -- Relavent functions: generate_flattening_query.R
 -- 
--- source_table: nih-nci-dceg-connect-prod-6d04.Connect.participants
+-- source_table: nih-nci-dceg-connect-prod-6d04.Connect.notifications
 -- destination table: nih-nci-dceg-connect-prod-6d04.FlatConnect.notifications_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
@@ -88,29 +88,71 @@ CREATE OR REPLACE TABLE
       Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
-      `nih-nci-dceg-connect-prod-6d04.Connect.participants` AS input_row -- source_table
+      `nih-nci-dceg-connect-prod-6d04.Connect.notifications` AS input_row -- source_table
     ), -- filter_statement
     flattened_data AS (
     SELECT
-      	REPLACE(JSON_QUERY(row,'$.attempt'), '\"', '') AS attempt,
+      	REPLACE(JSON_QUERY(row,'$.accepted_date'), '\"', '') AS accepted_date,
+	REPLACE(JSON_QUERY(row,'$.attempt'), '\"', '') AS attempt,
+	REPLACE(JSON_QUERY(row,'$.bounce_date'), '\"', '') AS bounce_date,
+	REPLACE(JSON_QUERY(row,'$.bounce_reason'), '\"', '') AS bounce_reason,
+	REPLACE(JSON_QUERY(row,'$.bounce_status'), '\"', '') AS bounce_status,
+	REPLACE(JSON_QUERY(row,'$.bounce_timestamp'), '\"', '') AS bounce_timestamp,
 	REPLACE(JSON_QUERY(row,'$.category'), '\"', '') AS category,
+	REPLACE(JSON_QUERY(row,'$.deferred_date'), '\"', '') AS deferred_date,
+	REPLACE(JSON_QUERY(row,'$.deferred_status'), '\"', '') AS deferred_status,
+	REPLACE(JSON_QUERY(row,'$.deferred_timestamp'), '\"', '') AS deferred_timestamp,
+	REPLACE(JSON_QUERY(row,'$.delivered_date'), '\"', '') AS delivered_date,
+	REPLACE(JSON_QUERY(row,'$.delivered_status'), '\"', '') AS delivered_status,
+	REPLACE(JSON_QUERY(row,'$.delivered_timestamp'), '\"', '') AS delivered_timestamp,
+	REPLACE(JSON_QUERY(row,'$.deliveredDate'), '\"', '') AS deliveredDate,
+	REPLACE(JSON_QUERY(row,'$.dropped_date'), '\"', '') AS dropped_date,
+	REPLACE(JSON_QUERY(row,'$.dropped_reason'), '\"', '') AS dropped_reason,
+	REPLACE(JSON_QUERY(row,'$.dropped_status'), '\"', '') AS dropped_status,
+	REPLACE(JSON_QUERY(row,'$.dropped_timestamp'), '\"', '') AS dropped_timestamp,
 	REPLACE(JSON_QUERY(row,'$.email'), '\"', '') AS email,
+	REPLACE(JSON_QUERY(row,'$.error_code'), '\"', '') AS error_code,
+	REPLACE(JSON_QUERY(row,'$.error_message'), '\"', '') AS error_message,
+	REPLACE(JSON_QUERY(row,'$.errorCode'), '\"', '') AS errorCode,
+	REPLACE(JSON_QUERY(row,'$.errorMessage'), '\"', '') AS errorMessage,
+	REPLACE(JSON_QUERY(row,'$.failedDate'), '\"', '') AS failedDate,
+	REPLACE(JSON_QUERY(row,'$.fullname'), '\"', '') AS fullname,
 	REPLACE(JSON_QUERY(row,'$.id'), '\"', '') AS id,
+	REPLACE(JSON_QUERY(row,'$.id	'), '\"', '') AS id	,
+	REPLACE(JSON_QUERY(row,'$.messageSid'), '\"', '') AS messageSid,
+	REPLACE(JSON_QUERY(row,'$.notification'), '\"', '') AS notification,
 	REPLACE(JSON_QUERY(row,'$.notification.body'), '\"', '') AS notification_body,
+	REPLACE(JSON_QUERY(row,'$.notification.body	'), '\"', '') AS notification_body	,
 	REPLACE(JSON_QUERY(row,'$.notification.time'), '\"', '') AS notification_time,
 	REPLACE(JSON_QUERY(row,'$.notification.title'), '\"', '') AS notification_title,
 	REPLACE(JSON_QUERY(row,'$.notificationId'), '\"', '') AS notificationId,
 	REPLACE(JSON_QUERY(row,'$.notificationSpecificationsID'), '\"', '') AS notificationSpecificationsID,
 	REPLACE(JSON_QUERY(row,'$.notificationType'), '\"', '') AS notificationType,
+	REPLACE(JSON_QUERY(row,'$.open_date'), '\"', '') AS open_date,
+	REPLACE(JSON_QUERY(row,'$.open_status'), '\"', '') AS open_status,
+	REPLACE(JSON_QUERY(row,'$.open_timestamp'), '\"', '') AS open_timestamp,
+	REPLACE(JSON_QUERY(row,'$.phone'), '\"', '') AS phone,
+	REPLACE(JSON_QUERY(row,'$.processed_date'), '\"', '') AS processed_date,
+	REPLACE(JSON_QUERY(row,'$.processed_status'), '\"', '') AS processed_status,
+	REPLACE(JSON_QUERY(row,'$.processed_timestamp'), '\"', '') AS processed_timestamp,
+	REPLACE(JSON_QUERY(row,'$.queued_date'), '\"', '') AS queued_date,
 	REPLACE(JSON_QUERY(row,'$.read'), '\"', '') AS read,
+	REPLACE(JSON_QUERY(row,'$.read	'), '\"', '') AS read	,
+	REPLACE(JSON_QUERY(row,'$.sent_date'), '\"', '') AS sent_date,
+	REPLACE(JSON_QUERY(row,'$.status'), '\"', '') AS status,
 	REPLACE(JSON_QUERY(row,'$.token'), '\"', '') AS token,
-	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid -- selects
+	REPLACE(JSON_QUERY(row,'$.token	'), '\"', '') AS token	,
+	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid,
+	REPLACE(JSON_QUERY(row,'$.uid	'), '\"', '') AS uid	,
+	REPLACE(JSON_QUERY(row,'$.undeliveredDate'), '\"', '') AS undeliveredDate,
+	REPLACE(JSON_QUERY(row,'$.unsubscribe_date'), '\"', '') AS unsubscribe_date,
+	REPLACE(JSON_QUERY(row,'$.unsubscribe_status'), '\"', '') AS unsubscribe_status,
+	REPLACE(JSON_QUERY(row,'$.unsubscribe_timestamp'), '\"', '') AS unsubscribe_timestamp -- selects
     FROM
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
    -- order statement
