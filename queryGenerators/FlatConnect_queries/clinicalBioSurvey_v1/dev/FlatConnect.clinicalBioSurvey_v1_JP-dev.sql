@@ -7,8 +7,8 @@
 -- Repository: https://github.com/Analyticsphere/flatteningRequests
 -- Relavent functions: generate_flattening_query.R
 -- 
--- source_table: nih-nci-dceg-connect-stg-5519.Connect.clinicalBioSurvey_v1
--- destination table: nih-nci-dceg-connect-stg-5519.FlatConnect.clinicalBioSurvey_v1_JP -- notes
+-- source_table: nih-nci-dceg-connect-dev.Connect.clinicalBioSurvey_v1
+-- destination table: nih-nci-dceg-connect-dev.FlatConnect.clinicalBioSurvey_v1_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -77,7 +77,6 @@ CREATE TEMP FUNCTION
         "684149600",
         "756774083",
         "760243464",
-        "807835037",
         "810340693",
         "896163801",
         "960642359"
@@ -116,7 +115,7 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  `nih-nci-dceg-connect-stg-5519.FlatConnect.clinicalBioSurvey_v1_JP` -- destination_table
+  `nih-nci-dceg-connect-dev.FlatConnect.clinicalBioSurvey_v1_JP` -- destination_table
   OPTIONS (description="Source table: Connect.clinicalBioSurvey_v1; Scheduled Query: FlatConnect.clinicalBioSurvey_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/clinicalBioSurvey_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.clinicalBioSurvey_v1.") -- table_description
   AS (
   WITH
@@ -124,7 +123,7 @@ CREATE OR REPLACE TABLE
     SELECT
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
-      `nih-nci-dceg-connect-stg-5519.Connect.clinicalBioSurvey_v1` AS input_row -- source_table
+      `nih-nci-dceg-connect-dev.Connect.clinicalBioSurvey_v1` AS input_row -- source_table
     WHERE Connect_ID IS NOT NULL), -- filter_statement
     flattened_data AS (
     SELECT
@@ -257,7 +256,6 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_705336878_1_1.D_705336878_1_1.D_684149600'), '\"', '') AS D_705336878_1_1_D_705336878_1_1_D_684149600,
 	REPLACE(JSON_QUERY(row,'$.D_705336878_1_1.D_705336878_1_1.D_756774083'), '\"', '') AS D_705336878_1_1_D_705336878_1_1_D_756774083,
 	REPLACE(JSON_QUERY(row,'$.D_705336878_1_1.D_705336878_1_1.D_760243464'), '\"', '') AS D_705336878_1_1_D_705336878_1_1_D_760243464,
-	REPLACE(JSON_QUERY(row,'$.D_705336878_1_1.D_705336878_1_1.D_807835037'), '\"', '') AS D_705336878_1_1_D_705336878_1_1_D_807835037,
 	REPLACE(JSON_QUERY(row,'$.D_705336878_1_1.D_705336878_1_1.D_810340693'), '\"', '') AS D_705336878_1_1_D_705336878_1_1_D_810340693,
 	REPLACE(JSON_QUERY(row,'$.D_705336878_1_1.D_705336878_1_1.D_896163801'), '\"', '') AS D_705336878_1_1_D_705336878_1_1_D_896163801,
 	REPLACE(JSON_QUERY(row,'$.D_705336878_1_1.D_705336878_1_1.D_960642359'), '\"', '') AS D_705336878_1_1_D_705336878_1_1_D_960642359,
