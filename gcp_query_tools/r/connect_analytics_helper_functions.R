@@ -278,7 +278,7 @@ get_unique_values <- function(project, table, array_vars) {
   df_var <- bq_table_download(bq_table, bigint = "integer64")
   
   #Convert the results into a list where each element corresponds to a variable
-  results_list <- split(as.numeric(df_var$array_element), df_var$variable)
+  results_list <- split(as.character(df_var$array_element), df_var$variable)
   
   # Return the list of unique values for each variable
   return(results_list)
