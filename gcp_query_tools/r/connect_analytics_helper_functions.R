@@ -329,7 +329,12 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json) {
   
   ## Filter out RECORDS (variables with nested data) and keys
   patterns_to_remove <- c("__key__","__error__", "__has_error__", "treeJSON",
-                          "Module2","D_726699695","D_299215535","D_166676176")
+                          "Module2","D_726699695","D_299215535","D_166676176",
+                          "d_110349197", "d_543608829")
+  # TODO: d_173836415.d_266600170.d_110349197 & 
+  #       d_173836415.d_266600170.d_543608829 are accession ids that are stored
+  #       in arrays. They need to be handled seperately. I'm filtering them out
+  #       for now.
   df_filt <- df %>% filter(!grepl(paste(patterns_to_remove, collapse="|"), name)) %>% filter(!grepl("RECORD", type)) 
   
   ## Get list of variables that do not repeat (destined for M2*-variables.csv)
