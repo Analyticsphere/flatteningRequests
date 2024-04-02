@@ -37,7 +37,7 @@ tables   <- list(
 
 ########### DEFINE PARAMETERS ##################################################
 tiers_to_update    <- 'prod' # GCP tiers to update sch. queries for
-table              <- tables$cbs # table to be flattened (can only select one)
+table              <- tables$p # table to be flattened (can only select one)
 run_now            <- TRUE # Set to true if you want to both sch. and run query
 ################################################################################
 
@@ -134,6 +134,7 @@ union_lists_json <- paste0(tmp_folder, module, "-lists-union.json"); union_lists
 # Get union of old_lists_json and out_json
 union_json_str <- get_union_of_json_arrays(old_lists_json, out_json, union_lists_json)
 union_json_str
+
 ```
 
 We also need to combine the variables.csv file that was generated from the
