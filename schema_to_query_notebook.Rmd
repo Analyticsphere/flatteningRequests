@@ -37,7 +37,7 @@ tables   <- list(
 
 ########### DEFINE PARAMETERS ##################################################
 tiers_to_update    <- 'prod' # GCP tiers to update sch. queries for
-table              <- tables$p # table to be flattened (can only select one)
+table              <- tables$m1v1 # table to be flattened (can only select one)
 run_now            <- TRUE # Set to true if you want to both sch. and run query
 ################################################################################
 
@@ -263,7 +263,7 @@ if (run_now ==TRUE) {
                                        project = project,
                                        billing = project)
   bigrquery::bq_job_status(job)
-  bigrquery::bq_job_wait(job)
-  bigrquery::bq_job_status(job)
+  #bigrquery::bq_job_wait(job)
+  #bigrquery::bq_job_status(job)
 }
 ```

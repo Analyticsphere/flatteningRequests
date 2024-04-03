@@ -40,7 +40,7 @@ generate_flattening_query <- function(source_table,
                                       var_prefix='D_',
                                       config_file='',
                                       output_file_path='',
-                                      order_statement = '\nORDER BY\n\tConnect_ID') {
+                                      order_statement = '') {
   
   arrays_to_be_flattened <- paste(readLines(arrays_json), collapse='\n')
   # Flatten each CID and array of responses to <D_ParentCID.D_ChildCID> format

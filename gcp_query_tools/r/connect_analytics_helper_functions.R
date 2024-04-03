@@ -278,8 +278,9 @@ get_unique_values <- function(project, table, array_vars) {
   df_var <- bq_table_download(bq_table, bigint = "integer64")
   
   #Convert the results into a list where each element corresponds to a variable
-  results_list <- split(as.character(df_var$array_element), df_var$variable)
-  
+  results_list <- split(df_var$array_element, df_var$variable)
+  results_list <- lapply(results_list, as.integer)
+
   # Return the list of unique values for each variable
   return(results_list)
 }
@@ -351,9 +352,11 @@ filter_vars_from_schema <- function(project, table, schema, out_csv, out_json) {
   #just output an empty json
   if(length(df_lists$name)>0){
     responses_list <- get_unique_values(project,
-                                            table,
-                                            as.character(df_lists$name))
-    json_data <- toJSON(responses_list, pretty=TRUE,auto_unbox = TRUE)
+                                        table,
+                                        df_lists$name)
+    json_data <- toJSON(responses_list, 
+                        pretty=TRUE,
+                        auto_unbox = TRUE)
     write(json_data, out_json)
   }else{
     responses_list <- list()

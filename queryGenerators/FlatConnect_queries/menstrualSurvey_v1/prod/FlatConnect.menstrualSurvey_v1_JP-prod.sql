@@ -8,7 +8,7 @@
 -- Relavent functions: generate_flattening_query.R
 -- 
 -- source_table: nih-nci-dceg-connect-prod-6d04.Connect.menstrualSurvey_v1
--- destination table: FlatConnect.menstrualSurvey_v1_JP -- notes
+-- destination table: nih-nci-dceg-connect-prod-6d04.FlatConnect.menstrualSurvey_v1_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -79,33 +79,28 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  FlatConnect.menstrualSurvey_v1_JP -- destination_table
+  `nih-nci-dceg-connect-prod-6d04.FlatConnect.menstrualSurvey_v1_JP` -- destination_table
   OPTIONS (description="Source table: menstrualSurvey_v1; Scheduled Query: FlatConnect.menstrualSurvey_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/menstrualSurvey_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.menstrualSurvey_v1.") -- table_description
   AS (
   WITH
     json_data AS (
     SELECT
-      Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       `nih-nci-dceg-connect-prod-6d04.Connect.menstrualSurvey_v1` AS input_row -- source_table
     WHERE Connect_ID IS NOT NULL), -- filter_statement
     flattened_data AS (
     SELECT
-      	REPLACE(JSON_QUERY(row,'$.__has_error__'), '\"', '') AS __has_error__,
-	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
+      	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
 	REPLACE(JSON_QUERY(row,'$.D_593467240'), '\"', '') AS D_593467240,
 	REPLACE(JSON_QUERY(row,'$.d_901199566'), '\"', '') AS d_901199566,
 	REPLACE(JSON_QUERY(row,'$.D_951357171'), '\"', '') AS D_951357171,
-	REPLACE(JSON_QUERY(row,'$.sha'), '\"', '') AS sha,
-	REPLACE(JSON_QUERY(row,'$.treeJSON'), '\"', '') AS treeJSON,
 	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid -- selects
     FROM
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
    -- order statement
