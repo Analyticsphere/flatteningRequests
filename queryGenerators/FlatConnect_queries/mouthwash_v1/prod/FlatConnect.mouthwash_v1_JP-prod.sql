@@ -130,7 +130,8 @@ CREATE OR REPLACE TABLE
     WHERE Connect_ID IS NOT NULL), -- filter_statement
     flattened_data AS (
     SELECT
-      	REPLACE(JSON_QUERY(row,'$.D_205713835'), '\"', '') AS D_205713835,
+      	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
+	REPLACE(JSON_QUERY(row,'$.D_205713835'), '\"', '') AS D_205713835,
 	REPLACE(JSON_QUERY(row,'$.D_294886836'), '\"', '') AS D_294886836,
 	REPLACE(JSON_QUERY(row,'$.D_318641324'), '\"', '') AS D_318641324,
 	REPLACE(JSON_QUERY(row,'$.D_339570897'), '\"', '') AS D_339570897,
@@ -172,7 +173,6 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_736028153'), '\"', '') AS D_736028153,
 	REPLACE(JSON_QUERY(row,'$.D_736393021'), '\"', '') AS D_736393021,
 	REPLACE(JSON_QUERY(row,'$.D_766370065'), '\"', '') AS D_766370065,
-	REPLACE(JSON_QUERY(row,'$.d_777777778'), '\"', '') AS d_777777778,
 	REPLACE(JSON_QUERY(row,'$.D_792134396'), '\"', '') AS D_792134396,
 	REPLACE(JSON_QUERY(row,'$.D_800703566'), '\"', '') AS D_800703566,
 	REPLACE(JSON_QUERY(row,'$.D_800752981'), '\"', '') AS D_800752981,
@@ -189,7 +189,6 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_921972241'), '\"', '') AS D_921972241,
 	REPLACE(JSON_QUERY(row,'$.D_957305523'), '\"', '') AS D_957305523,
 	REPLACE(JSON_QUERY(row,'$.D_983043203'), '\"', '') AS D_983043203,
-	REPLACE(JSON_QUERY(row,'$.sha'), '\"', '') AS sha,
 	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid -- selects
     FROM
       json_data,
