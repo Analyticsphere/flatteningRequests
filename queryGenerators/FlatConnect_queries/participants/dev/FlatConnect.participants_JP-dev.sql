@@ -51,9 +51,9 @@ CREATE TEMP FUNCTION
     return setNestedObjectValueFromPathArray(obj, pathString.split("."), value);
   }
   
-  const arraysToBeFlattened= {
+  const arraysToBeFlattened= [
 
-}
+]
  
   
   function handleRowJS(row) {
@@ -204,6 +204,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_175506524.d_175506524'), '\"', '') AS d_175506524_d_175506524,
 	REPLACE(JSON_QUERY(row,'$.d_175506524.d_905787778'), '\"', '') AS d_175506524_d_905787778,
 	REPLACE(JSON_QUERY(row,'$.d_175732191'), '\"', '') AS d_175732191,
+	REPLACE(JSON_QUERY(row,'$.d_187894482'), '\"', '') AS d_187894482,
 	REPLACE(JSON_QUERY(row,'$.d_187894482.integer'), '\"', '') AS d_187894482_integer,
 	REPLACE(JSON_QUERY(row,'$.d_187894482.provided'), '\"', '') AS d_187894482_provided,
 	REPLACE(JSON_QUERY(row,'$.d_187894482.string'), '\"', '') AS d_187894482_string,
@@ -216,6 +217,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_230663853'), '\"', '') AS d_230663853,
 	REPLACE(JSON_QUERY(row,'$.d_231676651'), '\"', '') AS d_231676651,
 	REPLACE(JSON_QUERY(row,'$.d_253883960'), '\"', '') AS d_253883960,
+	REPLACE(JSON_QUERY(row,'$.d_254109640'), '\"', '') AS d_254109640,
 	REPLACE(JSON_QUERY(row,'$.d_254109640.integer'), '\"', '') AS d_254109640_integer,
 	REPLACE(JSON_QUERY(row,'$.d_254109640.provided'), '\"', '') AS d_254109640_provided,
 	REPLACE(JSON_QUERY(row,'$.d_254109640.string'), '\"', '') AS d_254109640_string,
@@ -226,6 +228,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_268176409'), '\"', '') AS d_268176409,
 	REPLACE(JSON_QUERY(row,'$.d_268665918'), '\"', '') AS d_268665918,
 	REPLACE(JSON_QUERY(row,'$.d_269050420'), '\"', '') AS d_269050420,
+	REPLACE(JSON_QUERY(row,'$.d_271757434'), '\"', '') AS d_271757434,
 	REPLACE(JSON_QUERY(row,'$.d_271757434.integer'), '\"', '') AS d_271757434_integer,
 	REPLACE(JSON_QUERY(row,'$.d_271757434.provided'), '\"', '') AS d_271757434_provided,
 	REPLACE(JSON_QUERY(row,'$.d_271757434.string'), '\"', '') AS d_271757434_string,
@@ -326,6 +329,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_569151507.d_611005658'), '\"', '') AS d_569151507_d_611005658,
 	REPLACE(JSON_QUERY(row,'$.d_569151507.d_634434746'), '\"', '') AS d_569151507_d_634434746,
 	REPLACE(JSON_QUERY(row,'$.d_569151507.d_635101039'), '\"', '') AS d_569151507_d_635101039,
+	REPLACE(JSON_QUERY(row,'$.d_569151507.d_646873644'), '\"', '') AS d_569151507_d_646873644,
 	REPLACE(JSON_QUERY(row,'$.d_569151507.d_646873644.integer'), '\"', '') AS d_569151507_d_646873644_integer,
 	REPLACE(JSON_QUERY(row,'$.d_569151507.d_646873644.provided'), '\"', '') AS d_569151507_d_646873644_provided,
 	REPLACE(JSON_QUERY(row,'$.d_569151507.d_646873644.string'), '\"', '') AS d_569151507_d_646873644_string,
@@ -468,6 +472,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_976570371'), '\"', '') AS d_976570371,
 	REPLACE(JSON_QUERY(row,'$.d_982105411'), '\"', '') AS d_982105411,
 	REPLACE(JSON_QUERY(row,'$.d_982402227'), '\"', '') AS d_982402227,
+	REPLACE(JSON_QUERY(row,'$.d_983278853'), '\"', '') AS d_983278853,
 	REPLACE(JSON_QUERY(row,'$.d_983278853.integer'), '\"', '') AS d_983278853_integer,
 	REPLACE(JSON_QUERY(row,'$.d_983278853.provided'), '\"', '') AS d_983278853_provided,
 	REPLACE(JSON_QUERY(row,'$.d_983278853.string'), '\"', '') AS d_983278853_string,

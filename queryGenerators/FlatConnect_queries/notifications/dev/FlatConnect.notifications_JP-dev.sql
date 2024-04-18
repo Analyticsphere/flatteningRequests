@@ -101,6 +101,8 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.bounceReason'), '\"', '') AS bounceReason,
 	REPLACE(JSON_QUERY(row,'$.bounceStatus'), '\"', '') AS bounceStatus,
 	REPLACE(JSON_QUERY(row,'$.category'), '\"', '') AS category,
+	REPLACE(JSON_QUERY(row,'$.clickDate'), '\"', '') AS clickDate,
+	REPLACE(JSON_QUERY(row,'$.clickStatus'), '\"', '') AS clickStatus,
 	REPLACE(JSON_QUERY(row,'$.deferred_date'), '\"', '') AS deferred_date,
 	REPLACE(JSON_QUERY(row,'$.deferred_status'), '\"', '') AS deferred_status,
 	REPLACE(JSON_QUERY(row,'$.deferred_timestamp'), '\"', '') AS deferred_timestamp,

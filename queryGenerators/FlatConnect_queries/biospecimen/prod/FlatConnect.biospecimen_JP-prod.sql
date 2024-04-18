@@ -85,7 +85,6 @@ CREATE OR REPLACE TABLE
   WITH
     json_data AS (
     SELECT
-      Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       `nih-nci-dceg-connect-prod-6d04.Connect.biospecimen` AS input_row -- source_table
@@ -93,7 +92,6 @@ CREATE OR REPLACE TABLE
     flattened_data AS (
     SELECT
       	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
-	REPLACE(JSON_QUERY(row,'$.d_137401245'), '\"', '') AS d_137401245,
 	REPLACE(JSON_QUERY(row,'$.d_143615646.d_248868659.d_283900611'), '\"', '') AS d_143615646_d_248868659_d_283900611,
 	REPLACE(JSON_QUERY(row,'$.d_143615646.d_248868659.d_313097539'), '\"', '') AS d_143615646_d_248868659_d_313097539,
 	REPLACE(JSON_QUERY(row,'$.d_143615646.d_248868659.d_453343022'), '\"', '') AS d_143615646_d_248868659_d_453343022,
@@ -447,7 +445,8 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.d_973670172.d_926457119'), '\"', '') AS d_973670172_d_926457119,
 	REPLACE(JSON_QUERY(row,'$.id'), '\"', '') AS id,
 	REPLACE(JSON_QUERY(row,'$.siteAcronym'), '\"', '') AS siteAcronym,
-	REPLACE(JSON_QUERY(row,'$.token'), '\"', '') AS token -- selects
+	REPLACE(JSON_QUERY(row,'$.token'), '\"', '') AS token,
+	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid -- selects
     FROM
       json_data,
       UNNEST(body) AS ROW )

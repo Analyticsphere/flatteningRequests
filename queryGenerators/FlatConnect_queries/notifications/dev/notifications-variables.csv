@@ -8,6 +8,8 @@ bounceDate
 bounceReason
 bounceStatus
 category
+clickDate
+clickStatus
 deferred_date
 deferred_status
 deferred_timestamp

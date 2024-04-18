@@ -92,7 +92,6 @@ CREATE OR REPLACE TABLE
     flattened_data AS (
     SELECT
       	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
-	REPLACE(JSON_QUERY(row,'$.d_101010101'), '\"', '') AS d_101010101,
 	REPLACE(JSON_QUERY(row,'$.d_137401245'), '\"', '') AS d_137401245,
 	REPLACE(JSON_QUERY(row,'$.d_194252513'), '\"', '') AS d_194252513,
 	REPLACE(JSON_QUERY(row,'$.d_221592017'), '\"', '') AS d_221592017,

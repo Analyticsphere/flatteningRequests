@@ -7,8 +7,8 @@
 -- Repository: https://github.com/Analyticsphere/flatteningRequests
 -- Relavent functions: generate_flattening_query.R
 -- 
--- source_table: nih-nci-dceg-connect-dev.Connect.cancerOccurrence
--- destination table: nih-nci-dceg-connect-dev.FlatConnect.cancerOccurrence_JP -- notes
+-- source_table: nih-nci-dceg-connect-dev.Connect.menstrualSurvey_v1
+-- destination table: nih-nci-dceg-connect-dev.FlatConnect.menstrualSurvey_v1_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -79,15 +79,15 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  `nih-nci-dceg-connect-dev.FlatConnect.cancerOccurrence_JP` -- destination_table
-  OPTIONS (description="Source table: Connect.cancerOccurrence; Scheduled Query: FlatConnect.cancerOccurrence_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/cancerOccurrence; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.cancerOccurrence.") -- table_description
+  `nih-nci-dceg-connect-dev.FlatConnect.menstrualSurvey_v1_JP` -- destination_table
+  OPTIONS (description="Source table: menstrualSurvey_v1; Scheduled Query: FlatConnect.menstrualSurvey_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/menstrualSurvey_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.menstrualSurvey_v1.") -- table_description
   AS (
   WITH
     json_data AS (
     SELECT
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
-      `nih-nci-dceg-connect-dev.Connect.cancerOccurrence` AS input_row -- source_table
+      `nih-nci-dceg-connect-dev.Connect.menstrualSurvey_v1` AS input_row -- source_table
     WHERE Connect_ID IS NOT NULL), -- filter_statement
     flattened_data AS (
     SELECT

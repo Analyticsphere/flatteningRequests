@@ -7,8 +7,8 @@
 -- Repository: https://github.com/Analyticsphere/flatteningRequests
 -- Relavent functions: generate_flattening_query.R
 -- 
--- source_table: nih-nci-dceg-connect-dev.Connect.cancerOccurrence
--- destination table: nih-nci-dceg-connect-dev.FlatConnect.cancerOccurrence_JP -- notes
+-- source_table: nih-nci-dceg-connect-dev.Connect.covid19Survey_v1
+-- destination table: nih-nci-dceg-connect-dev.FlatConnect.covid19Survey_v1_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -64,8 +64,8 @@ CREATE TEMP FUNCTION
       inputConceptIdList = inputConceptIdList.map(v => +v);
       for (let cid of arraysToBeFlattened[arrPath]) {
         if (inputConceptIdList.indexOf(cid) >= 0) {
-          currObj["d_" + cid] = 1;
-        } else currObj["d_" + cid] = 0;
+          currObj["D_" + cid] = 1;
+        } else currObj["D_" + cid] = 0;
       }
       setNestedObjectValue(row, arrPath, currObj);
     }
@@ -79,19 +79,21 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  `nih-nci-dceg-connect-dev.FlatConnect.cancerOccurrence_JP` -- destination_table
-  OPTIONS (description="Source table: Connect.cancerOccurrence; Scheduled Query: FlatConnect.cancerOccurrence_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/cancerOccurrence; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.cancerOccurrence.") -- table_description
+  `nih-nci-dceg-connect-dev.FlatConnect.covid19Survey_v1_JP` -- destination_table
+  OPTIONS (description="Source table: Connect.covid19Survey_v1; Scheduled Query: FlatConnect.bioSurvey_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/covid19Survey_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.covid19Survey_v1.") -- table_description
   AS (
   WITH
     json_data AS (
     SELECT
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
-      `nih-nci-dceg-connect-dev.Connect.cancerOccurrence` AS input_row -- source_table
+      `nih-nci-dceg-connect-dev.Connect.covid19Survey_v1` AS input_row -- source_table
     WHERE Connect_ID IS NOT NULL), -- filter_statement
     flattened_data AS (
     SELECT
-      	REPLACE(JSON_QUERY(row,'$.'), '\"', '') AS  -- selects
+      	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
+	REPLACE(JSON_QUERY(row,'$.d_931332817'), '\"', '') AS d_931332817,
+	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid -- selects
     FROM
       json_data,
       UNNEST(body) AS ROW )

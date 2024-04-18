@@ -36,8 +36,8 @@ tables   <- list(
   prom = "Connect.promis_v1")
 
 ########### DEFINE PARAMETERS ##################################################
-tiers_to_update    <- 'prod' # GCP tiers to update sch. queries for
-table              <- tables$m1v1 # table to be flattened (can only select one)
+tiers_to_update    <- 'dev' # GCP tiers to update sch. queries for
+table              <- tables$prom # table to be flattened (can only select one)
 run_now            <- TRUE # Set to true if you want to both sch. and run query
 ################################################################################
 
