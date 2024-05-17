@@ -44,9 +44,8 @@ flowchart LR
     classDef function fill:#ffc,stroke:#333,stroke-width:2px;
     classDef file fill:#cfc,stroke:#333,stroke-width:2px;
     classDef subgraphTitle font-size:24px;
-![](flattening_pipeline_diagram.png)
 ```
-
+![](flattening_pipeline_diagram.png)
 ## queryGenerators
 
 These query generators and the associated input files were originally written by Warren Lu and are now maintained by Jake Peters.
