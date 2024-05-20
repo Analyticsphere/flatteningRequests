@@ -25,35 +25,35 @@ projects <- list(dev  = "nih-nci-dceg-connect-dev",
                  prod = "nih-nci-dceg-connect-prod-6d04")
 # BQ Source Tables
 tables   <- list(
-  b    = "Connect.biospecimen",          bs      = "Connect.bioSurvey_v1", 
-  cbs  = "Connect.clinicalBioSurvey_v1", ms      = "Connect.menstrualSurvey_v1",
-  m1v1 = "Connect.module1_v1",           m1v2    = "Connect.module1_v2",
-  m2v1 = "Connect.module2_v1",           m2v2    = "Connect.module2_v2",
-  m3   = "Connect.module3_v1",           m4      = "Connect.module4_v1",
-  p    = "Connect.participants",         cs19    = "Connect.covid19Survey_v1",
-  n    = "Connect.notifications",        k       = "Connect.kitAssembly",
-  mw   = "Connect.mouthwash_v1",         co      = "Connect.cancerOccurrence",
-  prom = "Connect.promis_v1")
+  b    = "biospecimen",          bs   = "bioSurvey_v1", 
+  cbs  = "clinicalBioSurvey_v1", ms   = "menstrualSurvey_v1",
+  m1v1 = "module1_v1",           m1v2 = "module1_v2",
+  m2v1 = "module2_v1",           m2v2 = "module2_v2",
+  m3   = "module3_v1",           m4   = "module4_v1",
+  p    = "participants",         cs19 = "covid19Survey_v1",
+  n    = "notifications",        k    = "kitAssembly",
+  mw   = "mouthwash_v1",         co   = "cancerOccurrence",
+  prom = "promis_v1")
 
 ########### DEFINE PARAMETERS ##################################################
-tiers_to_update    <- 'dev' # GCP tiers to update sch. queries for
-table              <- tables$b # table to be flattened (can only select one)
+tier    <- 'prod' # GCP tiers to update sch. queries for
+table              <- tables$prom # table to be flattened (can only select one)
 run_now            <- TRUE # Set to true if you want to both sch. and run query
 ################################################################################
 
 # Authenticate to BigQuery
-project <- projects[[tiers_to_update]] # project to get schema from (can only select one)
+project <- projects[[tier]] # project to get schema from (can only select one)
 bigrquery::bq_auth()
 
 # Generate file names given table name
-module        <- strsplit(table, split=".", fixed=TRUE)[[1]][2]
-query_folder  <- paste0("queryGenerators/FlatConnect_queries/")
-module_folder <- paste0(query_folder, module,"/",tiers_to_update,"/")
-query_config  <- jsonlite::fromJSON(paste0(module_folder,"query-config.json"))
+dataset   <- "Connect"
+query_folder <- "query_configs/"
+table_folder <- file.path(query_folder, table, tier, "/")
+query_config <- jsonlite::fromJSON(file.path(table_folder, "query-config.json"))
 query_config
 
 # Create temporary directory to store temp files in
-tmp_folder    <- paste0(module_folder,"tmp/")
+tmp_folder    <- paste0(table_folder,"tmp/")
 if (!dir.exists(tmp_folder)) {dir.create(tmp_folder)}
 ```
 
@@ -61,16 +61,11 @@ if (!dir.exists(tmp_folder)) {dir.create(tmp_folder)}
 
 ```{r}
 # Name schema files
-schema_json  <- paste0(tmp_folder,module,"-schema.json")
-schema_csv   <- paste0(tmp_folder,module,"-schema.csv")
-
-# Split the string using "."
-split_string <- strsplit(table, ".", fixed = TRUE)
-dataset_id   <- split_string[[1]][1]
-table_id     <- split_string[[1]][2]
+schema_json  <- paste0(tmp_folder,table,"-schema.json")
+schema_csv   <- paste0(tmp_folder,table,"-schema.csv")
 
 # Construct bq_table object
-bq_table     <- bq_table(project, dataset_id, table_id)
+bq_table     <- bq_table(project, dataset, table)
 
 # Retrive the metadata for the table (a list containing the schema)
 metadata     <- bigrquery::bq_table_meta(bq_table)
@@ -110,8 +105,8 @@ Note that only leaf variables are considered.
 
 ```{r}
 # Generate the query from the schema in the form of a set of variables.csv and lists.json files.
-out_json <- paste0(tmp_folder, module, "-lists-from-schema.json")
-out_csv  <- paste0(tmp_folder, module, "-variables-from-schema.csv")
+out_json <- paste0(tmp_folder, table, "-lists-from-schema.json")
+out_csv  <- paste0(tmp_folder, table, "-variables-from-schema.csv")
 
 # Get variables and lists files from schema
 filter_vars_from_schema(project,table,schema_csv,out_csv,out_json)
@@ -126,10 +121,10 @@ not present in the BQ tables yet. It also allows manual changes to be preserved.
 
 ```{r}
 # -lists.json file from parent folder
-old_lists_json <- paste0(module_folder, module, "-lists.json"); old_lists_json
+old_lists_json <- paste0(table_folder, table, "-lists.json"); old_lists_json
 
 # name combined json file
-union_lists_json <- paste0(tmp_folder, module, "-lists-union.json"); union_lists_json
+union_lists_json <- paste0(tmp_folder, table, "-lists-union.json"); union_lists_json
 
 # Get union of old_lists_json and out_json
 union_json_str <- get_union_of_json_arrays(old_lists_json, out_json, union_lists_json)
@@ -143,8 +138,8 @@ exclude any duplicates.
 
 ```{r}
 # Get union of variable files 
-old_vars_csv        <- paste0(module_folder, module, "-variables.csv")
-union_vars_csv      <- paste0(tmp_folder, module, "-vars-union.csv"); union_vars_csv
+old_vars_csv        <- paste0(table_folder, table, "-variables.csv")
+union_vars_csv      <- paste0(tmp_folder, table, "-vars-union.csv"); union_vars_csv
 union_var_chr_array <- get_union_of_variable_csv(old_vars_csv, out_csv, union_vars_csv)
 ```
 
@@ -170,13 +165,13 @@ vars_w_exceptions <- get_vars_with_specified_vals(union_lists_json,
 vars_w_exceptions
 
 # Remove list of variables with exceptions from the data set
-new_lists_json    <- paste0(tmp_folder, module, "-lists-union-mod.json")
+new_lists_json    <- paste0(tmp_folder, table, "-lists-union-mod.json")
 updated_variables <- remove_vars_from_json(union_lists_json, 
                                            vars_w_exceptions,
                                            output_filename = new_lists_json) 
 
 # Add list of variables with exceptions to \*-variables\*.csv
-new_vars_csv      <- paste0(tmp_folder, module, "-variables-union-mod.csv")
+new_vars_csv      <- paste0(tmp_folder, table, "-variables-union-mod.csv")
 add_novel_vars_to_csv(vars_w_exceptions, union_vars_csv, out_file = new_vars_csv)
 ```
 
@@ -215,23 +210,26 @@ unlink(tmp_folder, recursive=TRUE)
 ```{r}
 
 source('gcp_query_tools/r/generate_flattening_query.R')
-for (tier in tiers_to_update){
-  print(tier)
-    query <- 
-      generate_flattening_query(
-        source_table      = query_config$data_source[tier],
-        destination_table = glue("{project}.{query_config$output_table}"),
-        variable_csv      = old_vars_csv,
-        arrays_json       = old_lists_json,
-        table_description = query_config$table_description,
-        filter_statement  = query_config$filter_statement,
-        var_prefix        = query_config$variable_prefix,
-        order_statement   = query_config$order_statement)
-    query_file_path <- paste0(module_folder,query_config$output_table,"-",tier,".sql") %>% print()
-    fileConn <- file(query_file_path)
-    writeLines(query, fileConn)
-    close(fileConn)
-}
+
+print(tier)
+query <-
+   generate_flattening_query(
+     source_table      = query_config$data_source[tier],
+     destination_table = glue("{project}.{query_config$output_table}"),
+     variable_csv      = old_vars_csv,
+     arrays_json       = old_lists_json,
+     table_description = query_config$table_description,
+     filter_statement  = query_config$filter_statement,
+     var_prefix        = query_config$variable_prefix,
+     order_statement   = query_config$order_statement
+   )
+
+query_file_path <- 
+  paste0(table_folder, query_config$output_table, "-", tier, ".sql") %>% 
+  print()
+fileConn <- file(query_file_path)
+writeLines(query, fileConn)
+close(fileConn)
 
 ```
 
@@ -241,11 +239,10 @@ for (tier in tiers_to_update){
 source('gcp_query_tools/r/update_scheduled_query.R')
 
 # Extract the resource name
-resource_name <- query_config$resource_name[tiers_to_update]
+resource_name <- query_config$resource_name[tier]
 
 # Extract the transfer configuration ID
-transfer_config_id <- 
-  tail(strsplit(resource_name[[tiers_to_update]], "/")[[1]], 1)
+transfer_config_id <- tail(strsplit(resource_name[[tier]], "/")[[1]], 1)
 
 # Print the transfer configuration ID
 print(transfer_config_id)

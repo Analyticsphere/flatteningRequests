@@ -85,7 +85,6 @@ CREATE OR REPLACE TABLE
   WITH
     json_data AS (
     SELECT
-      Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       `nih-nci-dceg-connect-prod-6d04.Connect.promis_v1` AS input_row -- source_table
@@ -139,8 +138,7 @@ CREATE OR REPLACE TABLE
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
    -- order statement
