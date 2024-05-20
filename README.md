@@ -22,7 +22,7 @@ flowchart LR
     subgraph LOC ["flatten.Rmd"]
         FETCH("fetch_schema()"):::function
         SCH_CSV[/"schema.csv"/]:::file
-        FILT("sort_vars()"):::function
+        FILT("sort_variables()"):::function
         ARR[/arrays.json/]:::file
         VAR[/variables.csv/]:::file
         GEN("generate_queries()"):::function
