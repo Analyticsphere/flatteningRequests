@@ -49,8 +49,9 @@ flowchart LR
 ## queryGenerators
 
 `flatten.Rmd` is an R notebook that simplifies the process of flattening the Connect4Cancer source tables:
-1. Retrieves the schema of the source table using the BigQuery API.
-2. Converts the schema from JSON to CSV.
-3. Sorts the variables in the source table by their data structure: arrays and non-array variables and stores them in appropriate files.
-4. Generates SQL queries for each environment.
-5. Updates the Scheduled Query which generates the flattened table daily.
+1. Retrieve the schema of the source table using the BigQuery API.
+2. Convert the schema from JSON to CSV.
+3. Sort the variables in the source table by their data structure: arrays and non-array variables and stores them in appropriate files.
+4. Generate SQL queries for each environment.
+5. Update the Scheduled Query which generates the flattened table daily.
+
