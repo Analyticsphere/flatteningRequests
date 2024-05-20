@@ -55,3 +55,6 @@ flowchart LR
 4. Generate SQL queries for each environment.
 5. Update the Scheduled Query which generates the flattened table daily.
 
+> **Notes:**
+> - The user can ignore the `bash/`, `python/` and `js/` directories which store legacy code that could be referenced later.
+> - The core functions of this workflow are in teh `r/` directory
