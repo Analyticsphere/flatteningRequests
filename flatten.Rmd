@@ -41,8 +41,8 @@ tables   <- list(
   prom = "promis_v1")
 
 ########### DEFINE PARAMETERS ##################################################
-tier    <- 'prod' # GCP tiers to update sch. queries for
-table   <- tables$prom # table to be flattened (can only select one)
+tier    <- 'dev' # GCP tiers to update sch. queries for
+table   <- tables$p # table to be flattened (can only select one)
 run_now <- TRUE # Set to true if you want to both sch. and run query
 ################################################################################
 
@@ -51,9 +51,9 @@ project <- projects[[tier]] # project to get schema from (can only select one)
 bigrquery::bq_auth()
 
 # Generate file names given table name
-dataset   <- "Connect"
-query_folder <- "query_configs/"
-table_folder <- file.path(query_folder, table, tier, "/")
+dataset      <- "Connect"
+query_folder <- "query_configs"
+table_folder <- file.path(query_folder, table, tier)
 query_config <- jsonlite::fromJSON(file.path(table_folder, "query-config.json"))
 query_config
 
@@ -113,7 +113,8 @@ out_json <- file.path(tmp_folder, paste0(table, "-lists-from-schema.json"))
 out_csv  <- file.path(tmp_folder, paste0(table, "-variables-from-schema.csv"))
 
 # Get variables and lists files from schema
-filter_vars_from_schema(project,table,schema_csv,out_csv,out_json)
+full_table_name <- glue("{dataset}.{table}")
+filter_vars_from_schema(project,full_table_name,schema_csv,out_csv,out_json)
 ```
 
 ## 4. Combine json and csv files prior to generating query
@@ -135,7 +136,6 @@ union_lists_json
 # Get union of old_lists_json and out_json
 union_json_str <- get_union_of_json_arrays(old_lists_json, out_json, union_lists_json)
 union_json_str
-
 ```
 
 We also need to combine the variables.csv file that was generated from the
