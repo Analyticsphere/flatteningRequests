@@ -27,19 +27,14 @@
 #' @import bigrquery
 get_bq_table_schema <- function(project_id, dataset_id, table_id, as_json = TRUE) {
 
-    # Construct BQ table object
-  bq_table   <- bq_table(project_id, dataset_id, table_id) 
+  # Construct BQ table object
+  bq_table <- bq_table(project_id, dataset_id, table_id) 
   
-  # Get "fields"
-  fields <- bigrquery::bq_table_fields(bq_table)
-  # head(fields)
+  # Retrive the metadata for the table (a list containing the schema)
+  metadata <- bigrquery::bq_table_meta(bq_table)
   
-  # Get table "metadata" and "schema"
-  schema          <- bigrquery::bq_table_meta(bq_table, fields = schema)
-  schema          <- metadata$schema
-  metadata$schema <- NULL # remove the schema from this list
-  # head(metadata)
-  # head(schema)
+  # Simplify the structure of the schema so that it matches that returned by `bq` CLI
+  schema <- metadata$schema$fields
   
   # Write the schema to a JSON string
   schema_as_json <- jsonlite::toJSON(schema, pretty = TRUE, auto_unbox = TRUE)
