@@ -14,7 +14,7 @@
    "resource_name": {
       "dev": "projects/1061430463455/locations/us/transferConfigs/65641a13-0000-2938-969c-f403045efc18",
       "stg": "projects/810867956467/locations/us/transferConfigs/653c166e-0000-2a2e-8317-f403045fbb1a",
-      "prod": ""
+      "prod": "projects/155089172944/locations/us/transferConfigs/654af770-0000-288b-af10-f40304366444"
    },
    "table_description": "Source table: Connect.notifications; Scheduled Query: FlatConnect.notifications_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/notifications; Team: Analytics; Maintainer: Jake Peters; Super Users: Jing, Kelsey; Notes: This table is a flattened version of Connect.notifications. It is used for QAQC/metrics purposes."
 }

@@ -85,7 +85,6 @@ CREATE OR REPLACE TABLE
   WITH
     json_data AS (
     SELECT
-      Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       `nih-nci-dceg-connect-stg-5519.Connect.notifications` AS input_row -- source_table
@@ -93,15 +92,26 @@ CREATE OR REPLACE TABLE
     flattened_data AS (
     SELECT
       	REPLACE(JSON_QUERY(row,'$.attempt'), '\"', '') AS attempt,
+	REPLACE(JSON_QUERY(row,'$.bounceDate'), '\"', '') AS bounceDate,
+	REPLACE(JSON_QUERY(row,'$.bounceReason'), '\"', '') AS bounceReason,
+	REPLACE(JSON_QUERY(row,'$.bounceStatus'), '\"', '') AS bounceStatus,
 	REPLACE(JSON_QUERY(row,'$.category'), '\"', '') AS category,
+	REPLACE(JSON_QUERY(row,'$.deferredDate'), '\"', '') AS deferredDate,
+	REPLACE(JSON_QUERY(row,'$.deferredStatus'), '\"', '') AS deferredStatus,
 	REPLACE(JSON_QUERY(row,'$.delivered_date'), '\"', '') AS delivered_date,
 	REPLACE(JSON_QUERY(row,'$.delivered_status'), '\"', '') AS delivered_status,
 	REPLACE(JSON_QUERY(row,'$.delivered_timestamp'), '\"', '') AS delivered_timestamp,
 	REPLACE(JSON_QUERY(row,'$.deliveredDate'), '\"', '') AS deliveredDate,
+	REPLACE(JSON_QUERY(row,'$.deliveredStatus'), '\"', '') AS deliveredStatus,
+	REPLACE(JSON_QUERY(row,'$.droppedDate'), '\"', '') AS droppedDate,
+	REPLACE(JSON_QUERY(row,'$.droppedReason'), '\"', '') AS droppedReason,
+	REPLACE(JSON_QUERY(row,'$.droppedStatus'), '\"', '') AS droppedStatus,
 	REPLACE(JSON_QUERY(row,'$.email'), '\"', '') AS email,
 	REPLACE(JSON_QUERY(row,'$.errorCode'), '\"', '') AS errorCode,
 	REPLACE(JSON_QUERY(row,'$.errorMessage'), '\"', '') AS errorMessage,
+	REPLACE(JSON_QUERY(row,'$.failedDate'), '\"', '') AS failedDate,
 	REPLACE(JSON_QUERY(row,'$.id'), '\"', '') AS id,
+	REPLACE(JSON_QUERY(row,'$.language'), '\"', '') AS language,
 	REPLACE(JSON_QUERY(row,'$.messageSid'), '\"', '') AS messageSid,
 	REPLACE(JSON_QUERY(row,'$.notification.body'), '\"', '') AS notification_body,
 	REPLACE(JSON_QUERY(row,'$.notification.time'), '\"', '') AS notification_time,
@@ -112,20 +122,28 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.open_date'), '\"', '') AS open_date,
 	REPLACE(JSON_QUERY(row,'$.open_status'), '\"', '') AS open_status,
 	REPLACE(JSON_QUERY(row,'$.open_timestamp'), '\"', '') AS open_timestamp,
+	REPLACE(JSON_QUERY(row,'$.openDate'), '\"', '') AS openDate,
+	REPLACE(JSON_QUERY(row,'$.openStatus'), '\"', '') AS openStatus,
 	REPLACE(JSON_QUERY(row,'$.phone'), '\"', '') AS phone,
 	REPLACE(JSON_QUERY(row,'$.processed_date'), '\"', '') AS processed_date,
 	REPLACE(JSON_QUERY(row,'$.processed_status'), '\"', '') AS processed_status,
 	REPLACE(JSON_QUERY(row,'$.processed_timestamp'), '\"', '') AS processed_timestamp,
+	REPLACE(JSON_QUERY(row,'$.processedDate'), '\"', '') AS processedDate,
+	REPLACE(JSON_QUERY(row,'$.processedStatus'), '\"', '') AS processedStatus,
 	REPLACE(JSON_QUERY(row,'$.read'), '\"', '') AS read,
 	REPLACE(JSON_QUERY(row,'$.status'), '\"', '') AS status,
 	REPLACE(JSON_QUERY(row,'$.token'), '\"', '') AS token,
-	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid -- selects
+	REPLACE(JSON_QUERY(row,'$.twilioNotificationSid'), '\"', '') AS twilioNotificationSid,
+	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid,
+	REPLACE(JSON_QUERY(row,'$.undeliveredDate'), '\"', '') AS undeliveredDate,
+	REPLACE(JSON_QUERY(row,'$.unsubscribeDate'), '\"', '') AS unsubscribeDate,
+	REPLACE(JSON_QUERY(row,'$.unsubscribeStatus'), '\"', '') AS unsubscribeStatus,
+	REPLACE(JSON_QUERY(row,'$.updatedDate'), '\"', '') AS updatedDate -- selects
     FROM
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
    -- order statement

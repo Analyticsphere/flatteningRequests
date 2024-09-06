@@ -14,7 +14,7 @@
     "resource_name": {
       "dev":  "projects/1061430463455/locations/us/transferConfigs/656f866f-0000-28d6-b5b0-14223bb04126",
       "stg":  "projects/810867956467/locations/us/transferConfigs/6583c848-0000-290e-9743-14223bc13166",
-      "prod": ""
+      "prod": "projects/155089172944/locations/us/transferConfigs/670244ed-0000-205a-a164-14223bb238c2"
     },
     "table_description": "Source table: Connect.mouthwash_v1; Scheduled Query: FlatConnect.mouthwash_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/mouthwash_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.mouthwash_v1."
 }

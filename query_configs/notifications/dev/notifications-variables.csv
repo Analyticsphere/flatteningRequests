@@ -13,6 +13,8 @@ clickStatus
 deferred_date
 deferred_status
 deferred_timestamp
+deferredDate
+deferredStatus
 delivered_date
 delivered_status
 delivered_timestamp
@@ -23,6 +25,9 @@ dropped_date
 dropped_reason
 dropped_status
 dropped_timestamp
+droppedDate
+droppedReason
+droppedStatus
 email
 error_code
 error_message
@@ -31,6 +36,7 @@ errorMessage
 failed_date
 failedDate
 id
+language
 messageSid
 notification.body
 notification.time
@@ -55,8 +61,12 @@ read
 sent_date
 status
 token
+twilioNotificationSid
 uid
 undeliveredDate
 unsubscribe_date
 unsubscribe_status
 unsubscribe_timestamp
+unsubscribeDate
+unsubscribeStatus
+updatedDate

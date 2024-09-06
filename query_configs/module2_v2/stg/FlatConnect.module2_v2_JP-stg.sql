@@ -8,7 +8,7 @@
 -- Relavent functions: generate_flattening_query.R
 -- 
 -- source_table: nih-nci-dceg-connect-stg-5519.Connect.module2_v2
--- destination table: FlatConnect.module2_v2_JP -- notes
+-- destination table: nih-nci-dceg-connect-stg-5519.FlatConnect.module2_v2_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -392,13 +392,12 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  FlatConnect.module2_v2_JP -- destination_table
+  `nih-nci-dceg-connect-stg-5519.FlatConnect.module2_v2_JP` -- destination_table
   OPTIONS (description="Source table: Connect.module2_v2; Scheduled Query: FlatConnect.module2_v2_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/module2_v2; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.module2_v2.") -- table_description
   AS (
   WITH
     json_data AS (
     SELECT
-      Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       `nih-nci-dceg-connect-stg-5519.Connect.module2_v2` AS input_row -- source_table
@@ -535,6 +534,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_278277373_11_11'), '\"', '') AS D_278277373_11_11,
 	REPLACE(JSON_QUERY(row,'$.D_278277373_12_12'), '\"', '') AS D_278277373_12_12,
 	REPLACE(JSON_QUERY(row,'$.D_278277373_13_13'), '\"', '') AS D_278277373_13_13,
+	REPLACE(JSON_QUERY(row,'$.D_278277373_14_14'), '\"', '') AS D_278277373_14_14,
 	REPLACE(JSON_QUERY(row,'$.D_278277373_15_15'), '\"', '') AS D_278277373_15_15,
 	REPLACE(JSON_QUERY(row,'$.D_278277373_19_19'), '\"', '') AS D_278277373_19_19,
 	REPLACE(JSON_QUERY(row,'$.D_278277373_2_2'), '\"', '') AS D_278277373_2_2,
@@ -549,6 +549,10 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_278277373_8_8'), '\"', '') AS D_278277373_8_8,
 	REPLACE(JSON_QUERY(row,'$.D_278277373_9_9'), '\"', '') AS D_278277373_9_9,
 	REPLACE(JSON_QUERY(row,'$.D_281494550_1_1'), '\"', '') AS D_281494550_1_1,
+	REPLACE(JSON_QUERY(row,'$.D_281494550_12_12'), '\"', '') AS D_281494550_12_12,
+	REPLACE(JSON_QUERY(row,'$.D_281494550_13_13'), '\"', '') AS D_281494550_13_13,
+	REPLACE(JSON_QUERY(row,'$.D_281494550_14_14'), '\"', '') AS D_281494550_14_14,
+	REPLACE(JSON_QUERY(row,'$.D_281494550_15_15'), '\"', '') AS D_281494550_15_15,
 	REPLACE(JSON_QUERY(row,'$.D_281494550_18_18'), '\"', '') AS D_281494550_18_18,
 	REPLACE(JSON_QUERY(row,'$.D_281494550_2_2'), '\"', '') AS D_281494550_2_2,
 	REPLACE(JSON_QUERY(row,'$.D_281494550_3_3'), '\"', '') AS D_281494550_3_3,
@@ -607,6 +611,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_391951010_20_20'), '\"', '') AS D_391951010_20_20,
 	REPLACE(JSON_QUERY(row,'$.D_391951010_21_21'), '\"', '') AS D_391951010_21_21,
 	REPLACE(JSON_QUERY(row,'$.D_391951010_22_22'), '\"', '') AS D_391951010_22_22,
+	REPLACE(JSON_QUERY(row,'$.D_391951010_25_25'), '\"', '') AS D_391951010_25_25,
 	REPLACE(JSON_QUERY(row,'$.D_391951010_3_3'), '\"', '') AS D_391951010_3_3,
 	REPLACE(JSON_QUERY(row,'$.D_391951010_4_4'), '\"', '') AS D_391951010_4_4,
 	REPLACE(JSON_QUERY(row,'$.D_391951010_5_5'), '\"', '') AS D_391951010_5_5,
@@ -787,6 +792,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_596961796.D_101310722'), '\"', '') AS D_596961796_D_101310722,
 	REPLACE(JSON_QUERY(row,'$.D_596961796.D_596961796'), '\"', '') AS D_596961796_D_596961796,
 	REPLACE(JSON_QUERY(row,'$.D_597869478.D_434243220'), '\"', '') AS D_597869478_D_434243220,
+	REPLACE(JSON_QUERY(row,'$.D_597869478.D_597869478_num'), '\"', '') AS D_597869478_D_597869478_num,
 	REPLACE(JSON_QUERY(row,'$.D_597869478.D_970604592'), '\"', '') AS D_597869478_D_970604592,
 	REPLACE(JSON_QUERY(row,'$.D_603209609'), '\"', '') AS D_603209609,
 	REPLACE(JSON_QUERY(row,'$.D_604086099.D_434243220'), '\"', '') AS D_604086099_D_434243220,
@@ -958,6 +964,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_779052408_8_8'), '\"', '') AS D_779052408_8_8,
 	REPLACE(JSON_QUERY(row,'$.D_779052408_9_9'), '\"', '') AS D_779052408_9_9,
 	REPLACE(JSON_QUERY(row,'$.D_779165920'), '\"', '') AS D_779165920,
+	REPLACE(JSON_QUERY(row,'$.d_784119588'), '\"', '') AS d_784119588,
 	REPLACE(JSON_QUERY(row,'$.D_787591805.D_152773041'), '\"', '') AS D_787591805_D_152773041,
 	REPLACE(JSON_QUERY(row,'$.D_787591805.D_249341444'), '\"', '') AS D_787591805_D_249341444,
 	REPLACE(JSON_QUERY(row,'$.D_787591805.D_690018400'), '\"', '') AS D_787591805_D_690018400,
@@ -1119,6 +1126,9 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_968816827_20_20'), '\"', '') AS D_968816827_20_20,
 	REPLACE(JSON_QUERY(row,'$.D_968816827_21_21'), '\"', '') AS D_968816827_21_21,
 	REPLACE(JSON_QUERY(row,'$.D_968816827_22_22'), '\"', '') AS D_968816827_22_22,
+	REPLACE(JSON_QUERY(row,'$.D_968816827_23_23'), '\"', '') AS D_968816827_23_23,
+	REPLACE(JSON_QUERY(row,'$.D_968816827_24_24'), '\"', '') AS D_968816827_24_24,
+	REPLACE(JSON_QUERY(row,'$.D_968816827_25_25'), '\"', '') AS D_968816827_25_25,
 	REPLACE(JSON_QUERY(row,'$.D_968816827_3_3'), '\"', '') AS D_968816827_3_3,
 	REPLACE(JSON_QUERY(row,'$.D_968816827_4_4'), '\"', '') AS D_968816827_4_4,
 	REPLACE(JSON_QUERY(row,'$.D_968816827_5_5'), '\"', '') AS D_968816827_5_5,
@@ -1155,8 +1165,7 @@ CREATE OR REPLACE TABLE
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
    -- order statement

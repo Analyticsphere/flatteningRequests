@@ -8,7 +8,7 @@
 -- Relavent functions: generate_flattening_query.R
 -- 
 -- source_table: nih-nci-dceg-connect-stg-5519.Connect.module1_v2
--- destination table: FlatConnect.module1_v2_JP -- notes
+-- destination table: nih-nci-dceg-connect-stg-5519.FlatConnect.module1_v2_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -882,17 +882,16 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  FlatConnect.module1_v2_JP -- destination_table
+  `nih-nci-dceg-connect-stg-5519.FlatConnect.module1_v2_JP` -- destination_table
   OPTIONS (description="Source table: Connect.module1_v2; Scheduled Query: FlatConnect.module1_v2_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/module1_v2; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.module1_v2.") -- table_description
   AS (
   WITH
     json_data AS (
     SELECT
-      Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       `nih-nci-dceg-connect-stg-5519.Connect.module1_v2` AS input_row -- source_table
-    WHERE Connect_ID IS NOT NULL), -- filter_statement
+    ), -- filter_statement
     flattened_data AS (
     SELECT
       	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
@@ -2499,6 +2498,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_774774759_3_3.D_206625031_3_3'), '\"', '') AS D_774774759_3_3_D_206625031_3_3,
 	REPLACE(JSON_QUERY(row,'$.D_774774759_3_3.D_206625031_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3'), '\"', '') AS D_774774759_3_3_D_206625031_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3_3,
 	REPLACE(JSON_QUERY(row,'$.D_783167257'), '\"', '') AS D_783167257,
+	REPLACE(JSON_QUERY(row,'$.d_784119588'), '\"', '') AS d_784119588,
 	REPLACE(JSON_QUERY(row,'$.D_784967158'), '\"', '') AS D_784967158,
 	REPLACE(JSON_QUERY(row,'$.D_785019074.D_206625031'), '\"', '') AS D_785019074_D_206625031,
 	REPLACE(JSON_QUERY(row,'$.D_785019074.D_261863326'), '\"', '') AS D_785019074_D_261863326,
@@ -2717,6 +2717,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_845219872_1_1.D_206625031_1_1'), '\"', '') AS D_845219872_1_1_D_206625031_1_1,
 	REPLACE(JSON_QUERY(row,'$.D_845219872_1_1.D_261863326_1_1'), '\"', '') AS D_845219872_1_1_D_261863326_1_1,
 	REPLACE(JSON_QUERY(row,'$.D_845219872_2_2.D_206625031_2_2'), '\"', '') AS D_845219872_2_2_D_206625031_2_2,
+	REPLACE(JSON_QUERY(row,'$.D_845219872_2_2.D_261863326_2_2'), '\"', '') AS D_845219872_2_2_D_261863326_2_2,
 	REPLACE(JSON_QUERY(row,'$.D_845219872_3_3.D_206625031_3_3'), '\"', '') AS D_845219872_3_3_D_206625031_3_3,
 	REPLACE(JSON_QUERY(row,'$.D_845219872_8_8.D_206625031_8_8'), '\"', '') AS D_845219872_8_8_D_206625031_8_8,
 	REPLACE(JSON_QUERY(row,'$.D_846786840.D_206625031'), '\"', '') AS D_846786840_D_206625031,
@@ -3094,8 +3095,7 @@ CREATE OR REPLACE TABLE
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
    -- order statement

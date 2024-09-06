@@ -106,6 +106,8 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.deferred_date'), '\"', '') AS deferred_date,
 	REPLACE(JSON_QUERY(row,'$.deferred_status'), '\"', '') AS deferred_status,
 	REPLACE(JSON_QUERY(row,'$.deferred_timestamp'), '\"', '') AS deferred_timestamp,
+	REPLACE(JSON_QUERY(row,'$.deferredDate'), '\"', '') AS deferredDate,
+	REPLACE(JSON_QUERY(row,'$.deferredStatus'), '\"', '') AS deferredStatus,
 	REPLACE(JSON_QUERY(row,'$.delivered_date'), '\"', '') AS delivered_date,
 	REPLACE(JSON_QUERY(row,'$.delivered_status'), '\"', '') AS delivered_status,
 	REPLACE(JSON_QUERY(row,'$.delivered_timestamp'), '\"', '') AS delivered_timestamp,
@@ -116,6 +118,9 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.dropped_reason'), '\"', '') AS dropped_reason,
 	REPLACE(JSON_QUERY(row,'$.dropped_status'), '\"', '') AS dropped_status,
 	REPLACE(JSON_QUERY(row,'$.dropped_timestamp'), '\"', '') AS dropped_timestamp,
+	REPLACE(JSON_QUERY(row,'$.droppedDate'), '\"', '') AS droppedDate,
+	REPLACE(JSON_QUERY(row,'$.droppedReason'), '\"', '') AS droppedReason,
+	REPLACE(JSON_QUERY(row,'$.droppedStatus'), '\"', '') AS droppedStatus,
 	REPLACE(JSON_QUERY(row,'$.email'), '\"', '') AS email,
 	REPLACE(JSON_QUERY(row,'$.error_code'), '\"', '') AS error_code,
 	REPLACE(JSON_QUERY(row,'$.error_message'), '\"', '') AS error_message,
@@ -124,6 +129,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.failed_date'), '\"', '') AS failed_date,
 	REPLACE(JSON_QUERY(row,'$.failedDate'), '\"', '') AS failedDate,
 	REPLACE(JSON_QUERY(row,'$.id'), '\"', '') AS id,
+	REPLACE(JSON_QUERY(row,'$.language'), '\"', '') AS language,
 	REPLACE(JSON_QUERY(row,'$.messageSid'), '\"', '') AS messageSid,
 	REPLACE(JSON_QUERY(row,'$.notification.body'), '\"', '') AS notification_body,
 	REPLACE(JSON_QUERY(row,'$.notification.time'), '\"', '') AS notification_time,
@@ -148,11 +154,15 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.sent_date'), '\"', '') AS sent_date,
 	REPLACE(JSON_QUERY(row,'$.status'), '\"', '') AS status,
 	REPLACE(JSON_QUERY(row,'$.token'), '\"', '') AS token,
+	REPLACE(JSON_QUERY(row,'$.twilioNotificationSid'), '\"', '') AS twilioNotificationSid,
 	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid,
 	REPLACE(JSON_QUERY(row,'$.undeliveredDate'), '\"', '') AS undeliveredDate,
 	REPLACE(JSON_QUERY(row,'$.unsubscribe_date'), '\"', '') AS unsubscribe_date,
 	REPLACE(JSON_QUERY(row,'$.unsubscribe_status'), '\"', '') AS unsubscribe_status,
-	REPLACE(JSON_QUERY(row,'$.unsubscribe_timestamp'), '\"', '') AS unsubscribe_timestamp -- selects
+	REPLACE(JSON_QUERY(row,'$.unsubscribe_timestamp'), '\"', '') AS unsubscribe_timestamp,
+	REPLACE(JSON_QUERY(row,'$.unsubscribeDate'), '\"', '') AS unsubscribeDate,
+	REPLACE(JSON_QUERY(row,'$.unsubscribeStatus'), '\"', '') AS unsubscribeStatus,
+	REPLACE(JSON_QUERY(row,'$.updatedDate'), '\"', '') AS updatedDate -- selects
     FROM
       json_data,
       UNNEST(body) AS ROW )

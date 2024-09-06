@@ -8,7 +8,7 @@
 -- Relavent functions: generate_flattening_query.R
 -- 
 -- source_table: nih-nci-dceg-connect-stg-5519.Connect.cancerOccurrence
--- destination table: FlatConnect.cancerOccurrence_JP -- notes
+-- destination table: nih-nci-dceg-connect-stg-5519.FlatConnect.cancerOccurrence_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -79,13 +79,12 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  FlatConnect.cancerOccurrence_JP -- destination_table
+  `nih-nci-dceg-connect-stg-5519.FlatConnect.cancerOccurrence_JP` -- destination_table
   OPTIONS (description="Source table: Connect.cancerOccurrence; Scheduled Query: FlatConnect.cancerOccurrence_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/cancerOccurrence; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.cancerOccurrence.") -- table_description
   AS (
   WITH
     json_data AS (
     SELECT
-      Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       `nih-nci-dceg-connect-stg-5519.Connect.cancerOccurrence` AS input_row -- source_table
@@ -93,18 +92,20 @@ CREATE OR REPLACE TABLE
     flattened_data AS (
     SELECT
       	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
+	REPLACE(JSON_QUERY(row,'$.d_114227122'), '\"', '') AS d_114227122,
 	REPLACE(JSON_QUERY(row,'$.d_345545422'), '\"', '') AS d_345545422,
+	REPLACE(JSON_QUERY(row,'$.d_421730068'), '\"', '') AS d_421730068,
 	REPLACE(JSON_QUERY(row,'$.d_525972260'), '\"', '') AS d_525972260,
 	REPLACE(JSON_QUERY(row,'$.d_740819233.d_149205077'), '\"', '') AS d_740819233_d_149205077,
 	REPLACE(JSON_QUERY(row,'$.d_740819233.d_868006655'), '\"', '') AS d_740819233_d_868006655,
 	REPLACE(JSON_QUERY(row,'$.d_793981056'), '\"', '') AS d_793981056,
+	REPLACE(JSON_QUERY(row,'$.d_844209241'), '\"', '') AS d_844209241,
 	REPLACE(JSON_QUERY(row,'$.token'), '\"', '') AS token -- selects
     FROM
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
    -- order statement

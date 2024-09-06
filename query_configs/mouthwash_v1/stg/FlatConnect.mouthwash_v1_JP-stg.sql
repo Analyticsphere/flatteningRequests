@@ -8,7 +8,7 @@
 -- Relavent functions: generate_flattening_query.R
 -- 
 -- source_table: nih-nci-dceg-connect-stg-5519.Connect.mouthwash_v1
--- destination table: FlatConnect.mouthwash_v1_JP -- notes
+-- destination table: nih-nci-dceg-connect-stg-5519.FlatConnect.mouthwash_v1_JP -- notes
     
 ----- User-defined JavaScript functions used in BigQuery -----
 CREATE TEMP FUNCTION
@@ -118,13 +118,12 @@ CREATE TEMP FUNCTION
 
 ----- Beginning of query body -----
 CREATE OR REPLACE TABLE
-  FlatConnect.mouthwash_v1_JP -- destination_table
+  `nih-nci-dceg-connect-stg-5519.FlatConnect.mouthwash_v1_JP` -- destination_table
   OPTIONS (description="Source table: Connect.mouthwash_v1; Scheduled Query: FlatConnect.mouthwash_v1_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/mouthwash_v1; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.mouthwash_v1.") -- table_description
   AS (
   WITH
     json_data AS (
     SELECT
-      Connect_ID,
       [handleRow(TO_JSON_STRING(input_row))] AS body
     FROM
       `nih-nci-dceg-connect-stg-5519.Connect.mouthwash_v1` AS input_row -- source_table
@@ -175,6 +174,7 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.D_736393021'), '\"', '') AS D_736393021,
 	REPLACE(JSON_QUERY(row,'$.D_766370065'), '\"', '') AS D_766370065,
 	REPLACE(JSON_QUERY(row,'$.d_777777778'), '\"', '') AS d_777777778,
+	REPLACE(JSON_QUERY(row,'$.d_784119588'), '\"', '') AS d_784119588,
 	REPLACE(JSON_QUERY(row,'$.D_792134396'), '\"', '') AS D_792134396,
 	REPLACE(JSON_QUERY(row,'$.D_800703566'), '\"', '') AS D_800703566,
 	REPLACE(JSON_QUERY(row,'$.D_800752981'), '\"', '') AS D_800752981,
@@ -197,8 +197,7 @@ CREATE OR REPLACE TABLE
       json_data,
       UNNEST(body) AS ROW )
   SELECT
-    *,
-    FORMAT_TIMESTAMP("%Y%m%d", DATETIME(CURRENT_TIMESTAMP(), "America/New_York")) AS date --date_format
+    *
   FROM
     flattened_data 
    -- order statement

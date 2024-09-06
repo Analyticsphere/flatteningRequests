@@ -93,6 +93,7 @@ CREATE OR REPLACE TABLE
     SELECT
       	REPLACE(JSON_QUERY(row,'$.Connect_ID'), '\"', '') AS Connect_ID,
 	REPLACE(JSON_QUERY(row,'$.D_593467240'), '\"', '') AS D_593467240,
+	REPLACE(JSON_QUERY(row,'$.d_784119588'), '\"', '') AS d_784119588,
 	REPLACE(JSON_QUERY(row,'$.d_901199566'), '\"', '') AS d_901199566,
 	REPLACE(JSON_QUERY(row,'$.D_951357171'), '\"', '') AS D_951357171,
 	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid -- selects
