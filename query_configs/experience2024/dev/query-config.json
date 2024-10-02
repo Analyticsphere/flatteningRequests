@@ -1,0 +1,21 @@
+{
+    "data_source": {
+      "dev":  "nih-nci-dceg-connect-dev.Connect.experience2024",
+      "stg":  "nih-nci-dceg-connect-stg-5519.Connect.experience2024",
+      "prod": "nih-nci-dceg-connect-prod-6d04.Connect.experience2024"
+    },
+    "variables_csv":  "experience2024-variables.csv",
+    "lists_json":     "experience2024-lists.json",
+    "query_name":     "FlatConnect.experience2024_JP",
+    "output_table":   "FlatConnect.experience2024_JP",
+    "variable_prefix": "d_",
+    "filter_statement": "WHERE Connect_ID IS NOT NULL",
+    "order_statement": "",
+    "resource_name": {
+      "dev":  "projects/1061430463455/locations/us/transferConfigs/671281a2-0000-2709-9006-747446fd655c",
+      "stg":  "",
+      "prod": ""
+    },
+    "table_description": "Source table: Connect.experience2024; Scheduled Query: FlatConnect.experience2024_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/experience2024; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey, Jing; Notes: This table is a flattened version of Connect.experience2024."
+}
+    
