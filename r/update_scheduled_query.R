@@ -34,13 +34,13 @@ update_scheduled_query <- function(project_id, sql_query, transfer_config_id,
   if (!requireNamespace("httr", quietly = TRUE)) {
     install.packages("httr")
   }
-  if (!requireNamespace("RJSONIO", quietly = TRUE)) {
-    install.packages("RJSONIO")
+  if (!requireNamespace("jsonlite", quietly = TRUE)) {
+    install.packages("jsonlite")
   }
   
   library(gargle)
   library(httr)
-  library(RJSONIO)
+  library(jsonlite)
   
   # Retrieve OAuth token
   token_info  <- gargle::token_fetch(scopes = scopes)
