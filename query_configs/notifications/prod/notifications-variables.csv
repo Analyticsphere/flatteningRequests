@@ -15,6 +15,9 @@ droppedReason
 droppedStatus
 email
 errorCode
+errorCode.integer
+errorCode.provided
+errorCode.string
 errorMessage
 failedDate
 id
@@ -35,7 +38,9 @@ spamreportDate
 spamreportStatus
 status
 token
+twilioNotificationSid
 uid
 undeliveredDate
 unsubscribeDate
 unsubscribeStatus
+updatedDate

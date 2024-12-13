@@ -108,6 +108,9 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.droppedStatus'), '\"', '') AS droppedStatus,
 	REPLACE(JSON_QUERY(row,'$.email'), '\"', '') AS email,
 	REPLACE(JSON_QUERY(row,'$.errorCode'), '\"', '') AS errorCode,
+	REPLACE(JSON_QUERY(row,'$.errorCode.integer'), '\"', '') AS errorCode_integer,
+	REPLACE(JSON_QUERY(row,'$.errorCode.provided'), '\"', '') AS errorCode_provided,
+	REPLACE(JSON_QUERY(row,'$.errorCode.string'), '\"', '') AS errorCode_string,
 	REPLACE(JSON_QUERY(row,'$.errorMessage'), '\"', '') AS errorMessage,
 	REPLACE(JSON_QUERY(row,'$.failedDate'), '\"', '') AS failedDate,
 	REPLACE(JSON_QUERY(row,'$.id'), '\"', '') AS id,
@@ -128,10 +131,12 @@ CREATE OR REPLACE TABLE
 	REPLACE(JSON_QUERY(row,'$.spamreportStatus'), '\"', '') AS spamreportStatus,
 	REPLACE(JSON_QUERY(row,'$.status'), '\"', '') AS status,
 	REPLACE(JSON_QUERY(row,'$.token'), '\"', '') AS token,
+	REPLACE(JSON_QUERY(row,'$.twilioNotificationSid'), '\"', '') AS twilioNotificationSid,
 	REPLACE(JSON_QUERY(row,'$.uid'), '\"', '') AS uid,
 	REPLACE(JSON_QUERY(row,'$.undeliveredDate'), '\"', '') AS undeliveredDate,
 	REPLACE(JSON_QUERY(row,'$.unsubscribeDate'), '\"', '') AS unsubscribeDate,
-	REPLACE(JSON_QUERY(row,'$.unsubscribeStatus'), '\"', '') AS unsubscribeStatus -- selects
+	REPLACE(JSON_QUERY(row,'$.unsubscribeStatus'), '\"', '') AS unsubscribeStatus,
+	REPLACE(JSON_QUERY(row,'$.updatedDate'), '\"', '') AS updatedDate -- selects
     FROM
       json_data,
       UNNEST(body) AS ROW )
