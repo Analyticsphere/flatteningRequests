@@ -15,6 +15,9 @@ droppedReason
 droppedStatus
 email
 errorCode
+errorCode.integer
+errorCode.provided
+errorCode.string
 errorMessage
 failedDate
 id

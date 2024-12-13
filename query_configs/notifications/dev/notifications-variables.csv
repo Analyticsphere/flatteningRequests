@@ -32,6 +32,9 @@ email
 error_code
 error_message
 errorCode
+errorCode.integer
+errorCode.provided
+errorCode.string
 errorMessage
 failed_date
 failedDate
