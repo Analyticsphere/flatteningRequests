@@ -272,7 +272,7 @@ get_unique_values <- function(project, table, array_vars) {
       ")
     }
   }
-  
+  # cat(sql_query)
   #Execute the SQL query on BigQuery and download the results
   bq_table <- bq_project_query(project, query = sql_query)
   df_var <- bq_table_download(bq_table, bigint = "integer64")

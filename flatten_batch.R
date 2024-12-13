@@ -18,7 +18,8 @@ tables   <- list(
   p    = "participants",         cs19 = "covid19Survey_v1",
   n    = "notifications",        k    = "kitAssembly",
   mw   = "mouthwash_v1",         co   = "cancerOccurrence",
-  prom = "promis_v1")
+  prom = "promis_v1",            cshs = "cancerScreeningHistorySurvey",
+  ex   = "experience2024")
 
 ########### DEFINE PARAMETERS ##################################################
 tier    <- 'prod' # GCP tiers to update sch. queries for
