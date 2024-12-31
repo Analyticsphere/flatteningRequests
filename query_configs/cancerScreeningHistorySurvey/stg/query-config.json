@@ -13,7 +13,7 @@
     "order_statement": "",
     "resource_name": {
       "dev":  "projects/1061430463455/locations/us/transferConfigs/67728694-0000-2575-ba33-ac3eb155e2dc",
-      "stg":  "",
+      "stg":  "projects/810867956467/locations/us/transferConfigs/67d07d88-0000-2f15-a677-582429b4218c",
       "prod": ""
     },
     "table_description": "Source table: Connect.cancerScreeningHistorySurvey; Scheduled Query: FlatConnect.cancerScreeningHistorySurvey_JP; GitHub: https://github.com/Analyticsphere/flatteningRequests/tree/main/queryGenerators/FlatConnect_queries/cancerScreeningHistorySurvey; Team: Analytics; Maintainer: Jake Peters; Super Users: Kelsey; Notes: This table is a flattened version of Connect.cancerScreeningHistorySurvey."
