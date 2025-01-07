@@ -8,7 +8,7 @@
     "lists_json":     "cancerScreeningHistorySurvey-lists.json",
     "query_name":     "FlatConnect.cancerScreeningHistorySurvey_JP",
     "output_table":   "FlatConnect.cancerScreeningHistorySurvey_JP",
-    "variable_prefix": "d_",
+    "variable_prefix": "D_",
     "filter_statement": "WHERE Connect_ID IS NOT NULL",
     "order_statement": "",
     "resource_name": {
